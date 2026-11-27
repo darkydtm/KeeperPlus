@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.lib.extensions)
     implementation(projects.kmp.async)
 
+    implementation(libs.androidx.annotation)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
 
