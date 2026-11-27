@@ -185,7 +185,6 @@ dependencies {
     implementation(projects.apps.wallet.data.tokens)
     implementation(projects.apps.wallet.data.account)
     implementation(projects.apps.wallet.data.cache)
-    implementation(projects.apps.wallet.data.attribution)
     implementation(projects.apps.wallet.data.multichain.wallet)
     implementation(projects.apps.wallet.data.multichain.exchange)
     implementation(projects.apps.wallet.data.ledger)

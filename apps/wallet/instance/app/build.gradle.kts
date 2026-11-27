@@ -50,7 +50,6 @@ dependencies {
     implementation(projects.apps.wallet.data.raffle)
     implementation(projects.apps.wallet.data.loyalty)
     implementation(projects.apps.wallet.data.earn)
-    implementation(projects.apps.wallet.data.attribution)
     implementation(projects.apps.wallet.data.backup)
     implementation(projects.apps.wallet.data.rn)
     implementation(projects.apps.wallet.data.passcode)

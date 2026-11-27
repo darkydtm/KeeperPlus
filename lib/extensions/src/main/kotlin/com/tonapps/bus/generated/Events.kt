@@ -19,20 +19,6 @@ interface Events {
     }
 
 
-    interface Banner {
-
-        enum class BannerFrom(val key: String) {
-            Home("home"),
-            Browser("browser")
-        }
-
-        enum class BannerWalletMode(val key: String) {
-            Multi("multi"),
-            Single("single")
-        }
-    }
-
-
     interface BatteryNative {
 
         enum class BatteryNativeFrom(val key: String) {
@@ -120,44 +106,6 @@ interface Events {
     }
 
 
-    interface DeeplinkOpen {
-
-        enum class DeeplinkOpenFrom(val key: String) {
-            AppLink("app_link"),
-            UniversalLink("universal_link"),
-            DeferredLink("deferred_link")
-        }
-
-        enum class DeeplinkOpenLinkType(val key: String) {
-            Transfer("transfer"),
-            Staking("staking"),
-            Pool("pool"),
-            Swap("swap"),
-            Deposit("deposit"),
-            Withdraw("withdraw"),
-            Action("action"),
-            Publish("publish"),
-            ExternalSign("external_sign"),
-            Tonconnect("tonconnect"),
-            WalletConnect("wallet_connect"),
-            Dapp("dapp"),
-            Battery("battery"),
-            Browser("browser"),
-            Migration("migration"),
-            Trading("trading"),
-            TradeAsset("trade_asset"),
-            Story("story"),
-            Receive("receive"),
-            Backup("backup"),
-            AddWallet("add_wallet"),
-            Main("main"),
-            Raffle("raffle"),
-            Perps("perps"),
-            Unknown("unknown")
-        }
-    }
-
-
     interface DepositFlow {
 
         enum class DepositFlowDepositScreen(val key: String) {
@@ -200,40 +148,6 @@ interface Events {
             EarnYourVaults("earn_your_vaults"),
             EarnApy("earn_apy")
         }
-
-        enum class EarnFlowChain(val key: String) {
-            Ton("ton"),
-            Eth("eth"),
-            Base("base"),
-            Arb("arb"),
-            Bsc("bsc"),
-            Polygon("polygon"),
-            Avax("avax"),
-            Robinhood("robinhood"),
-            Sol("sol"),
-            Tron("tron"),
-            Btc("btc"),
-            Ltc("ltc"),
-            Doge("doge"),
-            Bch("bch"),
-            Lighter("lighter"),
-            Multichain("multichain")
-        }
-
-        enum class EarnFlowMethod(val key: String) {
-            SendTransaction("send_transaction"),
-            PersonalSign("personal_sign"),
-            SignTypedData("sign_typed_data")
-        }
-    }
-
-
-    interface InstallApp {
-
-        enum class InstallAppAttributionStatus(val key: String) {
-            Organic("organic"),
-            NonOrganic("non_organic")
-        }
     }
 
 
@@ -250,77 +164,6 @@ interface Events {
             Migration("migration"),
             Repair("repair"),
             AddNetworks("add_networks")
-        }
-
-        enum class LedgerFlowFailureType(val key: String) {
-            BluetoothUnavailable("bluetooth_unavailable"),
-            BluetoothOff("bluetooth_off"),
-            NoPermission("no_permission"),
-            DeviceNotFound("device_not_found"),
-            UsbNotConnected("usb_not_connected"),
-            UsbAccessDenied("usb_access_denied"),
-            ScanUnavailable("scan_unavailable"),
-            PairingRefused("pairing_refused"),
-            PairingLost("pairing_lost"),
-            UnsupportedDevice("unsupported_device"),
-            ConnectionLost("connection_lost"),
-            Busy("busy"),
-            DeviceLocked("device_locked"),
-            RequestExpired("request_expired"),
-            Timeout("timeout"),
-            AppNotInstalled("app_not_installed"),
-            WrongAppOpen("wrong_app_open"),
-            UserRefused("user_refused"),
-            SettingRequired("setting_required"),
-            AppUpdateRequired("app_update_required"),
-            InvalidPayload("invalid_payload"),
-            AddressMismatch("address_mismatch"),
-            Unsupported("unsupported"),
-            DeviceError("device_error"),
-            Unexpected("unexpected")
-        }
-
-        enum class LedgerFlowLedgerApp(val key: String) {
-            Ton("ton"),
-            Ethereum("ethereum"),
-            Tron("tron"),
-            Bitcoin("bitcoin"),
-            Solana("solana")
-        }
-
-        enum class LedgerFlowLedgerModel(val key: String) {
-            NanoS("nano_s"),
-            NanoSPlus("nano_s_plus"),
-            NanoX("nano_x"),
-            Stax("stax"),
-            Flex("flex"),
-            NanoGen5("nano_gen5"),
-            Atom("atom"),
-            Unknown("unknown")
-        }
-
-        enum class LedgerFlowLedgerSetting(val key: String) {
-            BlindSigning("blind_signing"),
-            RawMessages("raw_messages"),
-            DataAllowed("data_allowed"),
-            CustomContracts("custom_contracts"),
-            SignByHash("sign_by_hash")
-        }
-
-        enum class LedgerFlowLedgerTransport(val key: String) {
-            Bluetooth("bluetooth"),
-            Usb("usb")
-        }
-
-        enum class LedgerFlowPurpose(val key: String) {
-            Connect("connect"),
-            ImportAccounts("import_accounts"),
-            AddAccounts("add_accounts"),
-            VerifyAddress("verify_address"),
-            SignTransaction("sign_transaction"),
-            SignMessage("sign_message"),
-            SignProof("sign_proof"),
-            CreateWallet("create_wallet")
         }
 
         enum class LedgerMigrationStartFrom(val key: String) {
@@ -428,13 +271,6 @@ interface Events {
 
     interface TransactionSent {
 
-        enum class TransactionSentCategory(val key: String) {
-            Transfer("transfer"),
-            Swap("swap"),
-            Call("call"),
-            Staking("staking")
-        }
-
         enum class TransactionSentCategoryDetail(val key: String) {
             Coin("coin"),
             Token("token"),
@@ -452,34 +288,6 @@ interface Events {
             Restake("restake"),
             Compound("compound")
         }
-
-        enum class TransactionSentFeeAsset(val key: String) {
-            Coin("coin"),
-            BatteryCharges("battery_charges"),
-            BatteryTonInstantFee("battery_ton_instant_fee"),
-            Gasless("gasless")
-        }
-
-        enum class TransactionSentInitiatedBy(val key: String) {
-            User("user"),
-            DeepLink("deep_link"),
-            QrCode("qr_code"),
-            TonconnectLocal("tonconnect_local"),
-            TonconnectRemote("tonconnect_remote"),
-            Walletconnect("walletconnect"),
-            EvmInjected("evm_injected")
-        }
-
-        enum class TransactionSentLedgerModel(val key: String) {
-            NanoS("nano_s"),
-            NanoSPlus("nano_s_plus"),
-            NanoX("nano_x"),
-            Stax("stax"),
-            Flex("flex"),
-            NanoGen5("nano_gen5"),
-            Atom("atom"),
-            Unknown("unknown")
-        }
     }
 
 
@@ -490,36 +298,11 @@ interface Events {
             Main("main")
         }
 
-        enum class WalletFlowLedgerModel(val key: String) {
-            NanoS("nano_s"),
-            NanoSPlus("nano_s_plus"),
-            NanoX("nano_x"),
-            Stax("stax"),
-            Flex("flex"),
-            NanoGen5("nano_gen5"),
-            Atom("atom"),
-            Unknown("unknown")
-        }
-
         enum class WalletFlowSource(val key: String) {
             Onboarding("onboarding"),
             WalletSetupSection("wallet_setup_section"),
             Settings("settings"),
             DeepLink("deep_link")
-        }
-
-        enum class WalletFlowWalletMode(val key: String) {
-            Multi("multi"),
-            Single("single")
-        }
-
-        enum class WalletFlowWalletSource(val key: String) {
-            Mnemonic("mnemonic"),
-            Ledger("ledger"),
-            Signer("signer"),
-            Keystone("keystone"),
-            Privatekey("privatekey"),
-            Watchonly("watchonly")
         }
     }
 

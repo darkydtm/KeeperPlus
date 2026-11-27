@@ -159,7 +159,6 @@ import com.tonapps.trading.isTonOrTronAssetId
 import com.tonapps.uikit.color.backgroundPageColor
 import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.data.battery.BatteryRepository
-import com.tonapps.wallet.data.attribution.AttributionManager
 import com.tonapps.wallet.data.collectibles.entities.NftEntity
 import com.tonapps.wallet.data.core.Theme
 import com.tonapps.wallet.data.core.entity.RawMessageEntity
@@ -249,7 +248,6 @@ class RootActivity : BaseWalletActivity(),
     private val environment by inject<Environment>()
     private val emulationUseCase by inject<EmulationUseCase>()
     private val passcodeManager by inject<PasscodeManager>()
-    private val attributionManager by inject<AttributionManager>()
     private val earnUrlResolver by inject<EarnUrlResolver>()
     private val dappScreenFactory by inject<DAppScreenFactory>()
     private val perpsDepositArrivals by inject<PerpsDepositArrivals>()
@@ -303,10 +301,7 @@ class RootActivity : BaseWalletActivity(),
         supportFragmentManager.fragmentFactory = WalletFragmentFactory()
         supportFragmentManager.registerFragmentLifecycleCallbacks(screenBreadcrumbCallbacks, true)
         supportFragmentManager.registerFragmentLifecycleCallbacks(confirmSheetCallbacks, false)
-        attributionManager.withPrivateLinkHidden(this) {
-            super.onCreate(savedInstanceState)
-            attributionManager.onLauncherActivityCreated(this)
-        }
+        super.onCreate(savedInstanceState)
 
         if (theme.isSystem) {
             setAppearanceLight(!isDarkMode)
@@ -319,20 +314,13 @@ class RootActivity : BaseWalletActivity(),
 
         isIntentConsumed = savedInstanceState?.getBoolean(STATE_INTENT_CONSUMED) == true
         val isLaunchedFromHistory = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-        val isRedelivery = savedInstanceState != null || isLaunchedFromHistory
         val isRelaunchedFromRecents = isLaunchedFromHistory && savedInstanceState == null
         val isIntentHandled = intent.getBooleanExtra(EXTRA_INTENT_HANDLED, false)
-        if (isRedelivery && intent.data?.let(attributionManager::isAttributionLink) == true) {
-            intent.data = null
-        } else if (!isIntentConsumed && !isRelaunchedFromRecents && !isIntentHandled) {
+        if (!isIntentConsumed && !isRelaunchedFromRecents && !isIntentHandled) {
             if (savedInstanceState != null) {
                 PUSH_EXTRA_KEYS.forEach(intent::removeExtra)
             }
-            handleIntent(
-                intent = intent,
-                isColdStart = true,
-                isRedelivery = isRedelivery,
-            )
+            handleIntent(intent)
             intent.putExtra(EXTRA_INTENT_HANDLED, true)
         }
         lifecycleScope.launch {
@@ -388,13 +376,6 @@ class RootActivity : BaseWalletActivity(),
         collectFlow(appShortcutRepository.pendingDeeplinkFlow.flowWithLifecycle(lifecycle)) {
             viewModel.openShortcutDApp(it)
         }
-        collectFlow(attributionManager.deepLinkFlow.flowWithLifecycle(lifecycle)) { attributionLink ->
-            val uri = DeepLink.fixBadUri(attributionLink.appLink)
-            if (DeepLinkRoute.resolve(uri) !is DeepLinkRoute.Unknown) {
-                processDeepLink(uri, false, null, fromExternal = true, waitForWallet = true)
-            }
-        }
-
         App.applyConfiguration(resources.configuration)
         remoteConfig?.fetchAndActivate()
     }
@@ -990,7 +971,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     override fun onResume() {
-        attributionManager.withPrivateLinkHidden(this) { super.onResume() }
+        super.onResume()
         viewModel.connectTonConnectBridge()
         if (pushSettingsOpened) {
             pushSettingsOpened = false
@@ -1438,11 +1419,11 @@ class RootActivity : BaseWalletActivity(),
         super.onNewIntent(intent)
         setIntent(intent)
         tryToApplyStaticFeatureFlags(intent)
-        handleIntent(intent, isColdStart = false, isRedelivery = false)
+        handleIntent(intent)
         intent.putExtra(EXTRA_INTENT_HANDLED, true)
     }
 
-    private fun handleIntent(intent: Intent, isColdStart: Boolean, isRedelivery: Boolean) {
+    private fun handleIntent(intent: Intent) {
         if (intent.action == ACTION_INSTALL_DOWNLOADED_APK) {
             val token = intent.getStringExtra(EXTRA_APK_INSTALL_TOKEN)
             intent.action = null
@@ -1466,10 +1447,8 @@ class RootActivity : BaseWalletActivity(),
         if (extras != null && !extras.isEmpty && viewModel.processIntentExtras(extras)) {
             PUSH_EXTRA_KEYS.forEach(intent::removeExtra)
             return
-        } else if (uri != null && !attributionManager.interceptLink(uri, isColdStart)) {
+        } else if (uri != null) {
             val link = DeepLink.fixBadUri(uri)
-            if (!isRedelivery) {
-            }
             processDeepLink(
                 link,
                 false,

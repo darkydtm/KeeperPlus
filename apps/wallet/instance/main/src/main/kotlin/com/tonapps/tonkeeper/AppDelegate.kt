@@ -58,7 +58,6 @@ import com.tonapps.wallet.api.entity.PerpsAccess
 import com.tonapps.wallet.chainKitModule
 import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.data.account.accountModule
-import com.tonapps.wallet.data.attribution.attributionModule
 import com.tonapps.wallet.data.backup.backupModule
 import com.tonapps.wallet.data.banner.bannerModule
 import com.tonapps.wallet.data.battery.batteryModule
@@ -185,7 +184,6 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
                 collectiblesModule,
                 pluginsModule,
                 cacheModule,
-                attributionModule,
                 mcWalletModule,
                 mcExchangeModule,
                 ledgerModule,
