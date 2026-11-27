@@ -88,9 +88,6 @@
         <receiver
             android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
             tools:node="remove" />
-        <activity
-            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-            tools:node="remove" />
         <service
             android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
             tools:node="remove" />

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="amoledAccent">#90C4FF</color>
+    <color name="amoledAccentDisabled">#5682B2</color>
+    <color name="amoledAccentHighlighted">#BCD9FF</color>
+</resources>

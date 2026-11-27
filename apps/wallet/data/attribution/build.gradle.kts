@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
     implementation(libs.koin.core)
-    implementation(libs.appsflyer.sdk)
 
     implementation(projects.kmp.async)
     implementation(projects.lib.bus)

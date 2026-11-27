@@ -60,7 +60,7 @@
     <string name="backup_attention_description">Kurtarma ifadenizi görüntülemeden önce lütfen aşağıdakileri dikkatlice okuyun.</string>
     <string name="backup_attention_line_1">Kurtarma İfadenizi asla kimseyle paylaşmayın.</string>
     <string name="backup_attention_line_2">Kurtarma İfadeniz birinin elindeyse, o kişi cüzdanınıza erişebilir ve fonlarınızı çekebilir.</string>
-    <string name="backup_attention_line_3">Keeper Destek asla Kurtarma İfadenizi istemez.</string>
+    <string name="backup_attention_line_3">Keeper + Destek asla Kurtarma İfadenizi istemez.</string>
     <string name="backup_attention_title">Güvenlik Kontrolü</string>
     <string name="backup_check">Yedek Kontrolü</string>
     <string name="backup_check_choose_subtitle">Bakalım her şeyi doğru yapmış mısınız. %1$d., %2$d. ve %3$d. kelimeleri seçin.</string>
@@ -68,7 +68,7 @@
     <string name="backup_check_subtitle">Bakalım her şeyi doğru yapmış mısınız. %1$d., %2$d. ve %3$d. kelimeleri girin.</string>
     <string name="badge_new">YENİ</string>
     <string name="balance_prefix">Bakiye: %1$s</string>
-    <string name="banner_top">Şu anda Keeper\'ın deneysel bir sürümünü kullanıyorsunuz.</string>
+    <string name="banner_top">Şu anda Keeper +\'ın deneysel bir sürümünü kullanıyorsunuz.</string>
     <string name="banner_top_button">Kararlı sürümü yükle</string>
     <string name="battery">Batarya</string>
     <string name="battery_best_value">En avantajlı</string>
@@ -112,16 +112,16 @@
     <string name="battery_refill_gift_subtitle">Arkadaşlarla paylaş</string>
     <string name="battery_refill_negative_balance">Geri ödenen satın alımlar nedeniyle bataryanız bitti. Devam etmek için şarj yükleyin.</string>
     <string name="battery_refill_subtitle">GRAM tokenlarını takas edin ve gönderin, TRC-20 ücretlerinde daha az ödeyin</string>
-    <string name="battery_refill_title">Keeper Batarya</string>
+    <string name="battery_refill_title">Keeper + Batarya</string>
     <string name="battery_refilled">Batarya şarj edildi</string>
     <string name="battery_refund_subtitle">Şarjlar ve iadeler</string>
     <string name="battery_refund_title">Şarj Geçmişi</string>
     <string name="battery_required_text">İşlem ücretlerini karşılamak için batarya şarjları kullanılır, bu da transferleri daha kolay ve uygun maliyetli hale getirir.</string>
-    <string name="battery_required_title">%1$s için Keeper Batarya gerekli</string>
+    <string name="battery_required_title">%1$s için Keeper + Batarya gerekli</string>
     <string name="battery_small_pack">Küçük</string>
     <plurals name="battery_swap">
-        <item quantity="one">Keeper üzerinden ≈ %1$s takas</item>
-        <item quantity="other">Keeper üzerinden ≈ %1$s takas</item>
+        <item quantity="one">Keeper + üzerinden ≈ %1$s takas</item>
+        <item quantity="other">Keeper + üzerinden ≈ %1$s takas</item>
     </plurals>
     <string name="battery_top_up_for">%1$s karşılığında yükle</string>
     <string name="battery_topped_up">Batarya dolduruldu</string>
@@ -129,7 +129,7 @@
     <string name="biometric_description">Cüzdanınızı her zaman bir şifre ile açabilirsiniz.</string>
     <string name="biometric_enabled">Biyometrik etkin</string>
     <string name="blockchain_fees">Blockchain Ücretleri</string>
-    <string name="blockchain_fees_desc">Keeper Batarya, blockchain ücretlerini ödemenin en kolay yoludur. GRAM ve TRX ile de bakiye yükleyebilirsiniz.</string>
+    <string name="blockchain_fees_desc">Keeper + Batarya, blockchain ücretlerini ödemenin en kolay yoludur. GRAM ve TRX ile de bakiye yükleyebilirsiniz.</string>
     <string name="bluetooth_permissions_alert_message">Lütfen bu özelliği kullanmak için ayarlardan Bluetooth izinlerini etkinleştirin</string>
     <string name="bluetooth_permissions_alert_open_settings">Ayarları Aç</string>
     <string name="bluetooth_permissions_alert_title">Bluetooth İzinleri</string>
@@ -245,7 +245,7 @@
     <string name="connected_apps_empty">Bağlı uygulama yok</string>
     <string name="connected_apps_source_deeplink">Harici bağlantı</string>
     <string name="connected_apps_source_qr">Başka cihaz</string>
-    <string name="connected_placeholder_subtitle">Keeper tarayıcısında uygulamaları ve hizmetleri keşfedin.</string>
+    <string name="connected_placeholder_subtitle">Keeper + tarayıcısında uygulamaları ve hizmetleri keşfedin.</string>
     <string name="connected_placeholder_title">Bağlı uygulamalar burada gösterilecektir</string>
     <string name="connecting">Bağlanıyor</string>
     <string name="contact_delete_dialog">“%1$s” adresini Adres Defterinizden silmek istediğinizden emin misiniz?</string>
@@ -272,13 +272,13 @@
     <string name="customize">Özelleştir</string>
     <string name="customize_wallet_subtitle">Cüzdan adı ve simgesi cihazınızda yerel olarak saklanır.</string>
     <string name="customize_wallet_title">Cüzdanınızı Özelleştirin</string>
-    <string name="dapp_disclaimer">Keeper tarafından işletilmeyen harici bir uygulamayı açıyorsunuz. Yalnızca kaynağa güveniyorsanız devam edin.</string>
+    <string name="dapp_disclaimer">Keeper + tarafından işletilmeyen harici bir uygulamayı açıyorsunuz. Yalnızca kaynağa güveniyorsanız devam edin.</string>
     <string name="dapp_load_failed_subtitle">Sayfa yüklenemedi. Tekrar deneyin.</string>
     <string name="dapp_manifest_error">dApp manifesti yüklenemedi. Lütfen tekrar deneyin.</string>
     <string name="dapp_safe_modal_subtitle">Güvenlik nedeniyle açmadık</string>
     <string name="dapp_safe_modal_title">Bağlantı bir dolandırıcılık hizmetine yönlendiriyor</string>
     <string name="dapp_safe_model_button">Güvende kalmak için neler yapmalısınız?</string>
-    <string name="dapp_share_subtitle">Bu bağlantı %1$s uygulamasını doğrudan Keeper içinde açar. Daha sonra tekrar kullanabilir veya gerekirse paylaşabilirsiniz.</string>
+    <string name="dapp_share_subtitle">Bu bağlantı %1$s uygulamasını doğrudan Keeper + içinde açar. Daha sonra tekrar kullanabilir veya gerekirse paylaşabilirsiniz.</string>
     <string name="dapp_share_title">%1$s Paylaş</string>
     <string name="decrypt_comment">Şifreyi Çöz</string>
     <string name="decrypted_comment_action">Yorumun şifresini çöz</string>
@@ -457,11 +457,11 @@
     <string name="intro_description">Yeni bir cüzdan oluşturun veya mevcut bir cüzdan ekleyin</string>
     <string name="intro_line_1_description">TON, hız ve verimlilik için tasarlanmış bir ağdır. Ücretler diğer blokzincirlerinden çok daha düşüktür ve işlemler saniyeler içinde onaylanır.</string>
     <string name="intro_line_1_title">Dünya çapında hız</string>
-    <string name="intro_line_2_description">Keeper, belgeler, kişisel bilgiler, iletişim detayları veya KYC gerektirmeden kriptografik anahtarlarınızı cihazınızda saklar.</string>
+    <string name="intro_line_2_description">Keeper +, belgeler, kişisel bilgiler, iletişim detayları veya KYC gerektirmeden kriptografik anahtarlarınızı cihazınızda saklar.</string>
     <string name="intro_line_2_title">Uçtan uca güvenlik</string>
     <string name="intro_line_3_description">TON abonelikleri eşler arası ve sınırsızdır, bu nedenle hiç kimse sağlayıcıları veya müşterileri kısıtlayamaz. Neredeyse sıfır ücretler ve tam kontrol sizin için.</string>
     <string name="intro_line_3_title">Yerleşik abonelikler</string>
-    <string name="intro_title"><annotation colorAttr="textAccentColor">Keeper</annotation>\'a hoş geldiniz</string>
+    <string name="intro_title"><annotation colorAttr="textAccentColor">Keeper +</annotation>\'a hoş geldiniz</string>
     <string name="invalid_address">Geçersiz cüzdan adresi.</string>
     <string name="invalid_link">Geçersiz bağlantı</string>
     <string name="jetton_transfer">%1$s transferi</string>
@@ -519,7 +519,7 @@
     <string name="ledger_mc_comment_rules">Ledger 120 karaktere kadar yorumları gösterir: Latin harfleri, rakamlar ve noktalama işaretleri.</string>
     <string name="ledger_mc_connection_allow">İzin ver</string>
     <string name="ledger_mc_connection_bluetooth_off">Bluetooth kapalı</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper, Ledger ile Bluetooth üzerinden iletişim kurar</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper +, Ledger ile Bluetooth üzerinden iletişim kurar</string>
     <string name="ledger_mc_connection_busy">Kullanımda</string>
     <string name="ledger_mc_connection_check">Kontrol et</string>
     <string name="ledger_mc_connection_checked">Ledger bağlı</string>
@@ -530,9 +530,9 @@
     <string name="ledger_mc_connection_location_off">Konum kapalı</string>
     <string name="ledger_mc_connection_location_off_hint">Android sürümünüz Bluetooth cihazlarını bulmak için konuma ihtiyaç duyar</string>
     <string name="ledger_mc_connection_nearby">Yakında</string>
-    <string name="ledger_mc_connection_nearby_hint">Bir işlemi onayladığınızda Keeper ona bağlanır</string>
+    <string name="ledger_mc_connection_nearby_hint">Bir işlemi onayladığınızda Keeper + ona bağlanır</string>
     <string name="ledger_mc_connection_no_permission">Yakındaki cihazlara erişim yok</string>
-    <string name="ledger_mc_connection_no_permission_hint">Uygulama ayarlarından Keeper\'ın yakındaki cihazları bulmasına izin verin</string>
+    <string name="ledger_mc_connection_no_permission_hint">Uygulama ayarlarından Keeper +\'ın yakındaki cihazları bulmasına izin verin</string>
     <string name="ledger_mc_connection_not_found">Yakında bulunamadı</string>
     <string name="ledger_mc_connection_not_found_hint">Açın, kilidini açın ve yaklaştırın. Ledger Live açıksa kapatın.</string>
     <string name="ledger_mc_connection_searching">Ledger aranıyor…</string>
@@ -562,7 +562,7 @@
     <string name="ledger_mc_error_not_found">Ledger bulunamadı. Cihazın açık, kilidinin kaldırılmış ve yakında olduğundan, üzerinde Bluetooth\'un etkin olduğundan emin olun.</string>
     <string name="ledger_mc_error_pairing">Eşleştirme reddedildi. Eşleştirme isteğini hem telefonunuzda hem de Ledger\'ınızda kabul edin.</string>
     <string name="ledger_mc_error_pairing_lost">Ledger\'ınız bu telefonu artık tanımıyor. Telefonun Bluetooth ayarlarından kaldırın ve yeniden eşleştirin.</string>
-    <string name="ledger_mc_error_permission">Keeper\'ın Ledger\'ınıza ulaşabilmesi için Bluetooth erişimi gerekiyor.</string>
+    <string name="ledger_mc_error_permission">Keeper +\'ın Ledger\'ınıza ulaşabilmesi için Bluetooth erişimi gerekiyor.</string>
     <string name="ledger_mc_error_raw_messages">Ledger\'ınızda %1$s uygulamasının ayarlarından “Blind signing” veya “Raw messages” seçeneğini açın.</string>
     <string name="ledger_mc_error_refused">İstek Ledger\'ınızda reddedildi.</string>
     <string name="ledger_mc_error_scan_unavailable">Android, Bluetooth taramasını kısa bir süreliğine duraklattı. Birkaç saniye bekleyip tekrar deneyin.</string>
@@ -579,7 +579,7 @@
     <string name="ledger_mc_item_subtitle">USB veya Bluetooth üzerinden donanım cüzdanı. Anahtarlar cihazdan asla çıkmaz</string>
     <string name="ledger_mc_item_title">Ledger\'ı Bağla</string>
     <string name="ledger_mc_location_off">Android\'in Bluetooth cihazlarını bulabilmesi için konumun açık olması gerekir.</string>
-    <string name="ledger_mc_migrate_description">%1$s cüzdanını taşıyan Ledger\'ı bağlayın. Keeper Ethereum, Bitcoin, Solana ve diğer ağların adreslerini okur ve cüzdan aynı TON adresiyle multichain olur.</string>
+    <string name="ledger_mc_migrate_description">%1$s cüzdanını taşıyan Ledger\'ı bağlayın. Keeper + Ethereum, Bitcoin, Solana ve diğer ağların adreslerini okur ve cüzdan aynı TON adresiyle multichain olur.</string>
     <string name="ledger_mc_migrate_tooltip">Bu Ledger cüzdanına Ethereum, Bitcoin, Solana ve diğer ağları ekleyin</string>
     <string name="ledger_mc_networks_added">Ağlar eklendi</string>
     <string name="ledger_mc_nothing_to_add">Desteklenen tüm ağlar zaten eklendi</string>
@@ -591,8 +591,8 @@
     <string name="ledger_mc_paired">Ledger bağlandı</string>
     <string name="ledger_mc_permission_denied">Bluetooth erişimi kapalı. Ledger\'ınızı bağlamak için Ayarlar\'da yakındaki cihazlar iznini verin.</string>
     <string name="ledger_mc_permission_denied_location">Konum erişimi kapalı. Android\'in Ledger\'ınızı Bluetooth ile bulabilmesi için Ayarlar\'dan izin verin.</string>
-    <string name="ledger_mc_permission_description">Ledger\'ınızı Bluetooth ile bağlamak için Keeper\'ın yakındaki cihazları bulmasına izin verin.</string>
-    <string name="ledger_mc_permission_description_location">Android\'in Bluetooth cihazlarını bulması için konum erişimi gerekir. Keeper konumunuzu kullanmaz.</string>
+    <string name="ledger_mc_permission_description">Ledger\'ınızı Bluetooth ile bağlamak için Keeper +\'ın yakındaki cihazları bulmasına izin verin.</string>
+    <string name="ledger_mc_permission_description_location">Android\'in Bluetooth cihazlarını bulması için konum erişimi gerekir. Keeper + konumunuzu kullanmaz.</string>
     <string name="ledger_mc_progress_bitcoin_change">Ledger\'ınız ayrıca kendi adresinize dönen %1$s gösterecek. Bu para üstüdür:</string>
     <string name="ledger_mc_progress_close_app">Ledger\'ınızda %1$s uygulaması kapatılıyor</string>
     <string name="ledger_mc_progress_confirm_account_step">Hesap %1$d / %2$d. Ledger\'ınız uygulama alan adı olarak “Keeper wallet” gösterecek</string>
@@ -784,7 +784,7 @@
     <string name="mute">Sessize al</string>
     <string name="name">İsim</string>
     <string name="name_your_wallet">Cüzdanınızı adlandırın</string>
-    <string name="name_your_wallet_subtitle">Cüzdanınızı adlandırarak Keeper kullanırken kolayca tanıyın. Bu isimler yerel olarak saklanır ve yalnızca sizin tarafınızdan görülebilir.</string>
+    <string name="name_your_wallet_subtitle">Cüzdanınızı adlandırarak Keeper + kullanırken kolayca tanıyın. Bu isimler yerel olarak saklanır ve yalnızca sizin tarafınızdan görülebilir.</string>
     <string name="network">Ağ</string>
     <string name="network_fee">Ağ ücreti</string>
     <string name="networks">Ağlar</string>
@@ -986,7 +986,7 @@
     <string name="perps_deposit_min_amount_usd">Minimum yatırma tutarı %1$s</string>
     <string name="perps_deposit_network_fee_line">Ağ ücreti %1$s</string>
     <string name="perps_deposit_network_fees">Ağ ücretleri</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper bu ücretlerden hiç pay almaz.</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper + bu ücretlerden hiç pay almaz.</string>
     <string name="perps_deposit_no_quote">Teklif yok</string>
     <string name="perps_deposit_no_quote_change_amount">Fiyat teklifi alınamadı. Tutarı değiştirin</string>
     <string name="perps_deposit_no_sources">Yatırma için desteklenen varlık yok</string>
@@ -1159,7 +1159,7 @@
     <string name="perps_reduce_margin_description">Pozisyonunuz güçlüyken marjın bir kısmını geri çekin</string>
     <string name="perps_reduce_only_full">Bu pozisyon azaltılamayacak kadar küçük. «Kapat» seçeneğini kullanın.</string>
     <string name="perps_region_restricted_banner">Piyasaları keşfedebilirsiniz, ancak yatırma ve işlem yapma kapalı.</string>
-    <string name="perps_region_restricted_caption">Konumunuz için yatırma ve işlem yapma kapalı. VPN kullanıyorsanız kapatın ve Keeper’ı yeniden açın.</string>
+    <string name="perps_region_restricted_caption">Konumunuz için yatırma ve işlem yapma kapalı. VPN kullanıyorsanız kapatın ve Keeper +’ı yeniden açın.</string>
     <string name="perps_region_restricted_title">Vadeli işlemler bölgenizde kullanılamıyor</string>
     <string name="perps_retry">Tekrar dene</string>
     <string name="perps_review_add_long_title">Long %1$s pozisyonuna ekle</string>
@@ -1219,7 +1219,7 @@
     <string name="perps_risk_disclosure_footnote">Risk Bildirimi · Lighter altyapısıyla</string>
     <string name="perps_risk_disclosure_keeper_terms">Keeper Kullanım Şartları</string>
     <string name="perps_risk_disclosure_lighter_terms">Lighter şartları</string>
-    <string name="perps_risk_disclosure_text">Kaldıraç ve piyasa dalgalanmaları nedeniyle yatırımınızın tamamını hızla kaybedebilirsiniz. Pozisyonlar otomatik olarak tasfiye edilebilir. Fiyatlar fonlama oranlarına ve likiditeye bağlıdır. Vadeli işlemler ve piyasa verileri, üçüncü taraf bir protokol olan Lighter tarafından sağlanır. Keeper, saklama hizmeti sunmayan bir arayüz sağlar; işlem gerçekleştirmez ve yatırım tavsiyesi vermez.</string>
+    <string name="perps_risk_disclosure_text">Kaldıraç ve piyasa dalgalanmaları nedeniyle yatırımınızın tamamını hızla kaybedebilirsiniz. Pozisyonlar otomatik olarak tasfiye edilebilir. Fiyatlar fonlama oranlarına ve likiditeye bağlıdır. Vadeli işlemler ve piyasa verileri, üçüncü taraf bir protokol olan Lighter tarafından sağlanır. Keeper +, saklama hizmeti sunmayan bir arayüz sağlar; işlem gerçekleştirmez ve yatırım tavsiyesi vermez.</string>
     <string name="perps_risk_disclosure_title">Risk Bildirimi</string>
     <string name="perps_search_hint">Sembol veya isimle ara</string>
     <string name="perps_service_perps">Vadeli İşlemler</string>
@@ -1297,7 +1297,7 @@
     </plurals>
     <string name="raffle_ends_in">%1$s içinde bitiyor</string>
     <string name="raffle_faq">SSS</string>
-    <string name="raffle_faq_about_a">%1$s tarihinde 2.000’den fazla kazananın olacağı bir multichain çekilişi başlatacağız. Biletler kazanma şansınızdır.\n\nO tarihten önce multichain’e geçin ve 10 bilet kazanın; bu, erken Keeper kullanıcısı olduğunuz için teşekkürümüzdür.\n\nÖdüller, bilet kazanmanın ek yolları ve tüm mekanik gelecek hafta açıklanacak.</string>
+    <string name="raffle_faq_about_a">%1$s tarihinde 2.000’den fazla kazananın olacağı bir multichain çekilişi başlatacağız. Biletler kazanma şansınızdır.\n\nO tarihten önce multichain’e geçin ve 10 bilet kazanın; bu, erken Keeper + kullanıcısı olduğunuz için teşekkürümüzdür.\n\nÖdüller, bilet kazanmanın ek yolları ve tüm mekanik gelecek hafta açıklanacak.</string>
     <string name="raffle_faq_about_q">Mystery Raffle nedir?</string>
     <string name="raffle_faq_earn_a">• TON cüzdanından multichain cüzdanına geçiş için %1$s\n• Her $100 zincirler arası takas için 1 bilet\n• Kilometre taşı bonuslarını tamamlayarak 1000’e kadar bonus bilet\n• Kampanya boyunca ek görevler açıklanacak</string>
     <string name="raffle_faq_earn_q">Nasıl bilet kazanırım?</string>
@@ -1348,7 +1348,7 @@
     <string name="ramp_withdrawal_fee">Çekim ücreti</string>
     <string name="ramp_withdrawal_time">Çekim süresi</string>
     <string name="rate">Kur</string>
-    <string name="rate_tonkeeper">Keeper\'ı Değerlendir</string>
+    <string name="rate_tonkeeper">Keeper +\'ı Değerlendir</string>
     <string name="receive">Al</string>
     <string name="receive_asset_description">Sadece %1$s (%2$s) ve %1$s ağındaki tokenleri bu adrese gönderin, aksi takdirde paranızı kaybedebilirsiniz.</string>
     <string name="receive_asset_title">%1$s adresiniz</string>
@@ -1369,9 +1369,9 @@
     <string name="refill">Bakiye yükle</string>
     <string name="refresh">Yenile</string>
     <string name="refund">İade</string>
-    <string name="reinstall_description">Bu cihazda bazı uygulama dosyaları eksik. Sorunu gidermek için Keeper\'ı Google Play\'den yükleyin.</string>
+    <string name="reinstall_description">Bu cihazda bazı uygulama dosyaları eksik. Sorunu gidermek için Keeper +\'ı Google Play\'den yükleyin.</string>
     <string name="reinstall_open_google_play">Google Play\'i aç</string>
-    <string name="reinstall_title">Keeper başlatılamıyor</string>
+    <string name="reinstall_title">Keeper + başlatılamıyor</string>
     <string name="rejected">Reddedildi</string>
     <string name="remaining_balance">Kalan: %1$s</string>
     <string name="remind_me_later">Daha sonra hatırlat</string>
@@ -1470,7 +1470,7 @@
     <string name="sign_message_error_invalid_request">Geçersiz istek</string>
     <string name="sign_message_error_network_mismatch">İstek farklı bir ağ için</string>
     <string name="sign_message_error_not_supported">Bu cüzdan bu isteği imzalayamaz</string>
-    <string name="sign_message_not_sent_warning">Keeper bu işlemi göndermeyecek. %1$s işlemi şimdi veya daha sonra gönderecek ve ağ ücretini ödeyecek.</string>
+    <string name="sign_message_not_sent_warning">Keeper + bu işlemi göndermeyecek. %1$s işlemi şimdi veya daha sonra gönderecek ve ağ ücretini ödeyecek.</string>
     <string name="sign_out">Oturumu kapat</string>
     <string name="sign_out_description">Bu, cüzdanınıza ait anahtarı silecektir. Kurtarma ifadenizi yedeklediğinizden emin olun.</string>
     <string name="sign_out_title">🚧 🚨 Çıkış Yapılsın mı? 🚨 🚧</string>
@@ -1511,7 +1511,7 @@
     <string name="staking_current_round">Mevcut döngü</string>
     <string name="staking_deposit_wallet">Cüzdana Yükle</string>
     <string name="staking_details">Detaylar</string>
-    <string name="staking_details_description">Staking, üçüncü taraflarca sağlanan akıllı sözleşmelere dayanmaktadır. Keeper, staking deneyiminden sorumlu değildir.</string>
+    <string name="staking_details_description">Staking, üçüncü taraflarca sağlanan akıllı sözleşmelere dayanmaktadır. Keeper +, staking deneyiminden sorumlu değildir.</string>
     <string name="staking_first_reward">İlk ödül</string>
     <string name="staking_get_withdraw">Para çekme işlemini gerçekleştirin</string>
     <string name="staking_insufficient_required">İşlem için gereken: %1$s.</string>
@@ -1560,10 +1560,10 @@
     <string name="staking_withdrawal_amount">Çekilecek miktar</string>
     <string name="start_agree">Devam ederek <annotation colorAttr="textAccentColor">Kullanım Şartlarımızı</annotation> kabul etmiş olursunuz</string>
     <string name="start_create_new_wallet">Yeni cüzdan oluştur</string>
-    <string name="start_dialog_description">Keeper\'ı kullanmak için bağlı bir cüzdana ihtiyacınız var. Yeni bir cüzdan oluşturun veya mevcut bir cüzdanı içe aktarın.</string>
+    <string name="start_dialog_description">Keeper +\'ı kullanmak için bağlı bir cüzdana ihtiyacınız var. Yeni bir cüzdan oluşturun veya mevcut bir cüzdanı içe aktarın.</string>
     <string name="start_dialog_title">Cüzdanınızı ayarlayalım</string>
     <string name="start_import_wallet">Mevcut cüzdanı içe aktar</string>
-    <string name="start_title">Keeper</string>
+    <string name="start_title">Keeper +</string>
     <string name="step_1">Adım 1</string>
     <string name="step_2">Adım 2</string>
     <string name="step_3">Adım 3</string>
@@ -1730,15 +1730,15 @@
     <string name="unverified_token_reason_3">Spam için kullanılır. İstenmeyen ve genellikle alakasız mesajları toplu olarak göndermek için kullanılır.</string>
     <string name="unverified_token_reason_4">Dolandırıcılık için kullanılır. Token\'in adı veya resmi kullanıcıları aldatmaya yönlendirebilir.</string>
     <string name="up_to_duration">%1$s %2$s kadar</string>
-    <string name="update_tonkeeper">Keeper\'ı güncelle</string>
-    <string name="update_tonkeeper_subtitle">Keeper\'ın yeni bir sürümü mevcut. Şimdi indirebilirsiniz.</string>
+    <string name="update_tonkeeper">Keeper +\'ı güncelle</string>
+    <string name="update_tonkeeper_subtitle">Keeper +\'ın yeni bir sürümü mevcut. Şimdi indirebilirsiniz.</string>
     <string name="updating">Güncelleniyor</string>
     <string name="use_biometric">Biyometrik kullan</string>
     <string name="v4r2_wallet">Cüzdan v4R2</string>
     <string name="value_difference">Değer farkı</string>
     <string name="value_difference_info">İşleminizin fiyatı ne kadar etkilediği: pozitif değerde daha fazlasını alırsınız, negatif değerde daha azını.</string>
     <string name="verified_token">Doğrulanmış Token</string>
-    <string name="verified_token_caption">Bu token aktif olarak işlem görüyor ve geniş çapta tanınıyor. Doğrulama Keeper tarafından bir onay anlamına gelmez.</string>
+    <string name="verified_token_caption">Bu token aktif olarak işlem görüyor ve geniş çapta tanınıyor. Doğrulama Keeper + tarafından bir onay anlamına gelmez.</string>
     <string name="version">Sürüm %1$s (%2$d)</string>
     <string name="view_details">Detayları görüntüle</string>
     <string name="view_in_explorer">Gezginde görüntüle</string>

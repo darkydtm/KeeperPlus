@@ -729,7 +729,7 @@ private fun SendConfirmScreenPreview() {
                    Column {
                        FeeItemCell(
                            image = { MoonItemIcon(painterResource(UIKitIcon.ic_flash_24), color = UIKit.colorScheme.accent.green) },
-                           title = "Keeper Battery",
+                           title = "Keeper + Battery",
                            subtitle = "≈ 0.13 - 0.27 TON $0.07",
                            isChecked = false,
                            onClick = { },

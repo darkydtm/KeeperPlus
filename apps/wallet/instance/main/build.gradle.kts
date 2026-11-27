@@ -6,12 +6,9 @@ import com.android.SdkConstants.ABI_INTEL_ATOM64
 
 plugins {
     id("target.android.app")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("androidx.baselineprofile")
-    id("com.google.firebase.firebase-perf")
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -81,7 +78,7 @@ android {
             isShrinkResources = true
             isCrunchPngs = true
             
-            resValue("string", "app_name", "Keeper Beta")
+            resValue("string", "app_name", "Keeper + Beta")
             applicationIdSuffix = ".beta"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_beta")
@@ -94,7 +91,7 @@ android {
         debug {
             isMinifyEnabled = false
 
-            resValue("string", "app_name", "Keeper Dev")
+            resValue("string", "app_name", "Keeper + Dev")
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_debug")
@@ -146,10 +143,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.camerax.core)
     implementation(libs.camerax.base)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.config)
-    implementation(libs.firebase.messaging)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

@@ -14,10 +14,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.crashlytics
-import com.google.firebase.crashlytics.setCustomKeys
 import com.tonapps.blockchain.contract.Blockchain
 import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletCurrency
@@ -48,7 +44,6 @@ import com.tonapps.core.deeplink.DeepLink
 import com.tonapps.core.deeplink.DeepLinkBuilder
 import com.tonapps.core.deeplink.DeepLinkRoute
 import com.tonapps.core.deeplink.withRaffleSourceWalletId
-import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.core.flags.TooltipManager
 import com.tonapps.core.flags.TooltipState
 import com.tonapps.core.flags.WalletFeature
@@ -84,7 +79,6 @@ import com.tonapps.swap.SwapRoutes
 import com.tonapps.tonkeeper.App
 import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.api.getCurrencyCodeByCountry
-import com.tonapps.tonkeeper.billing.BillingManager
 import com.tonapps.tonkeeper.client.safemode.SafeModeClient
 import com.tonapps.tonkeeper.core.DevSettings
 import com.tonapps.tonkeeper.core.history.ActionOptions
@@ -95,7 +89,6 @@ import com.tonapps.tonkeeper.extensions.hasRefer
 import com.tonapps.tonkeeper.extensions.hasUtmSource
 import com.tonapps.tonkeeper.extensions.safeExternalOpenUri
 import com.tonapps.tonkeeper.helper.BrowserHelper
-import com.tonapps.tonkeeper.helper.ReferrerClientHelper
 import com.tonapps.tonkeeper.helper.ShortcutHelper
 import com.tonapps.tonkeeper.manager.apk.APKManager
 import com.tonapps.tonkeeper.manager.earn.EarnUrlResolver
@@ -111,7 +104,6 @@ import com.tonapps.tonkeeper.manager.tonconnect.bridge.model.SignDataRequestPayl
 import com.tonapps.tonkeeper.manager.tonconnect.signMessageRejection
 import com.tonapps.tonkeeper.os.AppInfo
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
-import com.tonapps.tonkeeper.ui.component.UpdateAvailableDialog
 import com.tonapps.perps.PerpsFragment
 import com.tonapps.perps.screens.common.PERPS_STORY_ID
 import com.tonapps.perps.security.PerpsSecurityConfigRepository
@@ -196,7 +188,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -245,12 +236,10 @@ class RootViewModel(
     private val environment: Environment,
     private val passcodeManager: PasscodeManager,
     private val apkManager: APKManager,
-    private val referrerClientHelper: ReferrerClientHelper,
     private val dAppsRepository: DAppsRepository,
     private val safeModeClient: SafeModeClient,
     private val ratesRepository: RatesRepository,
     private val analyticsHelper: AnalyticsHelper,
-    private val billingManager: BillingManager,
     private val wcRepository: WcRepository,
     savedStateHandle: SavedStateHandle,
 ): BaseWalletVM(app) {
@@ -291,8 +280,6 @@ class RootViewModel(
     private val _eventFlow = MutableEffectFlow<RootEvent?>()
     val eventFlow = _eventFlow.asSharedFlow().filterNotNull()
 
-    private val _inAppReviewRequestFlow = Channel<Unit>(capacity = Channel.BUFFERED)
-    val inAppReviewRequestFlow = _inAppReviewRequestFlow.receiveAsFlow()
 
     private val ignoreTonConnectTransaction = mutableListOf<String>()
 
@@ -326,11 +313,6 @@ class RootViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                environment.setCountryFromStore(billingManager.getCountry())
-            } catch (_: Throwable) {
-                L.d("RootViewModel", "Failed to get country from billing manager")
-            }
             api.setCountryConfig(
                 config = CountryConfig(
                     deviceCountry = environment.deviceCountry,
@@ -402,7 +384,7 @@ class RootViewModel(
                 .distinctUntilChangedBy { (wallet, stories) -> wallet?.id to stories }
                 .collectLatest { (wallet, _) ->
                     if (wallet != null) {
-                        if (wallet.type == WalletType.Multichain && !settingsRepository.perpsTermsAccepted) {
+                        if (settingsRepository.promotionsEnabled && wallet.type == WalletType.Multichain && !settingsRepository.perpsTermsAccepted) {
                             viewModelScope.launch(Dispatchers.IO) {
                                 loadStories(PERPS_STORY_ID)?.let { prefetchStoryImages(listOf(it)) }
                             }
@@ -469,45 +451,6 @@ class RootViewModel(
             initShortcuts(wallet)
         }
 
-        api.configFlow
-            .filter { !it.empty }
-            .take(1)
-            .collectFlow { config ->
-                val config = AnalyticsHelper.Config(
-                    aptabaseAppKey = config.aptabaseAppKey,
-                    aptabaseEndpoint = config.aptabaseEndpoint,
-                    installId = settingsRepository.installId,
-                    deviceId = secureDeviceRepository.registerIfNeeded(),
-                    storeCountryCode = environment.storeCountry,
-                    deviceCountryCode = environment.deviceCountry,
-                )
-
-                analyticsHelper.setConfig(context, config)
-                sendFirstLaunchEvent()
-            }
-
-        val initialWalletAndConfigFlow = combine(
-            selectedWalletFlow.take(1),
-            api.configFlow.filter { !it.empty }
-        ) { _, config ->
-            config
-        }.take(1)
-
-        initialWalletAndConfigFlow.collectFlow { config ->
-            _eventFlow.tryEmit(RootEvent.CheckGooglePlayUpdate)
-        }
-
-        apkManager.statusFlow.filter {
-            it is APKManager.Status.UpdateAvailable
-        }.collectFlow {
-            delay(1000)
-            showUpdateAvailable(it as APKManager.Status.UpdateAvailable)
-        }
-
-        InAppReviewManager.requestFlow.collectFlow {
-            _inAppReviewRequestFlow.trySend(Unit)
-        }
-
         bgScope.launch {
             accountRepository.selectedStateFlow.filter {
                 it !is AccountRepository.SelectedState.Initialization
@@ -566,7 +509,7 @@ class RootViewModel(
     private suspend fun sendFirstLaunchEvent() = withContext(Dispatchers.IO) {
         if (DevSettings.firstLaunchDate <= 0) {
             settingsRepository.enableBatteryHint()
-            val referrer = referrerClientHelper.getInstallReferrer()
+            val referrer: String? = null
             val deeplink = DevSettings.firstLaunchDeeplink.ifBlank { null }
             val installerStore = AppInfo.getInstallerPackageName(context)
             AnalyticsHelper.Default.events.installApp.installApp(referrer, deeplink, installerStore)
@@ -718,16 +661,6 @@ class RootViewModel(
         }
     }
 
-    private fun showUpdateAvailable(status: APKManager.Status.UpdateAvailable) {
-        try {
-            UpdateAvailableDialog(context, apkManager).show {
-                apkManager.download(status.apk)
-            }
-        } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-        }
-    }
-
     // The lockscreen is an overlay view inside the activity, so a story opened under it would run
     // its timers and burn through frames while the passcode is being typed.
     private suspend fun awaitLockscreenHidden() {
@@ -863,7 +796,6 @@ class RootViewModel(
                 signRequest(eventId, tx.connection, signRequest)
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
             tonConnectManager.sendBridgeError(tx.connection, BridgeError.unknown(e.bestMessage), eventId)
         }
 
@@ -983,15 +915,7 @@ class RootViewModel(
         return list
     }
 
-    private fun applyAnalyticsKeys(wallet: WalletEntity) {
-        val crashlytics = Firebase.crashlytics
-        crashlytics.setUserId(wallet.accountId)
-        crashlytics.setCustomKeys {
-            key("testnet", wallet.testnet)
-            key("walletType", wallet.type.name)
-            key("installId", settingsRepository.installId)
-        }
-    }
+    private fun applyAnalyticsKeys(wallet: WalletEntity) = Unit
 
     fun connectLedger(connectData: LedgerConnectData, accounts: List<AccountItem>) {
         _eventFlow.tryEmit(RootEvent.Ledger(connectData, accounts))
@@ -1594,7 +1518,7 @@ class RootViewModel(
     private suspend fun openDAppDeepLink(wallet: WalletEntity, dAppUri: Uri, utm: UtmParameters): BaseFragment {
         val app = dAppsRepository.getAppFixIcon(dAppUri, wallet, browserRepository, settingsRepository)
 
-        val isTrustedApp = browserRepository.isTrustedApp(
+        val isTrustedApp = settingsRepository.promotionsEnabled && browserRepository.isTrustedApp(
             country = settingsRepository.country,
             network = wallet.network,
             locale = settingsRepository.getLocale(),

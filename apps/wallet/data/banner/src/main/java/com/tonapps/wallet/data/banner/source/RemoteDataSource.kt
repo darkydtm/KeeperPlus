@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.banner.source
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.data.banner.entities.BannerDataEntity
@@ -15,7 +14,8 @@ internal class RemoteDataSource(
         try {
             BannerDataEntity(api.getBanners(network, walletId, isNew))
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

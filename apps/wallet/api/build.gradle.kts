@@ -12,12 +12,6 @@ android {
 }
 
 dependencies {
-//    configurations.all {
-//        exclude(mapOf("group" to "org.chromium.net", "module" to "cronet-shared"))
-//    }
-//    implementation(libs.cronet.okhttp)
-//    implementation(libs.google.play.cronet)
-
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)

@@ -19,7 +19,6 @@ import com.tonapps.extensions.AppLifecycleProvider
 import com.tonapps.legacy.assets.AssetsManager
 import com.tonapps.tonkeeper.core.history.HistoryHelper
 import com.tonapps.tonkeeper.helper.CacheHelper
-import com.tonapps.tonkeeper.helper.ReferrerClientHelper
 import com.tonapps.dapp.screens.sessions.TonConnectDisconnectInteractor
 import com.tonapps.deposit.multicoin.screens.confirm.ConfirmResultListener
 import com.tonapps.tonkeeper.manager.ConfirmResultDispatcher
@@ -139,7 +138,6 @@ val koinModel = module {
     singleOf(::APKManager)
     singleOf(::AppShortcutRepository)
     singleOf(::CacheHelper)
-    singleOf(::ReferrerClientHelper)
     singleOf(AnalyticsHelper::Default)
     singleOf(::WalletImportAnalytics)
     single { WalletImportPairingSessions() }

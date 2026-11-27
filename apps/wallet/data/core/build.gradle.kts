@@ -5,9 +5,6 @@ plugins {
 }
 
 dependencies {
-    api(platform(libs.firebase.bom))
-    api(libs.firebase.crashlytics)
-
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.ton.tvm)
     implementation(libs.ton.crypto)

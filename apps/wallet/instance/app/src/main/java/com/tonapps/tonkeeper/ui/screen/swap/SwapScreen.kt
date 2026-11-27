@@ -9,8 +9,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
-import com.google.firebase.Firebase
-import com.google.firebase.perf.performance
 import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
@@ -60,23 +58,13 @@ class SwapScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragment_sw
 
     private val webViewCallback = object : WebViewFixed.Callback() {
 
-        private val swapTrace = Firebase.performance.newTrace("swap_webview")
-        private var isAlreadySendTrace = false
-
         override fun onPageFinished(url: String) {
             super.onPageFinished(url)
-            if (!isAlreadySendTrace) {
-                swapTrace.stop()
-                isAlreadySendTrace = true
-            }
             hideCloseView()
         }
 
         override fun onPageStarted(url: String, favicon: Bitmap?) {
             super.onPageStarted(url, favicon)
-            if (!isAlreadySendTrace) {
-                swapTrace.start()
-            }
         }
 
         override fun onNewTab(url: String) {

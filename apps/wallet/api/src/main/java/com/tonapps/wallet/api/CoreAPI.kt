@@ -20,10 +20,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
-//import org.chromium.net.CronetEngine
-//import com.google.android.gms.net.CronetProviderInstaller
-//import com.google.net.cronet.okhttptransport.CronetInterceptor
-
 abstract class CoreAPI(
     private val context: Context,
     private val delegate: LoggingInterceptor.Delegate,

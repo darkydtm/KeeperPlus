@@ -15,6 +15,7 @@ internal class WalletPrefsFolder(context: Context, scope: CoroutineScope): BaseS
         private const val PUSH_PREFIX = "push_"
         private const val SETUP_HIDDEN_PREFIX = "setup_hidden_"
         private const val MIGRATION_OPENED_PREFIX = "migration_opened_"
+        private const val MIGRATION_EMPTY_PREFIX = "migration_empty_"
         private const val LAST_UPDATED_PREFIX = "last_updated_"
         private const val TELEGRAM_CHANNEL_PREFIX = "telegram_channel_"
         private const val SPAM_STATE_TRANSACTION_PREFIX = "spam_state_transaction_"
@@ -83,6 +84,14 @@ internal class WalletPrefsFolder(context: Context, scope: CoroutineScope): BaseS
 
     fun setupHide(walletId: String) {
         putBoolean(key(SETUP_HIDDEN_PREFIX, walletId), true)
+    }
+
+    fun isMigrationEmpty(walletId: String): Boolean {
+        return getBoolean(key(MIGRATION_EMPTY_PREFIX, walletId), false)
+    }
+
+    fun setMigrationEmpty(walletId: String) {
+        putBoolean(key(MIGRATION_EMPTY_PREFIX, walletId), true)
     }
 
     fun isMigrationOpened(walletId: String): Boolean {

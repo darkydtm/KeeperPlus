@@ -104,13 +104,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.flexbox)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.config)
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.messaging)
-    implementation(libs.firebase.performance)
-
     implementation(projects.tonapi.legacy)
     implementation(projects.tonapi.wallet)
     implementation(projects.ui.blur)
@@ -136,11 +129,6 @@ dependencies {
     implementation(libs.camerax.core)
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
-
-    implementation(libs.google.play.review)
-    implementation(libs.google.play.billing)
-    implementation(libs.google.play.update)
-    implementation(libs.google.play.installreferrer)
 
     implementation(libs.okhttp)
     implementation(libs.okhttp.sse)

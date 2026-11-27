@@ -15,7 +15,5 @@ dependencies {
     implementation(projects.ui.uikit.core)
     implementation(projects.lib.icu)
     implementation(projects.lib.base64)
-    implementation(libs.google.play.installreferrer)
-    implementation(libs.google.play.base)
     api(projects.lib.log)
 }

@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,12 +61,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.google.mlkit.vision.common.InputImage
 import com.tonapps.bus.generated.Events.Scanner.ScannerInput
 import com.tonapps.qr.QRImageAnalyzer
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.localization.Localization
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -107,6 +108,7 @@ fun ScannerScreen(
     }
 
     val qrAnalyzer = remember { QRImageAnalyzer() }
+    val coroutineScope = rememberCoroutineScope()
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
     var flashEnabled by remember { mutableStateOf(false) }
@@ -128,25 +130,16 @@ fun ScannerScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            try {
-                val inputImage = InputImage.fromFilePath(context, uri)
-                qrAnalyzer.barcodeScanner.process(inputImage)
-                    .addOnSuccessListener { barcodes ->
-                        val value = barcodes.firstOrNull()?.rawValue
-                        if (value == null) {
-                            context.toastInvalidLink(toastColor)
-                            onNoCode(ScannerInput.Gallery)
-                        } else {
-                            onResult(value, ScannerInput.Gallery)
-                        }
-                    }
-                    .addOnFailureListener {
-                        context.toastInvalidLink(toastColor)
-                        onNoCode(ScannerInput.Gallery)
-                    }
-            } catch (_: Throwable) {
-                context.toastInvalidLink(toastColor)
-                onNoCode(ScannerInput.Gallery)
+            coroutineScope.launch {
+                val value = withContext(Dispatchers.IO) {
+                    runCatching { QRImageAnalyzer.readImage(context, uri) }.getOrNull()
+                }
+                if (value == null) {
+                    context.toastInvalidLink(toastColor)
+                    onNoCode(ScannerInput.Gallery)
+                } else {
+                    onResult(value, ScannerInput.Gallery)
+                }
             }
         }
     }
@@ -154,8 +147,6 @@ fun ScannerScreen(
     // Collect QR scan results
     LaunchedEffect(qrAnalyzer) {
         qrAnalyzer.flow
-            .map { it.rawValue }
-            .filterNotNull()
             .collect { value ->
                 withContext(Dispatchers.Main) {
                     onResult(value, ScannerInput.Camera)

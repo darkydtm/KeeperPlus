@@ -1,6 +1,5 @@
 package com.tonapps.blockchain.model.legacy
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TONOpCode
 import com.tonapps.blockchain.ton.TonSendMode
 import com.tonapps.blockchain.ton.TonTransferHelper
@@ -361,7 +360,8 @@ data class TransferEntity(
                 val hexString = hex(value)
                 BigInteger(hexString, 16)
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 BigInteger.ZERO
             }
         }

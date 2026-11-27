@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class BannerRepository(
@@ -38,6 +40,7 @@ class BannerRepository(
         network: TonNetwork = TonNetwork.MAINNET,
         refresh: Boolean = false,
     ): List<BannerEntity> = withContext(Dispatchers.IO) {
+        if (!settingsRepository.promotionsEnabled) return@withContext emptyList()
         val queryWalletId = walletId.takeIf { isMultichain }
         val data = if (refresh) {
             loadRemote(network, queryWalletId) ?: loadLocal(queryWalletId)
@@ -54,10 +57,12 @@ class BannerRepository(
         walletId: String,
         isMultichain: Boolean,
         network: TonNetwork = TonNetwork.MAINNET,
-    ): Flow<List<BannerEntity>> = flow {
-        val queryWalletId = walletId.takeIf { isMultichain }
-        loadLocal(queryWalletId)?.let { emit(filterHidden(walletId, it.banners)) }
-        loadRemote(network, queryWalletId)?.let { emit(filterHidden(walletId, it.banners)) }
+    ): Flow<List<BannerEntity>> = settingsRepository.promotionsEnabledFlow.flatMapLatest { enabled ->
+        if (!enabled) flowOf(emptyList()) else flow {
+            val queryWalletId = walletId.takeIf { isMultichain }
+            loadLocal(queryWalletId)?.let { emit(filterHidden(walletId, it.banners)) }
+            loadRemote(network, queryWalletId)?.let { emit(filterHidden(walletId, it.banners)) }
+        }
     }.flowOn(Dispatchers.IO)
 
     fun hideBanner(walletId: String, bannerId: String) {
@@ -65,6 +70,7 @@ class BannerRepository(
     }
 
     fun filterHidden(walletId: String, banners: List<BannerEntity>): List<BannerEntity> {
+        if (!settingsRepository.promotionsEnabled) return emptyList()
         val hidden = hiddenDataSource.getHidden(walletId)
         return banners.filter { it.id !in hidden && !WalletFeature.Perps.isPromoHidden(it.id) }
     }
@@ -74,6 +80,7 @@ class BannerRepository(
     }
 
     private suspend fun loadRemote(network: TonNetwork, walletId: String?): BannerDataEntity? {
+        if (!settingsRepository.promotionsEnabled) return null
         val isNew = !settingsRepository.hadWalletsOnMultichainRelease
         val data = remoteDataSource.load(network, walletId, isNew) ?: return null
         localDataSource.setCache(cacheKey(walletId), data)

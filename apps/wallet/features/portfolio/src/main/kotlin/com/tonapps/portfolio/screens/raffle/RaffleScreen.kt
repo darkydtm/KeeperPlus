@@ -943,7 +943,7 @@ private fun previewContent(): RaffleScreenState.Content {
     val milestone = RaffleEntity.Milestone(
         id = "keeper",
         iconId = "keeper",
-        title = "Keeper · $1 000 volume",
+        title = "Keeper + · $1 000 volume",
         subtitle = "+10 bonus tickets",
         rewardTickets = 10,
         done = true,

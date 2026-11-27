@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.earn
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.data.cache.JsonCacheRepository
 import com.tonapps.wallet.data.cache.JsonResponseCacheScope
@@ -126,7 +125,8 @@ class EarnRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return
         }
         val balance = json?.let { EarnCacheJson.decode<Balance>(it) } ?: return
@@ -145,7 +145,8 @@ class EarnRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return
         }
         val vaults = json?.let { EarnCacheJson.decode<Vaults>(it) } ?: return
@@ -158,7 +159,8 @@ class EarnRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             vaultsCache.update { cached -> CachedVaults(cached?.vaults, failed = true) }
             return
         }
@@ -173,7 +175,8 @@ class EarnRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 
@@ -200,7 +203,8 @@ class EarnRepository(
             throw e
         } catch (e: Exception) {
             currentCoroutineContext().ensureActive()
-            FirebaseCrashlytics.getInstance().recordException(e.withCurrency(key.currency))
+// Crash reporting disabled
+
             updatePortfolio(key) { cached -> CachedPortfolio(cached?.balance, failed = true) }
             return
         }
@@ -216,7 +220,8 @@ class EarnRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 

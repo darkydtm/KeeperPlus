@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
@@ -27,6 +28,7 @@ import org.koin.android.ext.android.inject
 import ui.platformNestedScrollInterop
 import ui.theme.AppColorScheme
 import ui.theme.MoonTheme
+import ui.theme.appColorSchemeAmoled
 import ui.theme.appColorSchemeBlue
 import ui.theme.appColorSchemeDark
 import ui.theme.appColorSchemeLight
@@ -52,6 +54,11 @@ abstract class ComposableFragment : BaseFragment(R.layout.fragment_compose_host)
             return when(settings.theme.key) {
                 "blue" -> appColorSchemeBlue()
                 "dark" -> appColorSchemeDark()
+                "amoled" -> appColorSchemeAmoled(
+                    colorResource(uikit.R.color.amoledAccent),
+                    colorResource(uikit.R.color.amoledAccentDisabled),
+                    colorResource(uikit.R.color.amoledAccentHighlighted),
+                )
                 "light" -> appColorSchemeLight()
                 else -> if (requireContext().isDarkMode) {
                     appColorSchemeDark()

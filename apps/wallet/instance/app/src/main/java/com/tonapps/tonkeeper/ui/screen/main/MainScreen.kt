@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
@@ -353,7 +352,8 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
             L.d("MainScreenLog", "Set fragment: $fragment")
         } catch (e: Throwable) {
             L.e("MainScreenLog", "Failed to set fragment", e)
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             postDelayed(1000) {
                 setFragment(fragment, forceScrollUp, scrollUpOnReTap, browserOpenFrom, browserOpenUtm, extra, attempt + 1, wallet, network)
             }

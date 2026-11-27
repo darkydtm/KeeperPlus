@@ -1,7 +1,6 @@
 package com.tonapps.blockchain.ton.extensions
 
 import android.util.Base64
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.base64.fixBase64
 import org.ton.kotlin.crypto.PrivateKeyEd25519
 
@@ -19,7 +18,8 @@ private fun decodePrivateKey1(base64: String): PrivateKeyEd25519? {
     return try {
         PrivateKeyEd25519(Base64.decode(base64, Base64.DEFAULT))
     } catch (e: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         throw e
     }
 }

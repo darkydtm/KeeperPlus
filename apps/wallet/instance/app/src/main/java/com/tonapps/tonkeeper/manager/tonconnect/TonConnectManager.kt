@@ -6,7 +6,6 @@ import android.util.Base64
 import android.view.View
 import androidx.collection.ArrayMap
 import androidx.core.net.toUri
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.dapp.screens.sessions.TonConnectDisconnectInteractor
@@ -23,7 +22,6 @@ import com.tonapps.network.simple
 import com.tonapps.security.CryptoBox
 import com.tonapps.tonkeeper.client.safemode.SafeModeClient
 import com.tonapps.tonkeeper.core.DevSettings
-import com.tonapps.tonkeeper.core.FirebaseHelper
 import com.tonapps.tonkeeper.extensions.showToast
 import com.tonapps.tonkeeper.extensions.webViewProfileName
 import com.tonapps.tonkeeper.manager.push.PushManager
@@ -428,14 +426,6 @@ class TonConnectManager(
         } catch (e: CancellationException) {
             JsonBuilder.connectEventError(BridgeError.userDeclinedTransaction())
         } catch (e: ManifestException) {
-            FirebaseHelper.manifestFetchFailed(
-                kind = if (e is ManifestException.NotFound) {
-                    "not_found"
-                } else {
-                    "content_error"
-                },
-                url = tonConnect.manifestUrl,
-            )
             withContext(Dispatchers.Main) { activity.showToast(Localization.dapp_manifest_error) }
             if (e is ManifestException.NotFound) {
                 JsonBuilder.connectEventError(BridgeError.appManifestNotFound())
@@ -443,7 +433,8 @@ class TonConnectManager(
                 JsonBuilder.connectEventError(BridgeError.appManifestContentError())
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             JsonBuilder.connectEventError(BridgeError.unknown(e.bestMessage))
         }
     }
@@ -498,7 +489,6 @@ class TonConnectManager(
         return try {
             httpGetManifest(url, headers)
         } catch (ignored: Throwable) {
-            FirebaseHelper.manifestFetchRetry(url)
             httpGetManifest(manifestProxyUrl(url), headers)
         }
     }

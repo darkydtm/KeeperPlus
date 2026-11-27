@@ -65,21 +65,6 @@ androidx-test-espresso = "3.7.0"
 androidx-test-uiautomator = "2.4.0"
 androidx-annotations = "1.11.0"
 
-# Google Play Services
-google-play-base = "18.11.1"
-google-play-cronet = "18.1.1"
-google-play-review = "2.0.2"
-google-play-billing = "9.1.0"
-google-play-update = "2.1.0"
-google-play-installreferrer = "2.2"
-
-# Firebase
-firebase-bom = "35.0.2"
-firebase-config = "24.0.0"
-firebase-services-plugin = "4.5.0"
-firebase-crashlytics-plugin = "3.0.8"
-firebase-performance-plugin = "2.0.2"
-
 # Networking
 okhttp = "5.5.1"
 okio = "3.18.2"
@@ -115,9 +100,6 @@ nav3ViewModel = "2.11.0"
 
 # ML
 barcode-scanning = "17.3.0"
-
-# Analytics
-appsflyer = "7.0.4"
 
 # Testing
 junit = "4.13.2"
@@ -261,22 +243,6 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-test-uiautomator" }
 
-# Google Play Services
-google-play-base = { module = "com.google.android.gms:play-services-base", version.ref = "google-play-base" }
-google-play-cronet = { module = "com.google.android.gms:play-services-cronet", version.ref = "google-play-cronet" }
-google-play-review = { module = "com.google.android.play:review-ktx", version.ref = "google-play-review" }
-google-play-billing = { module = "com.android.billingclient:billing-ktx", version.ref = "google-play-billing" }
-google-play-update = { module = "com.google.android.play:app-update-ktx", version.ref = "google-play-update" }
-google-play-installreferrer = { module = "com.android.installreferrer:installreferrer", version.ref = "google-play-installreferrer" }
-
-# Firebase
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
-firebase-config = { module = "com.google.firebase:firebase-config", version.ref = "firebase-config" }
-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
-firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
-firebase-performance = { module = "com.google.firebase:firebase-perf" }
-
 # Networking
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse", version.ref = "okhttp" }
@@ -309,10 +275,7 @@ j2objc = { module = "com.google.j2objc:j2objc-annotations", version.ref = "j2obj
 cbor = { module = "co.nstant.in:cbor", version.ref = "cbor" }
 
 # ML
-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcode-scanning" }
-
-# Analytics
-appsflyer-sdk = { module = "com.appsflyer:af-android-sdk", version.ref = "appsflyer" }
+barcode-scanning = { module = "io.github.zxing-cpp:android", version = "3.0.2" }
 
 # Testing
 wallet-core-jvm = { module = "com.trustwallet:wallet-core-kotlin-jvm", version.ref = "walletCoreKotlin" }
@@ -335,11 +298,6 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "android-plugin" }
 kotlin-multiplatform-compose = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
-# Firebase
-firebase-services = { id = "com.google.gms.google-services", version.ref = "firebase-services-plugin" }
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
-firebase-performance = { id = "com.google.firebase.firebase-perf", version.ref = "firebase-performance-plugin" }
 
 # Database
 room = { id = "androidx.room", version.ref = "room" }

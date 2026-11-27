@@ -5,7 +5,6 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import androidx.collection.ArrayMap
 import androidx.core.net.toUri
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.extensions.toRawAddress
 import com.tonapps.blockchain.ton.extensions.toUserFriendly
 import com.tonapps.extensions.map
@@ -101,7 +100,8 @@ class DAppsRepository internal constructor(
                     _connectionsFlow.value = connections
                 }
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 _connectionsFlow.value = emptyList()
             }
         }
@@ -494,7 +494,8 @@ class DAppsRepository internal constructor(
             )
             tonConnectPrefs.clearLastEventId()
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 
@@ -606,7 +607,8 @@ class DAppsRepository internal constructor(
             try {
                 return@withContext AppEntity.fromManifest(api.get(manifestUrl))
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 continue
             }
         }
@@ -666,7 +668,8 @@ class DAppsRepository internal constructor(
                 connectDao.updateKeyPair(row.id, bytes)
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 

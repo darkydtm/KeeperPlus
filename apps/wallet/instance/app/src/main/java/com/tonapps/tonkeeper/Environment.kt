@@ -2,8 +2,7 @@ package com.tonapps.tonkeeper
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import androidx.compose.ui.res.colorResource
 import com.tonapps.core.helper.EnvironmentHelper
 import com.tonapps.extensions.areNotificationsEnabled
 import com.tonapps.network.isVpnActive
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
 import ui.theme.AppColorScheme
+import ui.theme.appColorSchemeAmoled
 import ui.theme.appColorSchemeBlue
 import ui.theme.appColorSchemeDark
 import ui.theme.appColorSchemeLight
@@ -86,6 +86,11 @@ class Environment(
             return when(settingsRepository.theme.key) {
                 "blue" -> appColorSchemeBlue()
                 "dark" -> appColorSchemeDark()
+                "amoled" -> appColorSchemeAmoled(
+                    colorResource(uikit.R.color.amoledAccent),
+                    colorResource(uikit.R.color.amoledAccentDisabled),
+                    colorResource(uikit.R.color.amoledAccentHighlighted),
+                )
                 "light" -> appColorSchemeLight()
                 else -> if (context.isDarkMode) {
                     appColorSchemeDark()
@@ -101,11 +106,8 @@ class Environment(
         installerSource == AppInfo.Source.GOOGLE_PLAY || installerSource == AppInfo.Source.AURORA_STORE
     }
 
-    val isGooglePlayServicesAvailable: Boolean by lazy {
-        val googleApiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
-        resultCode == ConnectionResult.SUCCESS
-    }
+    /** Google Play services are deliberately not part of this build. */
+    val isGooglePlayServicesAvailable: Boolean = false
 
     val areNotificationsEnabled: Boolean
         get() = context.areNotificationsEnabled()

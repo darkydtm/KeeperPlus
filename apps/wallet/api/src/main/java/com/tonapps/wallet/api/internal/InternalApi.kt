@@ -2,7 +2,6 @@ package com.tonapps.wallet.api.internal
 
 import android.content.Context
 import androidx.core.net.toUri
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.bus.core.IssueHelper
 import com.tonapps.extensions.isDebug
@@ -266,7 +265,8 @@ internal class InternalApi(
                 country.uppercase()
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

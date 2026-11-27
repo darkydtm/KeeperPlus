@@ -5,7 +5,6 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.extensions.activity
 import com.tonapps.wallet.localization.Localization
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -62,7 +61,8 @@ object PasscodeBiometric {
 
             biometricPrompt.authenticate(builder.build())
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             callback.onAuthenticationError(BiometricPrompt.ERROR_HW_NOT_PRESENT, "Unknown error")
         }
     }

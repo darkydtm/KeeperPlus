@@ -10,7 +10,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.core.flags.RemoteConfig
 import com.tonapps.extensions.appVersionName
@@ -67,14 +66,6 @@ class APKManager(
 
     private val folder: File by lazy {
         context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.folder("apk")
-    }
-
-    init {
-        api.configFlow.map { it.apk }
-            .filterNotNull()
-            .onEach(::checkUpdates)
-            .flowOn(Dispatchers.IO)
-            .launchIn(scope)
     }
 
     private fun getHideReminder(): HideReminder {
@@ -160,12 +151,6 @@ class APKManager(
             } else {
                 _statusFlow.value = Status.Downloading(it, apk)
             }
-            if (it >= 100 || it < 0) {
-                val latest = api.getConfig(TonNetwork.MAINNET).apk
-                if (latest != null && latest != apk) {
-                    checkUpdates(latest)
-                }
-            }
         }.launchIn(scope)
 
         _statusFlow.value = Status.Downloading(0, apk)
@@ -223,7 +208,8 @@ class APKManager(
             cleanApkFolder(keepPath)
             cleanLegacyApkFolder()
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 

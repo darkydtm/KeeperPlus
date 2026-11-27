@@ -151,6 +151,12 @@ class AppsFlyerDeepLinkTest {
     }
 
     @Test
+    fun shortLinkWithExplicitScreenCanStillBeParsedLocally() {
+        assertFalse(isSdkResolvedOneLink(listOf("Dd63", "abc123"), "swap"))
+        assertEquals("tonkeeper://swap", appLinkOf("deep_link_value" to "swap"))
+    }
+
+    @Test
     fun theOneLinkSubdomainAndTheBrandedDomainAreOneLinks() {
         assertTrue(isOneLinkHost("keeper.onelink.me"))
         assertTrue(isOneLinkHost("go.tonkeeper.com"))

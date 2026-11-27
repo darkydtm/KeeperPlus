@@ -4,9 +4,6 @@ plugins {
 }
 
 dependencies {
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics)
-
     implementation(libs.ton.tvm)
     implementation(libs.ton.crypto)
     implementation(libs.ton.tlb)

@@ -26,8 +26,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.tonapps.async.Async
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.legacy.TokenEntity
@@ -265,19 +263,6 @@ class RootActivity : BaseWalletActivity(),
     private val perpsDepositArrivals by inject<PerpsDepositArrivals>()
     private val moonPayFrames by inject<MoonPayFrames>()
     private val lockScreenShown = MutableStateFlow(false)
-    private val googlePlayUpdateHelper by lazy(LazyThreadSafetyMode.NONE) {
-        GooglePlayUpdateHelper(
-            activity = this,
-            viewModel = viewModel,
-            environment = environment,
-        )
-    }
-    private val inAppReviewHelper by lazy(LazyThreadSafetyMode.NONE) {
-        InAppReviewHelper(
-            activity = this,
-            environment = environment,
-        )
-    }
     private lateinit var uiHandler: Handler
     private var isLaunchLockShown = false
     private var isIntentConsumed = false
@@ -297,9 +282,7 @@ class RootActivity : BaseWalletActivity(),
             if (f !is BaseFragment) {
                 return
             }
-            val screenName = f.fragmentName
-            Firebase.crashlytics.log("screen: $screenName")
-            Firebase.crashlytics.setCustomKey("lastScreen", screenName)
+            // Screen telemetry is intentionally disabled.
         }
     }
 
@@ -404,7 +387,6 @@ class RootActivity : BaseWalletActivity(),
 
         collectFlow(viewModel.hasWalletFlow) { init(it) }
         collectFlow(viewModel.eventFlow) { event(it) }
-        collectFlow(viewModel.inAppReviewRequestFlow) { inAppReviewHelper.requestReview() }
         collectFlow(viewModel.lockscreenFlow, ::pinState)
         collectFlow(perpsDepositArrivals.arrivals.flowWithLifecycle(lifecycle)) {
             confirmedToast(getString(Localization.perps_deposit_completed), ToastFeedback.Success)
@@ -1051,13 +1033,7 @@ class RootActivity : BaseWalletActivity(),
 
     override fun onStart() {
         super.onStart()
-        googlePlayUpdateHelper.onStart()
         passcodeManager.restoreSessionOnForeground()
-    }
-
-    override fun onStop() {
-        googlePlayUpdateHelper.onStop()
-        super.onStop()
     }
 
     private suspend fun pinState(state: LockScreen.State) {
@@ -1193,7 +1169,6 @@ class RootActivity : BaseWalletActivity(),
 
     fun event(event: RootEvent) {
         when (event) {
-            RootEvent.CheckGooglePlayUpdate -> googlePlayUpdateHelper.checkForUpdates()
             is RootEvent.Singer -> add(
                 InitScreen.newInstance(
                     if (event.qr) {

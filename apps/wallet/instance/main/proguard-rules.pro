@@ -102,9 +102,6 @@
 -keep class org.bouncycastle.jce.provider.** { *; }
 -dontwarn org.bouncycastle.**
 
-# AppsFlyer
--keepnames class com.google.android.gms.ads.identifier.AdvertisingIdClient
-
 -keepnames class com.tonapps.ledgerkit.LedgerFailureException
 -keepnames class com.tonapps.wallet.data.ledger.signing.LedgerDismissedException
 # ScreenRenderErrors classifies load failures by exception name.

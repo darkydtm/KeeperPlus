@@ -9,8 +9,6 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.debugTooling)
 
-    implementation(platform(libs.firebase.bom))
-
     implementation(libs.bundles.nav3)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.koin.core)

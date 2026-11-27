@@ -2,7 +2,6 @@ package com.tonapps.wallet.data.raffle
 
 import android.content.Context
 import android.os.SystemClock
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.log.L
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.data.core.BlobDataSource
@@ -21,6 +20,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -62,6 +63,7 @@ class RaffleRepository(
         getEntities(walletId, forced = false).firstOrNull { it.ownsStoryId(storyId) }
 
     private suspend fun getEntities(walletId: String, forced: Boolean): List<RaffleEntity> = withContext(Dispatchers.IO) {
+        if (!settingsRepository.promotionsEnabled) return@withContext emptyList()
         val key = cacheKey(walletId)
         val raffles = if (forced) {
             loadRemote(walletId) ?: cached(key)
@@ -72,6 +74,7 @@ class RaffleRepository(
     }
 
     suspend fun prefetch(walletId: String) {
+        if (!settingsRepository.promotionsEnabled) return
         val prefetch = Prefetch(SystemClock.elapsedRealtime())
         prefetches[cacheKey(walletId)] = prefetch
         try {
@@ -83,6 +86,7 @@ class RaffleRepository(
     }
 
     suspend fun reportImport(sourceWalletId: String, importedWalletId: String) = withContext(Dispatchers.IO) {
+        if (!settingsRepository.promotionsEnabled) return@withContext
         try {
             api.multichain.raffles.markWalletRaffleImport(
                 sourceWalletId,
@@ -97,7 +101,12 @@ class RaffleRepository(
         }
     }
 
-    private fun remoteFlow(walletId: String, forced: Boolean, reusePrefetch: Boolean): Flow<List<Raffle>> = flow {
+    private fun remoteFlow(walletId: String, forced: Boolean, reusePrefetch: Boolean): Flow<List<Raffle>> =
+        settingsRepository.promotionsEnabledFlow.flatMapLatest { enabled ->
+            if (!enabled) flowOf(emptyList()) else enabledRemoteFlow(walletId, forced, reusePrefetch)
+        }
+
+    private fun enabledRemoteFlow(walletId: String, forced: Boolean, reusePrefetch: Boolean): Flow<List<Raffle>> = flow {
         val key = cacheKey(walletId)
         seedFromDisk(key)
         if (forced) {
@@ -135,6 +144,7 @@ class RaffleRepository(
     private fun cached(key: String): List<Raffle>? = memoryCache.value[key] ?: diskCache.getCache(key)
 
     private fun loadRemote(walletId: String): List<Raffle>? {
+        if (!settingsRepository.promotionsEnabled) return null
         val key = cacheKey(walletId)
         val isNew = !settingsRepository.hadWalletsOnMultichainRelease
         return try {
@@ -149,11 +159,13 @@ class RaffleRepository(
             // A decode failure means the payload is shaped for a newer app version, so parsing
             // will keep failing until the app is updated. Drop the disk cache instead of leaving
             // it frozen forever on the last state we could still read.
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             invalidateCache(key)
             null
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

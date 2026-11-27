@@ -104,6 +104,18 @@ class SettingsRepository(
             id
         }
 
+    // Optional promotional network activity only: banners, raffles (including import/migration
+    // reports), loyalty profiles/rewards, automatic stories and browser discovery. Explicit
+    // stories, connected dApps, wallet operations and user-initiated asset requests remain enabled.
+    private val _promotionsEnabledFlow = MutableStateFlow(prefs.getBoolean("promotions_enabled", true))
+    val promotionsEnabledFlow = _promotionsEnabledFlow.asStateFlow()
+    var promotionsEnabled: Boolean
+        get() = _promotionsEnabledFlow.value
+        set(value) {
+            prefs.putBoolean("promotions_enabled", value)
+            _promotionsEnabledFlow.value = value
+        }
+
     var ledgerConnectUsb: Boolean = prefs.getBoolean(LEDGER_CONNECT_USB, false)
         set(value) {
             if (value != field) {
@@ -506,6 +518,10 @@ class SettingsRepository(
             rnLegacy.setSetupDismissed(walletId)
         }
     }
+
+    fun isMigrationEmpty(walletId: String): Boolean = walletPrefsFolder.isMigrationEmpty(walletId)
+
+    fun setMigrationEmpty(walletId: String) = walletPrefsFolder.setMigrationEmpty(walletId)
 
     fun isMigrationOpened(walletId: String): Boolean = walletPrefsFolder.isMigrationOpened(walletId)
 

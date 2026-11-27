@@ -2,7 +2,6 @@ package com.tonapps.wallet.data.collectibles
 
 import android.content.Context
 import com.tonapps.blockchain.ton.TonNetwork
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.data.collectibles.entities.DnsExpiringEntity
@@ -71,7 +70,8 @@ class CollectiblesRepository(
                 emit(NftListResult(cache = false, list = remote))
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }.cancellable()
 

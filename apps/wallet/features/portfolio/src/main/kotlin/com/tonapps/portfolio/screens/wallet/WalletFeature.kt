@@ -440,14 +440,17 @@ class WalletFeature(
         .cacheState()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = combine(
-        perpsSnapshot.map { it != null && !it.loading && it.displayPortfolio()?.positions?.isEmpty() == true }
-            .distinctUntilChanged(),
-        refreshSignal.onStart { emit(Unit) },
-    ) { needed, _ -> needed }
-        .filter { it }
-        .mapLatest { perpsRepository.getShelfMarkets() }
-        .runningFold(emptyList<PerpMarket>()) { previous, loaded -> loaded.ifEmpty { previous } }
+    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = settingsRepository.promotionsEnabledFlow
+        .flatMapLatest { enabled ->
+            if (!enabled) flowOf(emptyList()) else combine(
+                perpsSnapshot.map { it != null && !it.loading && it.displayPortfolio()?.positions?.isEmpty() == true }
+                    .distinctUntilChanged(),
+                refreshSignal.onStart { emit(Unit) },
+            ) { needed, _ -> needed }
+                .filter { it }
+                .mapLatest { perpsRepository.getShelfMarkets() }
+                .runningFold(emptyList<PerpMarket>()) { previous, loaded -> loaded.ifEmpty { previous } }
+        }
         .cacheState(initialValue = emptyList())
 
     private val perps: StateFlow<WalletSection.Perps?> = combine(
@@ -500,8 +503,9 @@ class WalletFeature(
         .cacheState(initialValue = null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val earnVaults: StateFlow<List<EarnVaultUi>?> = multichainWalletId(Earn)
-        .map { it != null }
+    private val earnVaults: StateFlow<List<EarnVaultUi>?> = combine(
+        multichainWalletId(Earn), settingsRepository.promotionsEnabledFlow,
+    ) { walletId, enabled -> walletId != null && enabled }
         .distinctUntilChanged()
         .flatMapLatest { enabled ->
             if (enabled) {
@@ -784,7 +788,7 @@ class WalletFeature(
             if (ledgerChains.isNotEmpty()) {
                 add(FinishSetupLine.LedgerNetworks(status = FinishSetupLineStatus.Pending, chains = ledgerChains))
             }
-            if (migratableWallets > 0) {
+            if (migratableWallets > 0 && !settingsRepository.isMigrationEmpty(mc.id)) {
                 add(
                     FinishSetupLine.Migration(
                         status = FinishSetupLineStatus.Pending,

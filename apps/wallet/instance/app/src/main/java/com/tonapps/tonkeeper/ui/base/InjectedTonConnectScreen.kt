@@ -6,7 +6,6 @@ import android.webkit.WebResourceRequest
 import androidx.annotation.LayoutRes
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events
@@ -214,7 +213,8 @@ abstract class InjectedTonConnectScreen(@LayoutRes layoutId: Int, wallet: Wallet
         } catch (e: BridgeException) {
             JsonBuilder.responseError(message.id, BridgeError.badRequest(e.bestMessage))
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             JsonBuilder.responseError(message.id, BridgeError.unknown(e.bestMessage))
         }
     }
@@ -323,12 +323,14 @@ abstract class InjectedTonConnectScreen(@LayoutRes layoutId: Int, wallet: Wallet
                     stage = null,
                     otherMetadata = null,
                 )
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 JsonBuilder.responseError(id, BridgeError.unknown(e.bestMessage))
             }
         } catch (e: Throwable) {
             navigation?.toast(e.bestMessage)
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return JsonBuilder.responseError(id, BridgeError.unknown(e.bestMessage))
         }
     }

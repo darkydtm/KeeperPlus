@@ -11,9 +11,6 @@ dependencies {
     implementation(projects.lib.extensions)
     implementation(projects.kmp.async)
 
-    // Analytic aptabase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
 

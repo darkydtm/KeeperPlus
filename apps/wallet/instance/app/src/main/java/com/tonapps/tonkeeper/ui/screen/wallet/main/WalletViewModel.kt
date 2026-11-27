@@ -322,7 +322,9 @@ class WalletViewModel(
         }.launchIn(viewModelScope)
 
         combine(
-            stateMainFlow,
+            combine(stateMainFlow, settingsRepository.promotionsEnabledFlow) { state, enabled ->
+                if (enabled) state else state.copy(banners = emptyList())
+            },
             alertNotificationsFlow,
             _stateSettingsFlow,
             updateWalletSettings,

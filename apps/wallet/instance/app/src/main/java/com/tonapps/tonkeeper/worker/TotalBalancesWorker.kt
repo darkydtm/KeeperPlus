@@ -6,7 +6,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
 import androidx.work.WorkerParameters
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.tonkeeper.extensions.workManager
 import com.tonapps.legacy.assets.AssetsManager
 import com.tonapps.wallet.data.account.AccountRepository
@@ -36,7 +35,8 @@ class TotalBalancesWorker(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return Result.failure()
         }
     }

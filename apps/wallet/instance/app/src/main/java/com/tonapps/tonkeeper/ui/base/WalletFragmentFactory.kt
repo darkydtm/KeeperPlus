@@ -2,7 +2,6 @@ package com.tonapps.tonkeeper.ui.base
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import java.lang.reflect.Constructor
 
@@ -19,7 +18,8 @@ class WalletFragmentFactory: FragmentFactory() {
             }
             return super.instantiate(classLoader, className)
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return EmptyFragment()
         }
     }

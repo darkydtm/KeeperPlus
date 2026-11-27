@@ -102,7 +102,9 @@ class ShelvesFeature(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    val perpsShelfMarkets: StateFlow<List<PerpMarket>> = isPerpsVisible
+    val perpsShelfMarkets: StateFlow<List<PerpMarket>> = combine(
+        isPerpsVisible, settingsRepository.promotionsEnabledFlow,
+    ) { visible, enabled -> visible && enabled }
         .flatMapLatest { visible ->
             if (visible) {
                 merge(refreshSignal.map { }, perpsShelfReload)

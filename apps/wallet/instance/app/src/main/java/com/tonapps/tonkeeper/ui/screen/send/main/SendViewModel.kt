@@ -2,7 +2,6 @@ package com.tonapps.tonkeeper.ui.screen.send.main
 
 import android.app.Application
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.contract.Blockchain
 import com.tonapps.blockchain.model.legacy.Amount
 import com.tonapps.blockchain.model.legacy.Fee
@@ -1625,7 +1624,8 @@ class SendViewModel(
                         errorMessage = e.message ?: "unknown",
                         appId = null,
                     )
-                    FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                     _uiEventFlow.tryEmit(SendEvent.Failed(e))
                 }
             }

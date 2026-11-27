@@ -13,6 +13,23 @@ import ui.theme.color.TabBarColorScheme
 import ui.theme.color.TextColorScheme
 
 @Composable
+fun appColorSchemeAmoled(accent: Color, disabled: Color, highlighted: Color): AppColorScheme {
+    val dark = appColorSchemeDark()
+    return dark.copy(
+        text = dark.text.copy(accent = accent),
+        buttonPrimary = dark.buttonPrimary.copy(
+            primaryBackground = accent,
+            primaryBackgroundDisable = disabled,
+            primaryBackgroundHighlighted = highlighted,
+            primaryForeground = Color.Black,
+        ),
+        field = dark.field.copy(activeBorder = accent),
+        accent = dark.accent.copy(blue = accent),
+        tabBar = dark.tabBar.copy(activeIcon = accent),
+    )
+}
+
+@Composable
 fun appColorSchemeDark() = AppColorScheme(
     appearance = AppThemeAppearance.Dark,
     text = TextColorScheme(

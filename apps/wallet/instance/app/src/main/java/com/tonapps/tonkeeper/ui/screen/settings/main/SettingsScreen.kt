@@ -4,9 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.net.toUri
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.Wallet as TonWallet
 import com.tonapps.blockchain.model.legacy.WalletType
@@ -17,7 +14,6 @@ import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
 import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.tonkeeper.Wallet
 import com.tonapps.tonkeeper.extensions.toastLoading
 import com.tonapps.tonkeeper.helper.BrowserHelper
@@ -60,10 +56,6 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     override val viewModel: SettingsViewModel by viewModel()
 
-    private val reviewManager: ReviewManager by lazy {
-        ReviewManagerFactory.create(requireContext())
-    }
-
     private val searchEngineMenu: ActionSheet by lazy {
         ActionSheet(requireContext())
     }
@@ -87,6 +79,18 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
         analytics?.simpleTrackEvent("settings_select", hashMapOf(
             "type" to item.name
         ))
+        if (item is Item.Promotions) {
+            viewModel.togglePromotions()
+            return
+        }
+        if (item is Item.ClickHaptics) {
+            viewModel.toggleClickHaptics()
+            return
+        }
+        if (item is Item.ClickHapticsStrength) {
+            viewModel.cycleClickHapticsStrength()
+            return
+        }
         val wallet = navigationWalletForScreens() ?: return
         when (item) {
             is Item.Backup -> navigation?.add(BackupScreen.newInstance(WalletFlowSource.Settings))
@@ -133,27 +137,7 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
     }
 
     private fun openRate() {
-        activity?.let {
-            reviewManager.requestReviewFlow().addOnCompleteListener(it) { task ->
-                if (task.isSuccessful) {
-                    startReviewFlow(task.result)
-                } else {
-                    openGooglePlay()
-                }
-            }
-        }
-    }
-
-    private fun startReviewFlow(reviewInfo: ReviewInfo) {
-        activity?.let {
-            AnalyticsHelper.Default.events.inappReview.inappReview(InappReviewAction.Manual)
-            InAppReviewManager.onManualReviewRequested()
-            reviewManager.launchReviewFlow(it, reviewInfo).addOnCompleteListener(it) { task ->
-                if (!task.isSuccessful) {
-                    openGooglePlay()
-                }
-            }
-        }
+        openGooglePlay()
     }
 
     private fun openGooglePlay() {

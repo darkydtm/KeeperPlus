@@ -82,6 +82,9 @@ class BrowserBaseViewModel(
     }
 
     suspend fun hasCategory(category: String): Boolean = withContext(Dispatchers.IO) {
+        if (!settingsRepository.promotionsEnabled) {
+            return@withContext false
+        }
         val categories = browserRepository.loadCategories(
             country = environment.deviceCountry,
             network = wallet.network,

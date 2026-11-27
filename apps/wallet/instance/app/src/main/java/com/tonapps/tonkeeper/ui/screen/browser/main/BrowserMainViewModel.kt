@@ -42,6 +42,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -93,25 +95,26 @@ class BrowserMainViewModel(
     @Volatile
     private var isExploreFailed = false
 
-    private val browserDataFlow = flow {
-        if (isDappsDisabled) {
-            // Nothing to load: the screen shows its final content at once.
-            screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.Browser)
-        } else {
-            emitAll(
-                browserRepository.dataFlow(
-                    country = environment.deviceCountry,
-                    network = wallet.network,
-                    locale = settings.getLocale(),
-                    walletId = wallet.multichainWalletId,
-                    onCached = {
-                        isExploreLoaded = true
-                        screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Browser)
-                    },
-                    onRemoteStarted = { screenRender.requestStarted(ScreenRenderId.Browser) },
-                    onRemoteFinished = { isLoaded -> reportRemoteLoad(isLoaded) },
+    private val browserDataFlow = settings.promotionsEnabledFlow.flatMapLatest { enabled ->
+        if (!enabled) flowOf(BrowserDataEntity(emptyList(), emptyList())) else flow {
+            if (isDappsDisabled) {
+                screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.Browser)
+            } else {
+                emitAll(
+                    browserRepository.dataFlow(
+                        country = environment.deviceCountry,
+                        network = wallet.network,
+                        locale = settings.getLocale(),
+                        walletId = wallet.multichainWalletId,
+                        onCached = {
+                            isExploreLoaded = true
+                            screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Browser)
+                        },
+                        onRemoteStarted = { screenRender.requestStarted(ScreenRenderId.Browser) },
+                        onRemoteFinished = { isLoaded -> reportRemoteLoad(isLoaded) },
+                    )
                 )
-            )
+            }
         }
     }
 

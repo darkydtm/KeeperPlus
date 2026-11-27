@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.tonkeeperx.R
 import uikit.extensions.drawable
 
@@ -87,7 +86,8 @@ enum class LauncherIcon(
                 }
                 return true
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 return false
             }
         }

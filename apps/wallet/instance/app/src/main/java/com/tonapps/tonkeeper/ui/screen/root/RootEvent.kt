@@ -62,5 +62,4 @@ sealed class RootEvent {
         val url: Uri,
     ): RootEvent()
 
-    data object CheckGooglePlayUpdate: RootEvent()
 }

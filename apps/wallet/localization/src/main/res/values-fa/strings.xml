@@ -60,7 +60,7 @@
     <string name="backup_attention_description">لطفاً پیش از مشاهده عبارت بازیابی، موارد زیر را با دقت بخوانید.</string>
     <string name="backup_attention_line_1">هرگز عبارت بازیابی خود را با کسی به اشتراک نگذارید.</string>
     <string name="backup_attention_line_2">اگر کسی عبارت بازیابی شما را داشته باشد، می‌تواند به کیف پول شما دسترسی داشته باشد و موجودی را برداشت کند.</string>
-    <string name="backup_attention_line_3">پشتیبانی Keeper هرگز عبارت بازیابی شما را درخواست نمی‌کند.</string>
+    <string name="backup_attention_line_3">پشتیبانی Keeper + هرگز عبارت بازیابی شما را درخواست نمی‌کند.</string>
     <string name="backup_attention_title">بررسی ایمنی</string>
     <string name="backup_check">بررسی پشتیبان</string>
     <string name="backup_check_choose_subtitle">بیایید ببینیم همه‌چیز را درست انجام داده‌اید. کلمات %1$d، %2$d و %3$d را انتخاب کنید.</string>
@@ -68,7 +68,7 @@
     <string name="backup_check_subtitle">بیایید ببینیم همه‌چیز را درست انجام داده‌اید. کلمات %1$d، %2$d و %3$d را وارد کنید.</string>
     <string name="badge_new">جدید</string>
     <string name="balance_prefix">موجودی: %1$s</string>
-    <string name="banner_top">شما در حال استفاده از نسخه آزمایشی Keeper هستید.</string>
+    <string name="banner_top">شما در حال استفاده از نسخه آزمایشی Keeper + هستید.</string>
     <string name="banner_top_button">نصب نسخه پایدار</string>
     <string name="battery">باتری</string>
     <string name="battery_best_value">به‌صرفه‌ترین</string>
@@ -112,16 +112,16 @@
     <string name="battery_refill_gift_subtitle">با دوستان به اشتراک بگذارید</string>
     <string name="battery_refill_negative_balance">باتری شما به دلیل خریدهای بازپرداخت‌شده خالی شد. برای ادامه، شارژهای خود را افزایش دهید.</string>
     <string name="battery_refill_subtitle">توکن‌های GRAM را سواپ و ارسال کنید و کارمزد TRC-20 کمتری بپردازید</string>
-    <string name="battery_refill_title">باتری Keeper</string>
+    <string name="battery_refill_title">باتری Keeper +</string>
     <string name="battery_refilled">باتری شارژ شد</string>
     <string name="battery_refund_subtitle">شارژها و بازپرداخت‌ها</string>
     <string name="battery_refund_title">تاریخچه شارژ</string>
     <string name="battery_required_text">شارژهای باتری برای پرداخت کارمزد تراکنش‌ها استفاده می‌شوند و انتقال‌ها را ساده‌تر و مقرون‌به‌صرفه‌تر می‌کنند.</string>
-    <string name="battery_required_title">برای %1$s به باتری Keeper نیاز است</string>
+    <string name="battery_required_title">برای %1$s به باتری Keeper + نیاز است</string>
     <string name="battery_small_pack">کوچک</string>
     <plurals name="battery_swap">
-        <item quantity="one">≈ %1$s سواپ از طریق Keeper</item>
-        <item quantity="other">≈ %1$s سواپ از طریق Keeper</item>
+        <item quantity="one">≈ %1$s سواپ از طریق Keeper +</item>
+        <item quantity="other">≈ %1$s سواپ از طریق Keeper +</item>
     </plurals>
     <string name="battery_top_up_for">شارژ به مبلغ %1$s</string>
     <string name="battery_topped_up">باتری شارژ شد</string>
@@ -129,7 +129,7 @@
     <string name="biometric_description">همیشه می‌توانید کیف پول خود را با رمز عبور باز کنید.</string>
     <string name="biometric_enabled">بیومتریک فعال شد</string>
     <string name="blockchain_fees">کارمزدهای بلاکچین</string>
-    <string name="blockchain_fees_desc">باتری Keeper ساده‌ترین راه پرداخت کارمزدهای بلاکچین است. همچنین می‌توانید موجودی را مستقیماً با کوین‌های GRAM و TRX افزایش دهید.</string>
+    <string name="blockchain_fees_desc">باتری Keeper + ساده‌ترین راه پرداخت کارمزدهای بلاکچین است. همچنین می‌توانید موجودی را مستقیماً با کوین‌های GRAM و TRX افزایش دهید.</string>
     <string name="bluetooth_permissions_alert_message">لطفاً برای استفاده از این قابلیت، مجوزهای بلوتوث را در تنظیمات فعال کنید</string>
     <string name="bluetooth_permissions_alert_open_settings">باز کردن تنظیمات</string>
     <string name="bluetooth_permissions_alert_title">مجوزهای بلوتوث</string>
@@ -245,7 +245,7 @@
     <string name="connected_apps_empty">هیچ برنامه متصلی وجود ندارد</string>
     <string name="connected_apps_source_deeplink">لینک خارجی</string>
     <string name="connected_apps_source_qr">دستگاه دیگر</string>
-    <string name="connected_placeholder_subtitle">برنامه‌ها و سرویس‌ها را در مرورگر Keeper کاوش کنید.</string>
+    <string name="connected_placeholder_subtitle">برنامه‌ها و سرویس‌ها را در مرورگر Keeper + کاوش کنید.</string>
     <string name="connected_placeholder_title">برنامه‌های متصل اینجا نمایش داده می‌شوند</string>
     <string name="connecting">در حال اتصال</string>
     <string name="contact_delete_dialog">آیا مطمئن هستید که می‌خواهید «%1$s» را از دفترچه آدرس خود حذف کنید؟</string>
@@ -272,13 +272,13 @@
     <string name="customize">شخصی‌سازی</string>
     <string name="customize_wallet_subtitle">نام و آیکون کیف پول به‌صورت محلی روی دستگاه شما ذخیره می‌شود.</string>
     <string name="customize_wallet_title">کیف پول خود را شخصی‌سازی کنید</string>
-    <string name="dapp_disclaimer">شما در حال باز کردن یک برنامه خارجی هستید که توسط Keeper اداره نمی‌شود. فقط در صورتی ادامه دهید که به منبع آن اعتماد دارید.</string>
+    <string name="dapp_disclaimer">شما در حال باز کردن یک برنامه خارجی هستید که توسط Keeper + اداره نمی‌شود. فقط در صورتی ادامه دهید که به منبع آن اعتماد دارید.</string>
     <string name="dapp_load_failed_subtitle">صفحه بارگیری نشد. دوباره تلاش کنید.</string>
     <string name="dapp_manifest_error">بارگذاری منیفست dApp ممکن نشد. لطفاً دوباره امتحان کنید.</string>
     <string name="dapp_safe_modal_subtitle">به دلایل امنیتی آن را باز نکردیم</string>
     <string name="dapp_safe_modal_title">این لینک به یک سرویس کلاهبرداری منتهی می‌شود</string>
     <string name="dapp_safe_model_button">چگونه ایمن بمانیم</string>
-    <string name="dapp_share_subtitle">این لینک %1$s را مستقیماً در Keeper باز می‌کند. می‌توانید بعداً دوباره از آن استفاده کنید یا در صورت نیاز آن را به اشتراک بگذارید.</string>
+    <string name="dapp_share_subtitle">این لینک %1$s را مستقیماً در Keeper + باز می‌کند. می‌توانید بعداً دوباره از آن استفاده کنید یا در صورت نیاز آن را به اشتراک بگذارید.</string>
     <string name="dapp_share_title">اشتراک‌گذاری %1$s</string>
     <string name="decrypt_comment">رمزگشایی</string>
     <string name="decrypted_comment_action">رمزگشایی کامنت</string>
@@ -457,11 +457,11 @@
     <string name="intro_description">کیف پول جدیدی بسازید یا کیف پول موجود را اضافه کنید</string>
     <string name="intro_line_1_description">TON شبکه‌ای است که برای سرعت و توان عملیاتی طراحی شده است. کارمزدها به‌مراتب کمتر از سایر بلاکچین‌هاست و تراکنش‌ها در چند ثانیه تأیید می‌شوند.</string>
     <string name="intro_line_1_title">سرعت در کلاس جهانی</string>
-    <string name="intro_line_2_description">Keeper کلیدهای رمزنگاری شما را روی دستگاه خودتان نگه می‌دارد، بدون نیاز به مدارک، اطلاعات شخصی، اطلاعات تماس یا احراز هویت (KYC).</string>
+    <string name="intro_line_2_description">Keeper + کلیدهای رمزنگاری شما را روی دستگاه خودتان نگه می‌دارد، بدون نیاز به مدارک، اطلاعات شخصی، اطلاعات تماس یا احراز هویت (KYC).</string>
     <string name="intro_line_2_title">امنیت سرتاسری</string>
     <string name="intro_line_3_description">اشتراک‌های TON همتابه‌همتا و بدون مرز هستند تا هیچ‌کس نتواند ارائه‌دهندگان یا مشتریان را محدود کند. کارمزد تقریباً صفر و کنترل کامل برای شما.</string>
     <string name="intro_line_3_title">اشتراک‌های داخلی</string>
-    <string name="intro_title" formatted="true">به <annotation colorAttr="textAccentColor">Keeper</annotation> خوش آمدید</string>
+    <string name="intro_title" formatted="true">به <annotation colorAttr="textAccentColor">Keeper +</annotation> خوش آمدید</string>
     <string name="invalid_address">آدرس کیف پول نامعتبر است.</string>
     <string name="invalid_link">لینک نامعتبر</string>
     <string name="jetton_transfer">انتقال %1$s</string>
@@ -519,7 +519,7 @@
     <string name="ledger_mc_comment_rules">Ledger توضیحات تا ۱۲۰ نویسه را نشان می‌دهد: حروف لاتین، ارقام و علائم نگارشی.</string>
     <string name="ledger_mc_connection_allow">اجازه دادن</string>
     <string name="ledger_mc_connection_bluetooth_off">بلوتوث خاموش است</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper از طریق بلوتوث با Ledger ارتباط برقرار می‌کند</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper + از طریق بلوتوث با Ledger ارتباط برقرار می‌کند</string>
     <string name="ledger_mc_connection_busy">در حال استفاده</string>
     <string name="ledger_mc_connection_check">بررسی</string>
     <string name="ledger_mc_connection_checked">Ledger متصل است</string>
@@ -530,9 +530,9 @@
     <string name="ledger_mc_connection_location_off">موقعیت مکانی خاموش است</string>
     <string name="ledger_mc_connection_location_off_hint">نسخهٔ Android شما برای یافتن دستگاه‌های بلوتوث به موقعیت مکانی نیاز دارد</string>
     <string name="ledger_mc_connection_nearby">در نزدیکی</string>
-    <string name="ledger_mc_connection_nearby_hint">Keeper هنگام تأیید تراکنش به آن متصل می‌شود</string>
+    <string name="ledger_mc_connection_nearby_hint">Keeper + هنگام تأیید تراکنش به آن متصل می‌شود</string>
     <string name="ledger_mc_connection_no_permission">دسترسی به دستگاه‌های نزدیک وجود ندارد</string>
-    <string name="ledger_mc_connection_no_permission_hint">در تنظیمات برنامه به Keeper اجازه دهید دستگاه‌های نزدیک را پیدا کند</string>
+    <string name="ledger_mc_connection_no_permission_hint">در تنظیمات برنامه به Keeper + اجازه دهید دستگاه‌های نزدیک را پیدا کند</string>
     <string name="ledger_mc_connection_not_found">در نزدیکی پیدا نشد</string>
     <string name="ledger_mc_connection_not_found_hint">آن را روشن کنید، قفلش را باز کنید و نزدیک بیاورید. اگر Ledger Live باز است، آن را ببندید.</string>
     <string name="ledger_mc_connection_searching">در حال جستجوی Ledger شما…</string>
@@ -562,7 +562,7 @@
     <string name="ledger_mc_error_not_found">Ledger پیدا نشد. مطمئن شوید روشن است، قفل آن باز است، نزدیک شماست و Bluetooth روی آن فعال است.</string>
     <string name="ledger_mc_error_pairing">جفت‌سازی رد شد. درخواست جفت‌سازی را هم روی گوشی و هم روی Ledger بپذیرید.</string>
     <string name="ledger_mc_error_pairing_lost">Ledger دیگر این گوشی را نمی‌شناسد. آن را از تنظیمات Bluetooth گوشی حذف کنید و دوباره جفت کنید.</string>
-    <string name="ledger_mc_error_permission">Keeper برای ارتباط با Ledger به دسترسی Bluetooth نیاز دارد.</string>
+    <string name="ledger_mc_error_permission">Keeper + برای ارتباط با Ledger به دسترسی Bluetooth نیاز دارد.</string>
     <string name="ledger_mc_error_raw_messages">گزینه «Blind signing» یا «Raw messages» را در تنظیمات برنامه %1$s روی Ledger فعال کنید.</string>
     <string name="ledger_mc_error_refused">درخواست روی Ledger رد شد.</string>
     <string name="ledger_mc_error_scan_unavailable">Android جست‌وجوی Bluetooth را برای مدت کوتاهی متوقف کرد. چند ثانیه صبر کنید و دوباره امتحان کنید.</string>
@@ -579,7 +579,7 @@
     <string name="ledger_mc_item_subtitle">کیف پول سخت‌افزاری از طریق USB یا Bluetooth. کلیدها هرگز از دستگاه خارج نمی‌شوند</string>
     <string name="ledger_mc_item_title">اتصال Ledger</string>
     <string name="ledger_mc_location_off">Android برای پیدا کردن دستگاه‌های Bluetooth به روشن بودن موقعیت مکانی نیاز دارد.</string>
-    <string name="ledger_mc_migrate_description">Ledgerی را که %1$s روی آن است وصل کنید. Keeper آدرس‌های Ethereum، Bitcoin، Solana و شبکه‌های دیگر را می‌خواند و کیف پول با همان آدرس TON چندزنجیره‌ای می‌شود.</string>
+    <string name="ledger_mc_migrate_description">Ledgerی را که %1$s روی آن است وصل کنید. Keeper + آدرس‌های Ethereum، Bitcoin، Solana و شبکه‌های دیگر را می‌خواند و کیف پول با همان آدرس TON چندزنجیره‌ای می‌شود.</string>
     <string name="ledger_mc_migrate_tooltip">Ethereum، Bitcoin، Solana و شبکه‌های دیگر را به این کیف پول Ledger اضافه کنید</string>
     <string name="ledger_mc_networks_added">شبکه‌ها اضافه شدند</string>
     <string name="ledger_mc_nothing_to_add">همه شبکه‌های پشتیبانی‌شده قبلاً اضافه شده‌اند</string>
@@ -591,8 +591,8 @@
     <string name="ledger_mc_paired">Ledger متصل شد</string>
     <string name="ledger_mc_permission_denied">دسترسی به Bluetooth خاموش است. برای اتصال Ledger، دسترسی به دستگاه‌های نزدیک را در تنظیمات مجاز کنید.</string>
     <string name="ledger_mc_permission_denied_location">دسترسی موقعیت مکانی خاموش است. آن را در تنظیمات مجاز کنید تا Android بتواند Ledger را از طریق Bluetooth پیدا کند.</string>
-    <string name="ledger_mc_permission_description">به Keeper اجازه دهید دستگاه‌های نزدیک را پیدا کند تا Ledger شما از طریق Bluetooth متصل شود.</string>
-    <string name="ledger_mc_permission_description_location">Android برای یافتن دستگاه‌های Bluetooth به دسترسی موقعیت مکانی نیاز دارد. Keeper از موقعیت شما استفاده نمی‌کند.</string>
+    <string name="ledger_mc_permission_description">به Keeper + اجازه دهید دستگاه‌های نزدیک را پیدا کند تا Ledger شما از طریق Bluetooth متصل شود.</string>
+    <string name="ledger_mc_permission_description_location">Android برای یافتن دستگاه‌های Bluetooth به دسترسی موقعیت مکانی نیاز دارد. Keeper + از موقعیت شما استفاده نمی‌کند.</string>
     <string name="ledger_mc_progress_bitcoin_change">Ledger همچنین %1$s را که به آدرس خودتان برمی‌گردد نشان می‌دهد. این باقی‌مانده است:</string>
     <string name="ledger_mc_progress_close_app">در حال بستن %1$s روی Ledger</string>
     <string name="ledger_mc_progress_confirm_account_step">حساب %1$d از %2$d. Ledger دامنه برنامه را «Keeper wallet» نشان می‌دهد</string>
@@ -784,7 +784,7 @@
     <string name="mute">بی‌صدا</string>
     <string name="name">نام</string>
     <string name="name_your_wallet">نام‌گذاری کیف پول</string>
-    <string name="name_your_wallet_subtitle">برای شناسایی آسان کیف پول هنگام استفاده از Keeper، نامی برای آن انتخاب کنید. این نام‌ها به‌صورت محلی ذخیره می‌شوند و فقط شما آنها را می‌بینید.</string>
+    <string name="name_your_wallet_subtitle">برای شناسایی آسان کیف پول هنگام استفاده از Keeper +، نامی برای آن انتخاب کنید. این نام‌ها به‌صورت محلی ذخیره می‌شوند و فقط شما آنها را می‌بینید.</string>
     <string name="network">شبکه</string>
     <string name="network_fee">کارمزد شبکه</string>
     <string name="networks">شبکه‌ها</string>
@@ -986,7 +986,7 @@
     <string name="perps_deposit_min_amount_usd">حداقل واریز %1$s است</string>
     <string name="perps_deposit_network_fee_line">کارمزد شبکه %1$s</string>
     <string name="perps_deposit_network_fees">کارمزدهای شبکه</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper هیچ سهمی از این کارمزدها نمی‌گیرد.</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper + هیچ سهمی از این کارمزدها نمی‌گیرد.</string>
     <string name="perps_deposit_no_quote">قیمتی نیست</string>
     <string name="perps_deposit_no_quote_change_amount">دریافت قیمت ممکن نشد. مبلغ را تغییر دهید</string>
     <string name="perps_deposit_no_sources">دارایی پشتیبانی‌شده‌ای برای واریز وجود ندارد</string>
@@ -1159,7 +1159,7 @@
     <string name="perps_reduce_margin_description">وقتی موقعیت شما قوی است، بخشی از مارجین را برداشت کنید</string>
     <string name="perps_reduce_only_full">این موقعیت برای کاهش خیلی کوچک است. از «بستن موقعیت» استفاده کنید.</string>
     <string name="perps_region_restricted_banner">می‌توانید بازارها را ببینید، اما واریز و معامله غیرفعال است.</string>
-    <string name="perps_region_restricted_caption">واریز و معامله برای موقعیت مکانی شما غیرفعال است. اگر از VPN استفاده می‌کنید، آن را خاموش کنید و Keeper را دوباره باز کنید.</string>
+    <string name="perps_region_restricted_caption">واریز و معامله برای موقعیت مکانی شما غیرفعال است. اگر از VPN استفاده می‌کنید، آن را خاموش کنید و Keeper + را دوباره باز کنید.</string>
     <string name="perps_region_restricted_title">فیوچرز در منطقه شما در دسترس نیست</string>
     <string name="perps_retry">تلاش دوباره</string>
     <string name="perps_review_add_long_title">افزودن به لانگ %1$s</string>
@@ -1219,7 +1219,7 @@
     <string name="perps_risk_disclosure_footnote">افشای ریسک · با پشتیبانی Lighter</string>
     <string name="perps_risk_disclosure_keeper_terms">شرایط استفاده Keeper</string>
     <string name="perps_risk_disclosure_lighter_terms">شرایط Lighter</string>
-    <string name="perps_risk_disclosure_text">ممکن است به‌دلیل اهرم و نوسانات بازار، کل سرمایه خود را به‌سرعت از دست بدهید. موقعیت‌ها ممکن است به‌طور خودکار لیکویید شوند. قیمت‌ها به نرخ‌های فاندینگ و نقدینگی بستگی دارند. قراردادهای دائمی و داده‌های بازار توسط Lighter، یک پروتکل شخص ثالث، ارائه می‌شوند. Keeper یک رابط غیرامانی ارائه می‌دهد، معاملات را اجرا نمی‌کند و مشاوره سرمایه‌گذاری نمی‌دهد.</string>
+    <string name="perps_risk_disclosure_text">ممکن است به‌دلیل اهرم و نوسانات بازار، کل سرمایه خود را به‌سرعت از دست بدهید. موقعیت‌ها ممکن است به‌طور خودکار لیکویید شوند. قیمت‌ها به نرخ‌های فاندینگ و نقدینگی بستگی دارند. قراردادهای دائمی و داده‌های بازار توسط Lighter، یک پروتکل شخص ثالث، ارائه می‌شوند. Keeper + یک رابط غیرامانی ارائه می‌دهد، معاملات را اجرا نمی‌کند و مشاوره سرمایه‌گذاری نمی‌دهد.</string>
     <string name="perps_risk_disclosure_title">افشای ریسک</string>
     <string name="perps_search_hint">جست‌وجو بر اساس نماد یا نام</string>
     <string name="perps_service_perps">فیوچرز</string>
@@ -1297,7 +1297,7 @@
     </plurals>
     <string name="raffle_ends_in">%1$s دیگر به پایان می‌رسد</string>
     <string name="raffle_faq">سؤالات متداول</string>
-    <string name="raffle_faq_about_a">در %1$s یک قرعه‌کشی چندزنجیره‌ای با بیش از ۲٬۰۰۰ برنده راه‌اندازی می‌کنیم. بلیط‌ها شانس شما برای برنده شدن هستند.\n\nپیش از آن به چندزنجیره‌ای مهاجرت کنید تا ۱۰ بلیط دریافت کنید؛ این تشکر ما از شماست که از کاربران قدیمی Keeper هستید.\n\nجوایز، راه‌های بیشتر برای کسب بلیط و سازوکار کامل، هفته آینده اعلام می‌شوند.</string>
+    <string name="raffle_faq_about_a">در %1$s یک قرعه‌کشی چندزنجیره‌ای با بیش از ۲٬۰۰۰ برنده راه‌اندازی می‌کنیم. بلیط‌ها شانس شما برای برنده شدن هستند.\n\nپیش از آن به چندزنجیره‌ای مهاجرت کنید تا ۱۰ بلیط دریافت کنید؛ این تشکر ما از شماست که از کاربران قدیمی Keeper + هستید.\n\nجوایز، راه‌های بیشتر برای کسب بلیط و سازوکار کامل، هفته آینده اعلام می‌شوند.</string>
     <string name="raffle_faq_about_q">Mystery Raffle چیست؟</string>
     <string name="raffle_faq_earn_a">• %1$s برای مهاجرت از کیف پول TON به کیف پول چندزنجیره‌ای\n• ۱ بلیط برای هر $100 سواپ بین‌زنجیره‌ای\n• تا ۱۰۰۰ بلیط جایزه برای تکمیل پاداش‌های مرحله‌ای\n• وظایف بیشتر در طول کمپین اعلام می‌شوند</string>
     <string name="raffle_faq_earn_q">چگونه بلیط کسب کنم؟</string>
@@ -1348,7 +1348,7 @@
     <string name="ramp_withdrawal_fee">کارمزد برداشت</string>
     <string name="ramp_withdrawal_time">زمان برداشت</string>
     <string name="rate">نرخ</string>
-    <string name="rate_tonkeeper">به Keeper امتیاز دهید</string>
+    <string name="rate_tonkeeper">به Keeper + امتیاز دهید</string>
     <string name="receive">دریافت</string>
     <string name="receive_asset_description">فقط %1$s (%2$s) و توکن‌های شبکه %1$s را به این آدرس ارسال کنید، در غیر این صورت ممکن است دارایی‌های خود را از دست بدهید.</string>
     <string name="receive_asset_title">آدرس %1$s شما</string>
@@ -1369,9 +1369,9 @@
     <string name="refill">شارژ مجدد</string>
     <string name="refresh">تازه‌سازی</string>
     <string name="refund">بازپرداخت</string>
-    <string name="reinstall_description">برخی از فایل‌های برنامه در این دستگاه وجود ندارند. برای رفع مشکل، Keeper را از Google Play نصب کنید.</string>
+    <string name="reinstall_description">برخی از فایل‌های برنامه در این دستگاه وجود ندارند. برای رفع مشکل، Keeper + را از Google Play نصب کنید.</string>
     <string name="reinstall_open_google_play">باز کردن Google Play</string>
-    <string name="reinstall_title">Keeper اجرا نمی‌شود</string>
+    <string name="reinstall_title">Keeper + اجرا نمی‌شود</string>
     <string name="rejected">رد شد</string>
     <string name="remaining_balance">باقی‌مانده: %1$s</string>
     <string name="remind_me_later">بعداً یادآوری کن</string>
@@ -1470,7 +1470,7 @@
     <string name="sign_message_error_invalid_request">درخواست نامعتبر</string>
     <string name="sign_message_error_network_mismatch">این درخواست برای شبکه دیگری است</string>
     <string name="sign_message_error_not_supported">این کیف پول نمی‌تواند این درخواست را امضا کند</string>
-    <string name="sign_message_not_sent_warning">Keeper این تراکنش را ارسال نمی‌کند. %1$s آن را اکنون یا بعداً ارسال می‌کند و کارمزد شبکه را می‌پردازد.</string>
+    <string name="sign_message_not_sent_warning">Keeper + این تراکنش را ارسال نمی‌کند. %1$s آن را اکنون یا بعداً ارسال می‌کند و کارمزد شبکه را می‌پردازد.</string>
     <string name="sign_out">خروج</string>
     <string name="sign_out_description">با این کار کلید کیف پول شما پاک می‌شود. مطمئن شوید از عبارت بازیابی خود نسخه پشتیبان تهیه کرده‌اید.</string>
     <string name="sign_out_title">🚧 🚨 خارج می‌شوید؟ 🚨 🚧</string>
@@ -1511,7 +1511,7 @@
     <string name="staking_current_round">چرخه فعلی</string>
     <string name="staking_deposit_wallet">شارژ کیف پول</string>
     <string name="staking_details">جزئیات</string>
-    <string name="staking_details_description">استیکینگ بر پایه قراردادهای هوشمند اشخاص ثالث است. Keeper مسئولیتی در قبال تجربه استیکینگ ندارد.</string>
+    <string name="staking_details_description">استیکینگ بر پایه قراردادهای هوشمند اشخاص ثالث است. Keeper + مسئولیتی در قبال تجربه استیکینگ ندارد.</string>
     <string name="staking_first_reward">اولین پاداش</string>
     <string name="staking_get_withdraw">دریافت برداشت</string>
     <string name="staking_insufficient_required">مورد نیاز برای عملیات: %1$s.</string>
@@ -1560,10 +1560,10 @@
     <string name="staking_withdrawal_amount">مبلغ برداشت</string>
     <string name="start_agree">با ادامه دادن، با <annotation colorAttr="textAccentColor">شرایط استفاده</annotation> ما موافقت می‌کنید</string>
     <string name="start_create_new_wallet">ساخت کیف پول جدید</string>
-    <string name="start_dialog_description">برای استفاده از Keeper به یک کیف پول متصل نیاز دارید. یا کیف پول جدیدی بسازید یا کیف پول موجود را وارد کنید.</string>
+    <string name="start_dialog_description">برای استفاده از Keeper + به یک کیف پول متصل نیاز دارید. یا کیف پول جدیدی بسازید یا کیف پول موجود را وارد کنید.</string>
     <string name="start_dialog_title">بیایید کیف پول شما را راه‌اندازی کنیم</string>
     <string name="start_import_wallet">وارد کردن کیف پول موجود</string>
-    <string name="start_title">Keeper</string>
+    <string name="start_title">Keeper +</string>
     <string name="step_1">مرحله ۱</string>
     <string name="step_2">مرحله ۲</string>
     <string name="step_3">مرحله ۳</string>
@@ -1726,15 +1726,15 @@
     <string name="unverified_token_reason_3">برای اسپم استفاده می‌شود. برای ارسال انبوه پیام‌های ناخواسته و اغلب نامرتبط به کار می‌رود.</string>
     <string name="unverified_token_reason_4">برای کلاهبرداری استفاده می‌شود. نام یا تصویر توکن می‌تواند کاربران را فریب دهد.</string>
     <string name="up_to_duration">تا %1$s %2$s</string>
-    <string name="update_tonkeeper">به‌روزرسانی Keeper</string>
-    <string name="update_tonkeeper_subtitle">نسخه جدیدی از Keeper در دسترس است. می‌توانید همین حالا آن را دانلود کنید.</string>
+    <string name="update_tonkeeper">به‌روزرسانی Keeper +</string>
+    <string name="update_tonkeeper_subtitle">نسخه جدیدی از Keeper + در دسترس است. می‌توانید همین حالا آن را دانلود کنید.</string>
     <string name="updating">در حال به‌روزرسانی</string>
     <string name="use_biometric">استفاده از بیومتریک</string>
     <string name="v4r2_wallet">کیف پول v4R2</string>
     <string name="value_difference">اختلاف ارزش</string>
     <string name="value_difference_info">میزان جابه‌جایی قیمت توسط معامله شما — مقدار مثبت به نفع شما و مقدار منفی به ضرر شماست.</string>
     <string name="verified_token">توکن تأییدشده</string>
-    <string name="verified_token_caption">این توکن فعالانه معامله می‌شود و به‌طور گسترده شناخته شده است. تأیید به معنای توصیه یا تضمین از سوی Keeper نیست.</string>
+    <string name="verified_token_caption">این توکن فعالانه معامله می‌شود و به‌طور گسترده شناخته شده است. تأیید به معنای توصیه یا تضمین از سوی Keeper + نیست.</string>
     <string name="version">نسخه %1$s (%2$d)</string>
     <string name="view_details">مشاهده جزئیات</string>
     <string name="view_in_explorer">مشاهده در اکسپلورر</string>

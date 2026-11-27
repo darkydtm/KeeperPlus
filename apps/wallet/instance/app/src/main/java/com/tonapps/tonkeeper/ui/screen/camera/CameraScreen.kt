@@ -10,8 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.mlkit.vision.common.InputImage
+import com.tonapps.qr.QRImageAnalyzer
 import com.tonapps.blockchain.contract.Blockchain
 import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.ton.TonNetwork
@@ -40,7 +39,6 @@ import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.localization.Localization
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -210,9 +208,7 @@ class CameraScreen : QRCameraScreen(R.layout.fragment_camera), BaseFragment.Bott
 
     private suspend fun readQRCode(uri: Uri): String? = withContext(Dispatchers.IO) {
         try {
-            val inputImage = InputImage.fromFilePath(requireContext(), uri)
-            val task = barcodeScanner.process(inputImage).await()
-            task.firstOrNull()?.rawValue
+            QRImageAnalyzer.readImage(requireContext(), uri)
         } catch (e: Throwable) {
             null
         }
@@ -222,7 +218,8 @@ class CameraScreen : QRCameraScreen(R.layout.fragment_camera), BaseFragment.Bott
         try {
             imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 

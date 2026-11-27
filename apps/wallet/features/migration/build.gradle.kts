@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    testImplementation(libs.junit)
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.debugTooling)
