@@ -9,6 +9,15 @@ permissions:
   packages: read
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate Android localization resources
+        run: python3 tools/locales.py --platform android --res apps/wallet/localization/src/main/res validate
+
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -25,9 +34,11 @@ jobs:
           cache-read-only: ${{ github.event_name != 'push' || github.ref != 'refs/heads/main' }}
       - name: Configure package access without secrets
         if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        env:
+          PACKAGE_TOKEN: ${{ github.token }}
         run: |
-          printf 'GITHUB_USER=unauthenticated\nGITHUB_TOKEN=unauthenticated\n' > local.properties
-          echo 'GitHub Packages credentials are unavailable on this event; dependency resolution will fail if authentication is required.'
+          umask 077
+          printf 'GITHUB_USER=%s\nGITHUB_TOKEN=%s\n' "$GITHUB_ACTOR" "$PACKAGE_TOKEN" > local.properties
       - name: Configure trusted push
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
@@ -128,14 +139,15 @@ jobs:
 
   gate:
     if: always()
-    needs: android
+    needs: [quality, android]
     runs-on: ubuntu-latest
     steps:
       - name: Require Android verification
         env:
-          RESULT: ${{ needs.android.result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          ANDROID_RESULT: ${{ needs.android.result }}
         run: |
-          if [ "$RESULT" != success ]; then
-            echo "::error::Android verification result: $RESULT"
+          if [ "$QUALITY_RESULT" != success ] || [ "$ANDROID_RESULT" != success ]; then
+            echo "::error::Verification results: quality=$QUALITY_RESULT android=$ANDROID_RESULT"
             exit 1
           fi
