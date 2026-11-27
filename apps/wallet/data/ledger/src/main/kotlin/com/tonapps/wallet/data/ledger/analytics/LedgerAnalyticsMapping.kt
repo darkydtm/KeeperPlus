@@ -1,8 +1,6 @@
 package com.tonapps.wallet.data.ledger.analytics
 
 import com.tonapps.log.L
-import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDiscoveryErrorFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerFlowFailureType
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerFlowLedgerApp
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerFlowLedgerModel
@@ -135,18 +133,6 @@ fun LedgerAppId.toLedgerFlowApp(): LedgerFlowLedgerApp = when (this) {
 fun Iterable<LedgerChainApp>.toAnalyticsApps(): String = map { it.appId.toLedgerFlowApp().key }
     .sorted()
     .joinToString(separator = ",")
-
-fun Events.LedgerFlow.ledgerAppsSkipped(from: LedgerDiscoveryErrorFrom, skipped: Map<LedgerChainApp, LedgerFailure>, model: LedgerModel?) {
-    for ((app, reason) in skipped) {
-        val failureType = reason.toFailureType() ?: continue
-        ledgerDiscoveryError(
-            from = from,
-            ledgerApp = app.appId.toLedgerFlowApp(),
-            failureType = failureType,
-            ledgerModel = model?.toLedgerFlowModel(),
-        )
-    }
-}
 
 fun LedgerAppSetting.toLedgerFlowSetting(): LedgerFlowLedgerSetting = when (this) {
     LedgerAppSetting.BlindSigning -> LedgerFlowLedgerSetting.BlindSigning
