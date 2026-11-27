@@ -27,7 +27,6 @@ import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.core.helper.nftAnalyticsAssetId
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.deposit.multicoin.analytics.asDepositFlowFrom
 import com.tonapps.deposit.screens.qr.QrAssetFragment

@@ -17,7 +17,6 @@ import com.tonapps.blockchain.ton.extensions.equalsRawAddress
 import com.tonapps.blockchain.ton.extensions.toRawAddress
 import com.tonapps.bus.core.contract.RedAttemptSource
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.core.helper.SendRedMetadata
 import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.core.helper.analyticsAssetId

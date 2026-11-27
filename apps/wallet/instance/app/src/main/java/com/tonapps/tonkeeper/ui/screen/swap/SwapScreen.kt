@@ -16,7 +16,6 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.bus.core.contract.RedAttemptSource
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.extensions.currentTimeMillis
 import com.tonapps.extensions.generateUuid
 import com.tonapps.extensions.locale

@@ -14,7 +14,6 @@ import com.tonapps.extensions.toUriOrNull
 import com.tonapps.perps.PerpsFragment
 import com.tonapps.perps.screens.common.PerpsSkipIntroDialog
 import com.tonapps.tonkeeper.Environment
-import com.tonapps.tonkeeper.koin.analytics
 import com.tonapps.tonkeeper.koin.serverConfig
 import com.tonapps.wallet.api.entity.StoryEntity
 import com.tonapps.wallet.data.settings.SettingsRepository

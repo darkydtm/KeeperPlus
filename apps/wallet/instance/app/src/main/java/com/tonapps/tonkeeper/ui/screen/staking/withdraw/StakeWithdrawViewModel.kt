@@ -14,7 +14,6 @@ import com.tonapps.blockchain.ton.extensions.storeCoins
 import com.tonapps.blockchain.ton.extensions.storeOpCode
 import com.tonapps.blockchain.ton.extensions.storeQueryId
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.core.helper.TON_COIN_ASSET_ID
 import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.deposit.usecase.emulation.Emulated

@@ -14,7 +14,6 @@ import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.ton.connect.TONProof
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.emoji.ui.EmojiView
 import com.tonapps.extensions.currentTimeMillis
 import com.tonapps.extensions.generateUuid
