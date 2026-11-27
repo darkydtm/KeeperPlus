@@ -45,7 +45,6 @@ jobs:
     env:
       VERSION_NAME: ${{ inputs.version_name }}
       VERSION_CODE: ${{ inputs.version_code }}
-      ANDROID_RELEASE_KEYSTORE: ${{ runner.temp }}/android-release.keystore
       ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
       ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
       ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
@@ -70,6 +69,7 @@ jobs:
           printf 'GITHUB_USER=%s\nGITHUB_TOKEN=%s\n' "$GITHUB_ACTOR" "$GH_PACKAGE_TOKEN" > local.properties
       - name: Decode signing key
         env:
+          ANDROID_RELEASE_KEYSTORE: ${{ runner.temp }}/android-release.keystore
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
           CERT_SHA256: ${{ secrets.RELEASE_CERT_SHA256 }}
         shell: bash
@@ -80,6 +80,8 @@ jobs:
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$ANDROID_RELEASE_KEYSTORE"
           [[ -s "$ANDROID_RELEASE_KEYSTORE" ]]
       - name: Build signed APK
+        env:
+          ANDROID_RELEASE_KEYSTORE: ${{ runner.temp }}/android-release.keystore
         run: |
           ./gradlew -q :apps:wallet:instance:main:assembleSiteRelease \
             -PisApk=true --no-daemon --no-build-cache --no-configuration-cache \
@@ -112,7 +114,7 @@ jobs:
           (cd release && sha256sum Keeper.apk mapping.txt metadata.txt > SHA256SUMS)
       - name: Remove signing key
         if: always()
-        run: rm -f "$ANDROID_RELEASE_KEYSTORE"
+        run: rm -f "$RUNNER_TEMP/android-release.keystore" local.properties
       - name: Upload intermediate artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
