@@ -78,9 +78,16 @@ allprojects {
 
             signingConfigs {
                 create("release") {
-                    val storeFilePath = findProperty("android.injected.signing.store.file")
-                    if (storeFilePath != null) {
-                        storeFile = file(storeFilePath)
+                    val environment = listOf("KEYSTORE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
+                        .map { System.getenv("ANDROID_RELEASE_$it") }
+                    if (environment.any { it != null }) {
+                        require(environment.all { !it.isNullOrBlank() }) { "Incomplete release signing configuration" }
+                        storeFile = file(environment[0]!!)
+                        storePassword = environment[1]
+                        keyAlias = environment[2]
+                        keyPassword = environment[3]
+                    } else {
+                        findProperty("android.injected.signing.store.file")?.let { storeFile = file(it) }
                         storePassword = findProperty("android.injected.signing.store.password")
                         keyAlias = findProperty("android.injected.signing.key.alias")
                         keyPassword = findProperty("android.injected.signing.key.password")
@@ -88,17 +95,22 @@ allprojects {
                 }
 
                 getByName("debug") {
-                    val debugFilePath = findProperty("android.injected.signing.debug.file")
-                    if (debugFilePath != null) {
-                        storeFile = file(debugFilePath)
-                        storePassword = findProperty("android.injected.signing.debug.password")
-                        keyAlias = findProperty("android.injected.signing.debug.key.alias")
-                        keyPassword = findProperty("android.injected.signing.debug.key.password")
+                    val environment = listOf("KEYSTORE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
+                        .map { System.getenv("ANDROID_DEBUG_$it") }
+                    if (environment.any { it != null }) {
+                        require(environment.all { !it.isNullOrBlank() }) { "Incomplete debug signing configuration" }
+                        storeFile = file(environment[0]!!)
+                        storePassword = environment[1]
+                        keyAlias = environment[2]
+                        keyPassword = environment[3]
                     } else {
-                        storeFile = file("${project.rootDir.path}/debug.keystore")
-                        storePassword = "android"
-                        keyAlias = "androiddebugkey"
-                        keyPassword = "android"
+                        val debugFilePath = findProperty("android.injected.signing.debug.file")
+                        if (debugFilePath != null) {
+                            storeFile = file(debugFilePath)
+                            storePassword = findProperty("android.injected.signing.debug.password")
+                            keyAlias = findProperty("android.injected.signing.debug.key.alias")
+                            keyPassword = findProperty("android.injected.signing.debug.key.password")
+                        }
                     }
                 }
             }

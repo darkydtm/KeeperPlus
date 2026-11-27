@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val isCI = project.hasProperty("android.injected.signing.store.file")
+val isCI = project.hasProperty("android.injected.signing.store.file") || System.getenv("ANDROID_RELEASE_KEYSTORE") != null
 var isAPK = gradle.startParameter.projectProperties["isApk"]?.toBoolean() ?: false
 
 android {
