@@ -112,6 +112,8 @@ open class DAppScreen(wallet: WalletEntity) : InjectedTonConnectScreen(R.layout.
 
     protected open val isTonConnectInjectionEnabled: Boolean = true
 
+    protected const val HTTP_ERROR_STATUS = 400
+
     override val viewModel: DAppViewModel by walletViewModel {
         parametersOf(args.url)
     }
