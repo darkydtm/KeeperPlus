@@ -1,14 +1,9 @@
 package com.tonapps.deposit.multicoin.analytics
 
 import com.tonapps.blockchain.model.ConfirmInitiator
-import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
 import com.tonapps.bus.generated.Events.SendNative.SendNativeFrom
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
-import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowWithdrawOption
-import com.tonapps.deposit.screens.ramp.RampType
 
 internal fun <T> Iterable<T>.toAnalyticsOptions(transform: ((T) -> CharSequence)? = null): String {
     return map { (transform?.invoke(it) ?: it).toString() }
@@ -53,64 +48,4 @@ fun ConfirmInitiator.asDepositFlowFrom(): DepositFlowFrom {
 
 fun WithdrawFlowFrom.asSendNativeFrom(): SendNativeFrom {
     return SendNativeFrom.entries.firstOrNull { it.key == key } ?: SendNativeFrom.WalletScreen
-}
-
-// TODO apply for all events
-interface RampAnalytics {
-
-    fun viewFiatChooseAsset(availableOptions: List<String>)
-
-    fun clickFiatAsset(cryptoAsset: String)
-
-    fun viewFiatPaymentMethod(
-        cryptoAsset: String,
-        fiatCode: String,
-        availableOptions: List<String>,
-    )
-
-    fun clickFiatPaymentMethod(cryptoAsset: String, fiatCode: String, paymentMethod: String)
-
-    fun viewRampInsertAmount(
-        cryptoAsset: String,
-        fiatCode: String,
-        paymentMethod: String,
-        providerName: String,
-    )
-
-    fun clickRampInsertAmountContinue(
-        cryptoAsset: String,
-        fiatCode: String,
-        paymentMethod: String,
-        providerName: String,
-        amount: Double,
-    )
-
-    fun continueToRampProvider(
-        cryptoAsset: String,
-        fiatCode: String,
-        paymentMethod: String,
-        providerName: String,
-        amount: Double,
-        txId: String,
-    )
-
-    companion object {
-
-        fun of(
-            rampType: RampType,
-            from: DepositFlowFrom,
-            walletMode: DepositFlowWalletMode,
-            utm: UtmParameters = UtmParameters.Empty,
-            screen: DepositFlowDepositScreen,
-        ): RampAnalytics {
-            if (rampType == RampType.RampOn) {
-                return DepositAnalytics(rampType, from, walletMode, utm, screen)
-            }
-            return WithdrawAnalytics(
-                from = from.asWithdrawFlowFrom(),
-                withdrawOption = WithdrawFlowWithdrawOption.SellToCard,
-                utm = utm,
-            )
-        }
-    }
 }

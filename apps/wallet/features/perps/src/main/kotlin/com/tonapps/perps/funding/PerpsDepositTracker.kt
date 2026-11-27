@@ -9,7 +9,6 @@ import com.tonapps.chainkit.core.op.Payload
 import com.tonapps.chainkit.core.op.PayloadMeta
 import com.tonapps.chainkit.core.op.SignedOperation
 import com.tonapps.chainkit.core.op.SignedPayload
-import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationError
 import com.tonapps.deposit.multicoin.screens.confirm.base.operation.SentPayload
 import com.tonapps.deposit.multicoin.screens.confirm.fee.mayHaveRelayed
 import com.tonapps.deposit.multicoin.screens.confirm.perpetual.PerpetualDepositTracker
@@ -48,10 +47,6 @@ class PerpsDepositTracker(
             steps(deposit, fundingAsset, operation)
         }
     }
-
-    override fun onError(error: ConfirmationError) = Unit
-
-    override fun onQuoteChanged() = Unit
 
     override suspend fun onRelayed(request: ConfirmRequest, account: Account, wallet: MnemonicWallet) {
         val deposit = request.perpetualDeposit()

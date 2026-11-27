@@ -63,12 +63,6 @@ class MoonPayPaymentFragment : ComposableFragment(), BaseFragment.Modal {
             }
             navigation?.setFragmentResult(resultKey, closed(dismissal))
             tellIfStillProcessing(dismissal)
-            if (lazyFeature.isInitialized()) {
-                feature.closedBeforeOutcome()
-            }
-        } else if (activity?.isFinishing == true && lazyFeature.isInitialized()) {
-            // The app is closed under the sheet: no answer is due, but the payment's outcome is still reported.
-            feature.closedBeforeOutcome()
         }
         super.onDestroy()
     }
@@ -76,7 +70,6 @@ class MoonPayPaymentFragment : ComposableFragment(), BaseFragment.Modal {
     private fun close(dismissal: MoonPayPaymentDismissal) {
         if (!answered) {
             tellIfStillProcessing(dismissal)
-            feature.closedBeforeOutcome()
         }
         answer(closed(dismissal))
     }
