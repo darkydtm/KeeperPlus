@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.chainkit.core.chain.model.account.Asset
 import com.tonapps.core.components.tokenChainImageUrl
-import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenButton
 import com.tonapps.trading.asTokenEntity
 import com.tonapps.trading.displayChainName
 import com.tonapps.trading.omnistonBuyTokens
@@ -68,7 +67,6 @@ internal fun StockAssetDetailsScreen(
     onSeeAllActivities: () -> Unit = {},
     onToggleVisibility: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
-    onTrackButtonClick: (AssetScreenButton) -> Unit = {},
     onRefresh: () -> Unit = {},
     onOpenPerpMarket: (marketIndex: Int, symbol: String) -> Unit,
     onBack: () -> Unit,
@@ -152,11 +150,9 @@ internal fun StockAssetDetailsScreen(
                         onSeeAllActivities = onSeeAllActivities,
                         onOpenPerpMarket = onOpenPerpMarket,
                         onSendClick = {
-                            onTrackButtonClick(AssetScreenButton.Send)
                             asset?.let { onOpenSend(it.id, it.asTokenEntity.address) }
                         },
                         onReceiveClick = {
-                            onTrackButtonClick(AssetScreenButton.Receive)
                             asset?.let { onOpenReceive(assetId, it.asTokenEntity) }
                         },
                         onCashBuyClick = { asset?.let { onBuyWithCard(it.id) } },
@@ -167,12 +163,10 @@ internal fun StockAssetDetailsScreen(
                             modifier = Modifier.align(Alignment.BottomCenter),
                             hasBalance = hasBalance,
                             onBuyClick = {
-                                onTrackButtonClick(AssetScreenButton.Buy)
                                 val (from, to) = data.details.asset.omnistonBuyTokens()
                                 onOpenSwap(null, data.details.asset.id, from, to)
                             },
                             onSellClick = {
-                                onTrackButtonClick(AssetScreenButton.Sell)
                                 val (from, to) = data.details.asset.omnistonSellTokens()
                                 onOpenSwap(data.details.asset.id, null, from, to)
                             },

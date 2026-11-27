@@ -1,7 +1,5 @@
 package com.tonapps.portfolio.screens.raffle
 
-import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleAction
-import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleKind
 import com.tonapps.core.deeplink.isMigrateDeeplink
 import com.tonapps.mvi.AsyncViewModel
 import com.tonapps.mvi.flow.mapLatestCatching
@@ -92,18 +90,6 @@ class RaffleFeature(
 
     fun refresh() {
         refreshSignal.tryEmit(Unit)
-    }
-
-    private fun RaffleEntity.toAnalyticsKind(kind: RaffleKind): MysteryRaffleKind = when (status) {
-        RaffleEntity.Status.Won -> MysteryRaffleKind.Won
-        RaffleEntity.Status.Lost -> MysteryRaffleKind.Lost
-        else -> if (kind == RaffleKind.Offer) { MysteryRaffleKind.Migration } else { MysteryRaffleKind.Active }
-    }
-
-    private fun MysteryRaffleKind.toCtaAction(): MysteryRaffleAction = when (this) {
-        MysteryRaffleKind.Won, MysteryRaffleKind.Lost -> MysteryRaffleAction.ResultsLink
-        MysteryRaffleKind.Migration -> MysteryRaffleAction.Migrate
-        MysteryRaffleKind.Active -> MysteryRaffleAction.Swap
     }
 
     private fun RaffleEntity.toKind(): RaffleKind = when (status) {
@@ -209,7 +195,6 @@ class RaffleFeature(
     private fun RaffleEntity.toContent(): RaffleScreenState.Content {
         val now = OffsetDateTime.now()
         val kind = toKind()
-        val analyticsKind = toAnalyticsKind(kind)
 
         val countdownTarget: OffsetDateTime?
         val revealDate: OffsetDateTime?
@@ -328,10 +313,6 @@ class RaffleFeature(
             earnHeaderIndex = earnHeaderIndex,
             participating = participating,
             showGetMore = showGetMore,
-            analyticsKind = analyticsKind,
-            ctaAction = analyticsKind.toCtaAction(),
-            ticketsTotal = progress?.ticketsTotal ?: 0,
-            prize = progress?.winningPrize?.title?.takeIf { analyticsKind == MysteryRaffleKind.Won },
             nextPhaseBoundary = nextPhaseBoundary(now, countdownTarget),
         )
     }

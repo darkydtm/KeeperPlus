@@ -40,7 +40,6 @@ dependencies {
     implementation(projects.lib.extensions)
     implementation(projects.lib.icu)
     implementation(projects.lib.log)
-    implementation(projects.lib.bus)
     implementation(projects.lib.features)
     implementation(projects.apps.wallet.data.features)
 

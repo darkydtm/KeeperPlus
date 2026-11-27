@@ -20,15 +20,13 @@ import com.tonapps.wallet.data.ledger.LedgerDerivation
 import com.tonapps.wallet.data.ledger.LedgerLegacyTwins
 import com.tonapps.wallet.data.ledger.LedgerLegacyWallet
 import com.tonapps.wallet.data.ledger.LedgerWalletInteractor
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import com.tonapps.wallet.data.ledger.discovery.LedgerAppDiscoveryState
 import com.tonapps.wallet.data.ledger.discovery.LedgerDevice
 import com.tonapps.wallet.data.ledger.discovery.LedgerDiscoveredAccount
 import com.tonapps.wallet.data.ledger.discovery.LedgerDiscoveryInteractor
 import com.tonapps.wallet.data.ledger.discovery.LedgerImportCandidate
 import com.tonapps.wallet.data.multichain.account.McAccountRepository
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletSource
+import com.tonapps.bus.walletimport.WalletImportPairingSource
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -54,10 +52,8 @@ internal class LedgerPairingFeature(
     private val relay = MviRelay<LedgerPairingEvent>()
     val events = relay.events
 
-    private val analytics = LedgerPairingAnalytics(
-        mode = mode,
-        pairingSession = (mode as? LedgerPairingMode.New)?.let { pairingSessions.active(WalletFlowWalletSource.Ledger) },
-    )
+    private val pairingSession = (mode as? LedgerPairingMode.New)?.let { pairingSessions.active(WalletImportPairingSource.Ledger) }
+    private var isHandedOff = false
 
     val state: StateFlow<LedgerPairingState>
         field = MutableStateFlow(
@@ -81,12 +77,10 @@ internal class LedgerPairingFeature(
         get() = (mode as? LedgerPairingMode.Repair)?.walletId
 
     init {
-        analytics.started()
         (mode as? LedgerPairingMode.Migrate)?.let { loadMigrationTarget(it.walletId) }
     }
 
     override fun onPermissionsResult(granted: Boolean) {
-        analytics.permissionsResult(granted)
         state.update { it.copy(readiness = readiness(), isPermissionDenied = !granted) }
         if (granted && state.value.step == LedgerPairingStep.Connect) {
             startScan()
@@ -186,14 +180,13 @@ internal class LedgerPairingFeature(
     private suspend fun importCandidates(device: LedgerDevice, candidates: List<LedgerImportCandidate>) {
         try {
             walletInteractor.prepareWalletSeeds(device, candidates)
-            analytics.handedOff()
+            isHandedOff = true
             relay.emit(LedgerPairingEvent.Import(LedgerImportCandidate.encode(candidates), device.name))
         } catch (e: CancellationException) {
             state.update { it.copy(isImporting = false) }
             throw e
         } catch (e: LedgerFailureException) {
             L.e(e)
-            analytics.failed(e.failure, device)
             state.update { it.copy(isImporting = false) }
             if (!e.isPresented) {
                 relay.emit(LedgerPairingEvent.Failed(e.failure))
@@ -213,7 +206,6 @@ internal class LedgerPairingFeature(
                 throw e
             } catch (e: Exception) {
                 L.e(e)
-                LedgerNonFatals.recordIssue(e, LedgerIssueSite.Migration)
                 null
             }
             if (wallet == null) {
@@ -234,11 +226,9 @@ internal class LedgerPairingFeature(
             ) { app, appState ->
                 state.update { it.copy(apps = it.apps.withState(app, appState)) }
             }
-            analytics.appsSkipped(device, result.skipped)
             val account = result.accounts.firstOrNull { it.index == target.accountIndex }
             val tonKey = account?.accounts?.firstOrNull { it.chain == Chain.Ton.Mainnet }?.publicKeyHex
             if (account == null || tonKey == null || !LedgerLegacyTwins.isSameKey(tonKey, target.tonPublicKeyHex)) {
-                analytics.failed(LedgerFailure.AddressMismatch(LedgerAppId.Ton), device)
                 state.update {
                     it.copy(
                         step = LedgerPairingStep.Connect,
@@ -256,11 +246,10 @@ internal class LedgerPairingFeature(
             throw e
         } catch (e: LedgerFailureException) {
             L.e(e)
-            returnAfterFailure(e.failure, device)
+            returnAfterFailure(e.failure)
         } catch (e: Exception) {
             L.e(e)
-            LedgerNonFatals.recordIssue(e, LedgerIssueSite.Migration)
-            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName), device)
+            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName))
         }
     }
 
@@ -306,23 +295,20 @@ internal class LedgerPairingFeature(
     override fun onCleared() {
         stopScan()
         usbJob?.cancel()
-        analytics.cleared()
+        if (!isHandedOff) {
+            pairingSession?.exit()
+        }
         super.onCleared()
     }
 
     private fun readiness(): LedgerBleReadiness {
-        val readiness = environment.check()
-        analytics.readiness(readiness)
-        return readiness
+        return environment.check()
     }
 
     private fun watchUsb() {
         usbJob?.cancel()
         usbJob = bgScope.launch {
             usb.observe().collect { devices ->
-                if (state.value.step == LedgerPairingStep.Connect) {
-                    analytics.usbDevicesFound(devices)
-                }
                 state.update { it.copy(usbDevices = devices) }
             }
         }
@@ -351,17 +337,14 @@ internal class LedgerPairingFeature(
             return
         }
         controller.closeIdleSession()
-        analytics.searchStarted()
         scanJob = bgScope.launch {
             try {
                 scanner.scan().collect { devices ->
-                    analytics.bleDevicesFound(devices)
                     state.update { it.copy(devices = devices) }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: LedgerFailureException) {
-                LedgerNonFatals.recordIssue(e, LedgerIssueSite.Pairing)
                 state.update { it.copy(scanFailure = e.failure, readiness = readiness()) }
             }
         }
@@ -373,10 +356,8 @@ internal class LedgerPairingFeature(
             return
         }
         connectionJob = bgScope.launch {
-            val link = controller.link.filterNotNull().first { it.deviceId.equals(device.id, ignoreCase = true) }
-            analytics.connected(device, link.kind)
-            controller.link.filterNotNull().first { it.deviceId.equals(device.id, ignoreCase = true) && it.app?.appId == LedgerAppId.Ton }
-            analytics.tonAppOpened(device)
+            controller.link.filterNotNull().first { it.deviceId.equals(device.id, ignoreCase = true) }
+            pairingSession?.connected()
         }
     }
 
@@ -390,10 +371,8 @@ internal class LedgerPairingFeature(
             val result = discovery.discover(device = device, indices = indices, apps = apps) { app, appState ->
                 state.update { it.copy(apps = it.apps.withState(app, appState)) }
             }
-            analytics.appsSkipped(device, result.skipped)
             result.accounts.forEach { discovered[it.index] = it }
             pagingApps = result.apps.filterValues { it == LedgerAppDiscoveryState.Done }.keys.toList().ifEmpty { listOf(LedgerChainApp.Ton) }
-            analytics.accountsListed(device, pagingApps)
             val rows = discovered.values.map { account -> account.toRow() }
             val maxIndex = discovered.keys.maxOrNull() ?: 0
             state.update { current ->
@@ -414,11 +393,10 @@ internal class LedgerPairingFeature(
             throw e
         } catch (e: LedgerFailureException) {
             L.e(e)
-            returnAfterFailure(e.failure, device)
+            returnAfterFailure(e.failure)
         } catch (e: Exception) {
             L.e(e)
-            LedgerNonFatals.recordIssue(e, LedgerIssueSite.Pairing)
-            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName), device)
+            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName))
         }
     }
 
@@ -430,16 +408,14 @@ internal class LedgerPairingFeature(
             throw e
         } catch (e: LedgerFailureException) {
             L.e(e)
-            returnAfterFailure(e.failure, device)
+            returnAfterFailure(e.failure)
         } catch (e: Exception) {
             L.e(e)
-            LedgerNonFatals.recordIssue(e, LedgerIssueSite.Pairing)
-            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName), device)
+            returnAfterFailure(LedgerFailure.Unexpected(e.message ?: e.javaClass.simpleName))
         }
     }
 
-    private fun returnAfterFailure(failure: LedgerFailure, device: LedgerDevice) {
-        analytics.failed(failure, device)
+    private fun returnAfterFailure(failure: LedgerFailure) {
         if (state.value.accounts.isNotEmpty()) {
             state.update { it.copy(step = LedgerPairingStep.Accounts, apps = pagingApps.map { app -> LedgerAppRow(app, LedgerAppDiscoveryState.Done) }) }
             return
@@ -469,7 +445,6 @@ internal class LedgerPairingFeature(
         throw e
     } catch (e: Exception) {
         L.e(e)
-        LedgerNonFatals.recordIssue(e, LedgerIssueSite.Pairing)
         false
     }
 

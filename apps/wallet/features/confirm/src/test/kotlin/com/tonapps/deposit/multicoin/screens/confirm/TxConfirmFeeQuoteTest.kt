@@ -7,9 +7,6 @@ import com.tonapps.blockchain.model.ConfirmContext
 import com.tonapps.blockchain.model.ConfirmOperations
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.chainkit.core.chain.api.models.ChainError
 import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.chainkit.core.chain.api.models.ChainRes
@@ -146,7 +143,6 @@ class TxConfirmFeeQuoteTest : BaseUnitTest() {
     fun tearDown() {
         collection.cancel()
         store.clear()
-        unmockkObject(AnalyticsHelper.Companion, InAppReviewManager)
     }
 
     @Test
@@ -309,7 +305,6 @@ class TxConfirmFeeQuoteTest : BaseUnitTest() {
         // A sent transfer counts towards the in-app review prompt, which needs the app context.
         mockkObject(InAppReviewManager)
         every { InAppReviewManager.onTransactionSent() } returns Unit
-        val events = recordAnalytics()
         val (feature, shown) = open()
         scheduler.runCurrent()
 
@@ -317,55 +312,23 @@ class TxConfirmFeeQuoteTest : BaseUnitTest() {
         scheduler.runCurrent()
 
         assertEquals(listOf(Asset.Battery.ID), relayed.toList())
-        val attempt = events.sendEvent("op_attempt")
-        assertEquals("transfer", attempt["flow"])
-        assertEquals("send", attempt["operation"])
-        assertEquals("native_ui", attempt["attempt_source"])
-        val metadata = JSONObject(attempt["other_metadata"] as String)
-        assertEquals("battery_charges", metadata.getString("fee_paid_in"))
-        assertEquals(TestAssets.usdtEth.id, metadata.getString("asset"))
-        val terminal = events.sendEvent("op_terminal")
-        assertEquals(attempt["operation_id"], terminal["operation_id"])
-        assertEquals("success", terminal["outcome"])
     }
 
     @Test
     fun aRelayerSendThatFailsEndsTheRedSendAsFailed() {
         relayerAnswer = { throw IllegalStateException("relayer is down") }
-        val events = recordAnalytics()
         val (feature, shown) = open()
         scheduler.runCurrent()
 
         feature.sendTransaction(shown.last()!!)
         scheduler.runCurrent()
 
-        val terminal = events.sendEvent("op_terminal")
-        assertEquals("fail", terminal["outcome"])
-        assertEquals("IllegalStateException", terminal["error_type"])
         assertEquals(ConfirmationError.Unknown, feature.confirmationError.value)
     }
 
-    // The emulation the screen runs first is a RED operation of its own.
-    private fun List<Pair<String, Map<String, Any>>>.sendEvent(name: String): Map<String, Any> {
-        return single { (event, props) -> event == name && props["operation"] == "send" }.second
-    }
 
-    // ConfirmAnalytics reads AnalyticsHelper.Default when the feature is built: call before open().
-    private fun recordAnalytics(): List<Pair<String, Map<String, Any>>> {
-        val tracked = CopyOnWriteArrayList<Pair<String, Map<String, Any>>>()
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-        return tracked
-    }
+
+
 
     private fun offer(vararg options: TxFee) {
         coEvery { feeBuilder.build(any(), any(), any(), any(), any(), any(), any(), any()) } answers {

@@ -23,20 +23,14 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.blockchain.ton.extensions.hex
 import com.tonapps.blockchain.ton.extensions.toAccountId
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.bus.generated.Events.Perps.PerpsEntryPoint
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowPairingEntry
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletMode
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletSource
+import com.tonapps.bus.walletimport.WalletImportPairingSource
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.chainkit.core.chain.model.account.Network
 import com.tonapps.core.deeplink.DAppDeepLinkGate
@@ -72,7 +66,6 @@ import com.tonapps.ledger.ton.LedgerConnectData
 import com.tonapps.legacy.enteties.WalletPurchaseMethodEntity
 import com.tonapps.log.L
 import com.tonapps.migration.MigrationFragment
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.scanner.ScannerFragment
 import com.tonapps.swap.SwapFragment
 import com.tonapps.swap.SwapRoutes
@@ -102,7 +95,6 @@ import com.tonapps.tonkeeper.manager.tonconnect.bridge.BridgeException
 import com.tonapps.tonkeeper.manager.tonconnect.bridge.model.BridgeError
 import com.tonapps.tonkeeper.manager.tonconnect.bridge.model.SignDataRequestPayload
 import com.tonapps.tonkeeper.manager.tonconnect.signMessageRejection
-import com.tonapps.tonkeeper.os.AppInfo
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.perps.PerpsFragment
 import com.tonapps.perps.screens.common.PERPS_STORY_ID
@@ -114,7 +106,6 @@ import com.tonapps.portfolio.screens.raffle.StoryAutoShowSession
 import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.init.InitArgs
 import com.tonapps.tonkeeper.ui.screen.init.InitScreen
-import com.tonapps.tonkeeper.ui.screen.init.WalletImportAnalytics
 import com.tonapps.tonkeeper.ui.screen.backup.main.BackupScreen
 import com.tonapps.tonkeeper.ui.screen.battery.BatteryScreen
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.DAppScreenFactory
@@ -212,14 +203,6 @@ import java.util.concurrent.CancellationException
 import uikit.base.BaseFragment
 import uikit.widget.AsyncImageView
 
-private val regexPrivateData: Regex by lazy {
-    Regex("[a-f0-9]{64}|0:[a-f0-9]{64}")
-}
-
-private fun removePrivateDataFromUrl(url: String): String {
-    return url.replace(regexPrivateData, "X")
-}
-
 @Suppress("LargeClass")
 class RootViewModel(
     app: Application,
@@ -239,7 +222,6 @@ class RootViewModel(
     private val dAppsRepository: DAppsRepository,
     private val safeModeClient: SafeModeClient,
     private val ratesRepository: RatesRepository,
-    private val analyticsHelper: AnalyticsHelper,
     private val wcRepository: WcRepository,
     savedStateHandle: SavedStateHandle,
 ): BaseWalletVM(app) {
@@ -262,7 +244,6 @@ class RootViewModel(
     private val perpsSecurityConfig: PerpsSecurityConfigRepository by lazy { requireNotNull(context.koin).get() }
     private val batteryRepository: BatteryRepository by lazy { requireNotNull(context.koin).get() }
     private val pairingSessions: WalletImportPairingSessions by lazy { requireNotNull(context.koin).get() }
-    private val importAnalytics: WalletImportAnalytics by lazy { requireNotNull(context.koin).get() }
     private val storyAutoShowSession = StoryAutoShowSession()
     private val raffleStoryAutoShow: RaffleStoryAutoShow? by lazy {
         val repository = raffleRepository ?: return@lazy null
@@ -509,10 +490,6 @@ class RootViewModel(
     private suspend fun sendFirstLaunchEvent() = withContext(Dispatchers.IO) {
         if (DevSettings.firstLaunchDate <= 0) {
             settingsRepository.enableBatteryHint()
-            val referrer: String? = null
-            val deeplink = DevSettings.firstLaunchDeeplink.ifBlank { null }
-            val installerStore = AppInfo.getInstallerPackageName(context)
-            AnalyticsHelper.Default.events.installApp.installApp(referrer, deeplink, installerStore)
             DevSettings.isWebviewFolderMigrated = true
             DevSettings.firstLaunchDate = currentTimeSeconds()
         } else {
@@ -971,11 +948,6 @@ class RootViewModel(
                 processDAppPush(bundle)
             } else {
                 val deeplink = bundle.getString("deeplink")?.toUriOrNull() ?: return@collectFlow
-                val utm = UtmParameters.fromLink(deeplink.toString())
-                analyticsHelper.eventsTaggedWith(utm).pushClick.pushClick(
-                    pushId = pushId ?: pushType,
-                    deepLink = removePrivateDataFromUrl(deeplink.toString()),
-                )
                 processDeepLinkPush(deeplink, bundle)
             }
         }
@@ -983,10 +955,6 @@ class RootViewModel(
     }
 
     private suspend fun processWalletPush(walletId: String?, uri: Uri, pushId: String?) {
-        analyticsHelper.events.pushClick.pushClick(
-            pushId = pushId,
-            deepLink = removePrivateDataFromUrl(uri.toString()),
-        )
         awaitLockscreenHidden()
         val wallet = if (walletId != null) {
             unifiedAccountRepository.getTonWallets()
@@ -997,7 +965,7 @@ class RootViewModel(
         if (unifiedAccountRepository.getSelectedWalletId() != wallet.id) {
             accountRepository.setSelectedWallet(wallet.id)
         }
-        processDeepLink(wallet, DeepLink(uri, false, null), null, trigger = ScreenRenderTrigger.Push)
+        processDeepLink(wallet, DeepLink(uri, false, null), null)
     }
 
     private suspend fun processDAppPush(bundle: Bundle) {
@@ -1026,7 +994,7 @@ class RootViewModel(
             accountRepository.setSelectedWallet(wallet.id)
         }
         val deeplink = DeepLink(uri, false, null, fromExternal = true)
-        processDeepLink(wallet, deeplink, null, trigger = ScreenRenderTrigger.Push)
+        processDeepLink(wallet, deeplink, null)
     }
 
     private suspend fun deeplinkResolveWallet(bundle: Bundle): WalletEntity? {
@@ -1208,13 +1176,11 @@ class RootViewModel(
         )
     }
 
-    // `trigger` is what opened the link, for the screen render analytics of the screen it opens.
     private suspend fun processDeepLink(
         wallet: WalletEntity,
         deeplink: DeepLink,
         fromPackageName: String?,
         fromBrowser: Boolean = false,
-        trigger: ScreenRenderTrigger = ScreenRenderTrigger.Deeplink,
         fromLoyalty: Boolean = false,
     ) {
         val route = deeplink.route
@@ -1250,11 +1216,10 @@ class RootViewModel(
                 openScreen(RaffleFragment.newInstance(selected.id, route.id, route.source))
             }
         } else if (route is DeepLinkRoute.Migrate) {
-            openScreen(MigrationFragment.newInstance(MigrationAnalytics.from(route.from)))
+            openScreen(MigrationFragment.newInstance())
         } else if (route is DeepLinkRoute.AddWallet) {
             openScreen(InitScreen.newInstance(InitArgs.Type.AddWallet, raffleSourceWalletId = route.raffleSourceWalletId))
         } else if (route is DeepLinkRoute.Tabs.Activity) {
-            ScreenRenderTracker.shared.begin(ScreenRenderId.History, trigger, isFirstOpen = true)
             val selected = unifiedAccountRepository.getSelectedWallet() ?: wallet
             if (selected.type == WalletType.Multichain) {
                 openScreen(EventsFragment())
@@ -1268,7 +1233,7 @@ class RootViewModel(
                 TradeEntryTracker.markDeepLink()
             }
             _eventFlow.tryEmit(
-                RootEvent.OpenTab(route.tabUri.toUri(), wallet, deeplink.tabOpenFrom(route), deeplink.utm, trigger),
+                RootEvent.OpenTab(route.tabUri.toUri(), wallet, deeplink.tabOpenFrom(route), deeplink.utm),
             )
         } else if (route is DeepLinkRoute.Send && !wallet.isWatchOnly) {
             openScreen(
@@ -1417,7 +1382,7 @@ class RootViewModel(
             val referralCode = deeplink.referralCodeFromOutsideLink
             if (walletId != null && loyaltyRepository.showsSection(walletId)) {
                 val loyaltyUrl = loyaltyUrlOf(referralCode)
-                processDeepLink(wallet, deeplink.copy(route = DeepLinkRoute.DApp(loyaltyUrl)), fromPackageName, fromBrowser, trigger)
+                processDeepLink(wallet, deeplink.copy(route = DeepLinkRoute.DApp(loyaltyUrl)), fromPackageName, fromBrowser)
             } else if (walletId == null && referralCode != null && WalletFeature.Loyalty.isEnabled) {
                 val loyaltyLink = DeepLinkBuilder.dApp(loyaltyUrlOf(referralCode))
                 pickOrCreateWallet(
@@ -1460,9 +1425,9 @@ class RootViewModel(
             openScreen(EditNameScreen.newInstance())
         } else if (route is DeepLinkRoute.Camera && !wallet.isWatchOnly) {
             if (unifiedAccountRepository.getSelectedWallet()?.type == WalletType.Multichain) {
-                openScreen(ScannerFragment.newInstance(utm = deeplink.utm))
+                openScreen(ScannerFragment.newInstance())
             } else {
-                openScreen(createCameraScreen(wallet, utm = deeplink.utm))
+                openScreen(createCameraScreen(wallet))
             }
         } else if (route is DeepLinkRoute.Receive) {
             val selected = unifiedAccountRepository.getSelectedWallet()
@@ -1688,16 +1653,13 @@ class RootViewModel(
         }
     }
 
-    private suspend fun createCameraScreen(
-        wallet: WalletEntity,
-        utm: UtmParameters = UtmParameters.Empty,
-    ): CameraScreen {
+    private suspend fun createCameraScreen(wallet: WalletEntity): CameraScreen {
         val chains = if (tokenRepository.hasTronLocal(wallet.accountId, wallet.network)) {
             listOf(Blockchain.TON, Blockchain.TRON)
         } else {
             listOf(Blockchain.TON)
         }
-        return CameraScreen.newInstance(chains = chains, utm = utm)
+        return CameraScreen.newInstance(chains = chains)
     }
 
     fun processTransferDeepLink(deepLink: DeepLink, route: DeepLinkRoute.Transfer) {
@@ -1892,22 +1854,12 @@ class RootViewModel(
     }
 
     private suspend fun openSignerImport(route: DeepLinkRoute.Signer, fromQR: Boolean) {
-        val awaitingSession = pairingSessions.active(WalletFlowWalletSource.Signer)
+        val awaitingSession = pairingSessions.active(WalletImportPairingSource.Signer)
             ?.takeIf { it.isAwaitingSignerReturn && route.local && !fromQR }
         if (awaitingSession != null) {
             awaitingSession.connected()
         } else {
-            pairingSessions.start(
-                walletMode = WalletFlowWalletMode.Single,
-                walletSource = WalletFlowWalletSource.Signer,
-                from = importAnalytics.from(),
-                entry = if (fromQR) {
-                    WalletFlowPairingEntry.AppQrScanner
-                } else {
-                    WalletFlowPairingEntry.Deeplink
-                },
-                hasPairingScreen = false,
-            )
+            pairingSessions.start(WalletImportPairingSource.Signer)
         }
         _eventFlow.tryEmit(
             RootEvent.Singer(

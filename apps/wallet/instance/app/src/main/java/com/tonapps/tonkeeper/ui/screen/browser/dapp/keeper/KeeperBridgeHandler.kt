@@ -3,7 +3,6 @@ package com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper
 import com.tonapps.log.L
 import com.tonapps.webview.bridge.InAppBridgeContract.Effect
 import com.tonapps.webview.bridge.InAppBridgeContract.MessageHandler
-import com.tonapps.tonkeeper.ui.screen.browser.dapp.DAppPageEvent
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper.KeeperBridgeProtocol.AppSettings
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper.KeeperBridgeProtocol.Credentials
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper.KeeperBridgeProtocol.ErrorCode
@@ -22,7 +21,6 @@ internal class KeeperBridgeHandler(
     private val scope: CoroutineScope,
     private val loadCredentials: suspend (expiredAccessToken: String?) -> Credentials?,
     private val appSettings: () -> AppSettings,
-    private val track: (event: String, params: MutableMap<String, Any>) -> Unit,
     private val referralCode: suspend (host: String) -> String?,
     walletDeactivated: Flow<Unit>,
 ) : MessageHandler<Request, Response> {
@@ -59,10 +57,7 @@ internal class KeeperBridgeHandler(
             is Request.Haptic -> acknowledge(outgoing, message.queryId, Effect.Haptic(message.style))
             is Request.SetCloseButton -> acknowledge(outgoing, message.queryId, Effect.CloseButtonVisibility(message.visible))
             is Request.Share -> acknowledge(outgoing, message.queryId, Effect.Share(message.text))
-            is Request.AnalyticsTrack -> {
-                track(message.event, DAppPageEvent.params(message.params, message.provider))
-                outgoing.trySend(Response.Done(message.queryId))
-            }
+            is Request.AnalyticsTrack -> outgoing.trySend(Response.Done(message.queryId))
             is Request.GetData -> {
                 val settings = appSettings()
                 scope.launch(session) {

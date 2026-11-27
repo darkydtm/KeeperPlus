@@ -60,7 +60,6 @@ class CollectiblesScreen : BaseWalletScreen<ScreenContext.None>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        analytics?.simpleTrackScreenEvent("collectibles_open", from)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

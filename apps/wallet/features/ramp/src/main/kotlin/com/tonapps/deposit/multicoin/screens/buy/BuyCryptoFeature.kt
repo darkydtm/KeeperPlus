@@ -5,8 +5,6 @@ import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.deposit.data.ExchangeRepository
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoAnalytics
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoTrack
 import com.tonapps.deposit.multicoin.data.RampAssetDetail
 import com.tonapps.deposit.multicoin.domain.MoonPayAccess
 import com.tonapps.deposit.multicoin.domain.MoonPayRamp
@@ -327,9 +325,7 @@ class BuyCryptoFeature(
     private val started = timeSource.markNow()
     val events: Flow<BuyCryptoEvent> = relay.events
 
-    private val reducer = BuyCryptoReducer(moonPay?.payments, data.analyticsFrom, data.utm) { UUID.randomUUID().toString() }
-
-    private val analytics = BuyCryptoAnalytics(data.analyticsFrom, data.utm)
+    private val reducer = BuyCryptoReducer(moonPay?.payments) { UUID.randomUUID().toString() }
 
     // Results of loads, quotes and checkouts on their way to the session; buffered, so none is lost before it listens.
     private val results = Channel<Command>(Channel.UNLIMITED)
@@ -360,19 +356,10 @@ class BuyCryptoFeature(
             step.events.forEach { event ->
                 relay.emit(BuyCryptoEvent.Offline.takeIf { offline && event is BuyCryptoEvent.Failed } ?: event)
             }
-            step.tracks.forEach(::track)
             save(step.session)
         }
         .map { it.session }
         .cacheState(initialValue = restored)
-
-    init {
-        // Once per opening: a rotation or a process death restores the screen without opening it again.
-        if (savedStateHandle.get<Boolean>(KEY_STARTED_SENT) != true) {
-            savedStateHandle[KEY_STARTED_SENT] = true
-            analytics.started()
-        }
-    }
 
     // Effects: each runs what the session asks for and hands the result back to it.
 
@@ -740,17 +727,6 @@ class BuyCryptoFeature(
         return session.phase is Phase.Idle && shown?.signature == inFrame.signature && inFrame.isFresh(PAY_BUTTON_MIN_LIFETIME)
     }
 
-    // The amount screen is seen once per opening.
-    private fun track(track: BuyCryptoTrack) {
-        if (track is BuyCryptoTrack.AmountShown) {
-            if (savedStateHandle.get<Boolean>(KEY_AMOUNT_SHOWN_SENT) == true) {
-                return
-            }
-            savedStateHandle[KEY_AMOUNT_SHOWN_SENT] = true
-        }
-        analytics.track(track)
-    }
-
     private fun save(session: Session) {
         savedStateHandle[KEY_FIAT] = session.request.fiat
         savedStateHandle[KEY_ASSET] = session.request.assetId
@@ -1112,8 +1088,6 @@ class BuyCryptoFeature(
         const val KEY_ASSET = "buy_crypto_asset"
         const val KEY_METHOD = "buy_crypto_method"
         const val KEY_PROVIDER = "buy_crypto_provider"
-        const val KEY_STARTED_SENT = "buy_crypto_started_sent"
-        const val KEY_AMOUNT_SHOWN_SENT = "buy_crypto_amount_shown_sent"
     }
 }
 

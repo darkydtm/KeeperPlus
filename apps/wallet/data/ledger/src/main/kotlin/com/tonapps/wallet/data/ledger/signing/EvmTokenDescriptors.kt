@@ -1,8 +1,7 @@
 package com.tonapps.wallet.data.ledger.signing
 
+import com.tonapps.log.L
 import com.tonapps.ledgerkit.apdu.Apdu
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import com.trustwallet.core.ethereum.SigningInput
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +34,7 @@ internal class EvmTokenDescriptors(httpClient: OkHttpClient) {
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        LedgerNonFatals.report(e, LedgerIssueSite.ClearSigning)
+        L.w(e)
         null
     }
 
@@ -44,7 +43,7 @@ internal class EvmTokenDescriptors(httpClient: OkHttpClient) {
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        LedgerNonFatals.report(e, LedgerIssueSite.ClearSigning)
+        L.w(e)
         null
     }
 

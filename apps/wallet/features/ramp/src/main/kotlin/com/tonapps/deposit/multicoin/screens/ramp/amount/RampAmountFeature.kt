@@ -1,11 +1,8 @@
 package com.tonapps.deposit.multicoin.screens.ramp.amount
 
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
 import com.tonapps.core.components.AmountToggle
 import com.tonapps.core.components.withLocaleDecimalSeparator
 import com.tonapps.deposit.data.ExchangeRepository
-import com.tonapps.deposit.multicoin.analytics.RampAnalytics
 import com.tonapps.deposit.multicoin.fiatScale
 import com.tonapps.deposit.multicoin.data.RampQuote
 import com.tonapps.deposit.multicoin.data.RampRepository
@@ -25,7 +22,6 @@ import com.tonapps.wallet.data.settings.SettingsRepository
 import io.exchangeapi.models.ExchangePaymentMethodType
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -120,11 +116,6 @@ class RampAmountFeature(
 
     private var continueJob: Job? = null
 
-    private val analytics = RampAnalytics.of(
-        data.rampType, data.analyticsFrom, DepositFlowWalletMode.Multi, data.utm, DepositFlowDepositScreen.AddFunds,
-    )
-    private val viewTracked = AtomicBoolean(false)
-
     init {
         amountInput
             .debounce(300)
@@ -198,13 +189,6 @@ class RampAmountFeature(
         val quote = provider.quote ?: return
         state.postExactData { copy(isContinuing = true) }
         continueJob = bgScope.launch {
-            analytics.clickRampInsertAmountContinue(
-                cryptoAsset = data.assetId,
-                fiatCode = current.fiatCode,
-                paymentMethod = current.paymentMethodType.value,
-                providerName = provider.info.title,
-                amount = quote.amount.value.toDouble(),
-            )
             if (!createOrder(current, provider.info.id)) {
                 state.postExactData { copy(isContinuing = false) }
             }
@@ -392,7 +376,6 @@ class RampAmountFeature(
                 )
             }
             (state.value as? RampAmountState.Data)?.let { updated ->
-                trackViewRampInsertAmount(updated, updated.selectedProvider ?: updated.providers.firstOrNull())
             }
         } catch (e: CancellationException) {
             throw e
@@ -460,14 +443,6 @@ class RampAmountFeature(
                 merchantTransactionId = quote.merchantTransactionId,
             )
 
-            analytics.continueToRampProvider(
-                cryptoAsset = data.assetId,
-                fiatCode = current.fiatCode,
-                paymentMethod = current.paymentMethodType.value,
-                providerName = provider.info.title,
-                amount = providerQuote.amount.value.toDouble(),
-                txId = quote.merchantTransactionId,
-            )
             if (events.subscriptionCount.value > 0) {
                 events.emit(RampAmountEvent.Continue(widgetUrl))
                 true
@@ -480,18 +455,6 @@ class RampAmountFeature(
             L.e(e)
             false
         }
-    }
-
-    private fun trackViewRampInsertAmount(current: RampAmountState.Data, provider: ProviderWithQuote?) {
-        if (provider == null || !viewTracked.compareAndSet(false, true)) {
-            return
-        }
-        analytics.viewRampInsertAmount(
-            cryptoAsset = data.assetId,
-            fiatCode = current.fiatCode,
-            paymentMethod = current.paymentMethodType.value,
-            providerName = provider.info.title,
-        )
     }
 
     private fun formatRate(quote: RampQuote, data: RampAmountState.Data): String {

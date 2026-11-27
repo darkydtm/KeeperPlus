@@ -204,11 +204,10 @@ dependencies {
     implementation(projects.apps.wallet.api)
 
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
     implementation(projects.lib.features)
     implementation(projects.lib.icu)
     implementation(projects.lib.wc)
-    implementation(projects.lib.extensions)
     implementation(projects.lib.log)
     implementation(projects.lib.network)
     implementation(projects.lib.wallet)

@@ -1,34 +1,15 @@
 package com.tonapps.core.helper
 
-import android.util.Log
 import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.blockchain.ton.contract.WalletVersion
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentCategory
 import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentCategoryDetail
 import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentFeeAsset
 import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentInitiatedBy
-import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentLedgerModel
-import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentWalletInterface
-import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentWalletMode
-import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentWalletSource
-import java.util.concurrent.ConcurrentHashMap
 
 object TransactionSentAnalytics {
-
-    private val ledgerModels = ConcurrentHashMap<String, TransactionSentLedgerModel>()
-
-    fun rememberLedgerModel(walletId: String, ledgerModel: TransactionSentLedgerModel?) {
-        if (ledgerModel == null) {
-            ledgerModels.remove(walletId)
-        } else {
-            ledgerModels[walletId] = ledgerModel
-        }
-    }
 
     fun transactionSent(
         wallet: WalletEntity,
@@ -45,30 +26,7 @@ object TransactionSentAnalytics {
         stakingProvider: String? = null,
         isLiquid: Boolean? = null,
         utm: UtmParameters = UtmParameters.Empty,
-    ) {
-        val walletInterface = walletInterface(wallet, asset) ?: run {
-            Log.w("TransactionSentAnalytics", "dropping transaction_sent: no interface for ${wallet.version}")
-            return
-        }
-        AnalyticsHelper.Default.eventsTaggedWith(utm).transactionSent.transactionSent(
-            category = category,
-            categoryDetail = categoryDetail,
-            asset = asset,
-            amount = amount,
-            feeAsset = feeAsset,
-            walletInterface = walletInterface,
-            walletSource = walletSource(wallet),
-            walletMode = walletMode(wallet),
-            initiatedBy = initiatedBy,
-            appId = appId,
-            dappUrl = dappUrl,
-            isMax = isMax,
-            toAsset = toAsset,
-            stakingProvider = stakingProvider,
-            isLiquid = isLiquid,
-            ledgerModel = ledgerModels[wallet.id],
-        )
-    }
+    ) = Unit
 
     fun initiatedBy(from: Events.SendNative.SendNativeFrom): TransactionSentInitiatedBy {
         return when (from) {
@@ -99,37 +57,4 @@ object TransactionSentAnalytics {
         }
     }
 
-    private fun walletMode(wallet: WalletEntity): TransactionSentWalletMode {
-        return if (wallet.type == WalletType.Multichain) {
-            TransactionSentWalletMode.Multi
-        } else {
-            TransactionSentWalletMode.Single
-        }
-    }
-
-    private fun walletSource(wallet: WalletEntity): TransactionSentWalletSource {
-        return when {
-            wallet.signsWithLedger -> TransactionSentWalletSource.Ledger
-            wallet.isKeystone -> TransactionSentWalletSource.Keystone
-            wallet.signer -> TransactionSentWalletSource.Signer
-            wallet.isWatchOnly -> TransactionSentWalletSource.Watchonly
-            else -> TransactionSentWalletSource.Mnemonic
-        }
-    }
-
-    private fun walletInterface(wallet: WalletEntity, asset: String): TransactionSentWalletInterface? {
-        if (asset.startsWith("tron/")) {
-            return TransactionSentWalletInterface.Eoa
-        }
-        return when (wallet.version) {
-            WalletVersion.V5R1 -> TransactionSentWalletInterface.V5R1
-            WalletVersion.V5BETA -> TransactionSentWalletInterface.V5Beta
-            WalletVersion.V4R2 -> TransactionSentWalletInterface.V4R2
-            WalletVersion.V4R1 -> TransactionSentWalletInterface.V4R1
-            WalletVersion.V3R2 -> TransactionSentWalletInterface.V3R2
-            WalletVersion.V3R1 -> TransactionSentWalletInterface.V3R1
-            WalletVersion.WALLET_TG -> TransactionSentWalletInterface.WalletTg
-            WalletVersion.UNKNOWN -> null
-        }
-    }
 }

@@ -37,8 +37,6 @@ data class ConfigEntity(
     val featuredPlayInterval: Int,
     val flags: FlagsEntity,
     val faqUrl: String,
-    val aptabaseEndpoint: String,
-    val aptabaseAppKey: String,
     val batteryHost: String,
     val batteryTestnetHost: String,
     val batteryBeta: Boolean,
@@ -152,8 +150,6 @@ data class ConfigEntity(
             FlagsEntity(json.getJSONObject("flags"))
         },*/
         faqUrl = json.getString("faq_url"),
-        aptabaseEndpoint = json.getString("aptabaseEndpoint"),
-        aptabaseAppKey = json.getString("aptabaseAppKey"),
         batteryHost = json.optString("batteryHost", "https://battery.tonkeeper.com"),
         batteryTestnetHost = json.optString("batteryTestnetHost", "https://testnet-battery.tonkeeper.com"),
         batteryBeta = json.optBoolean("battery_beta", true),
@@ -223,8 +219,6 @@ data class ConfigEntity(
         featuredPlayInterval = 3000,
         flags = FlagsEntity(),
         faqUrl = "https://tonkeeper.helpscoutdocs.com/",
-        aptabaseEndpoint = "https://anonymous-analytics.tonkeeper.com",
-        aptabaseAppKey = "A-SH-4314447490",
         batteryHost = "https://battery.tonkeeper.com",
         batteryTestnetHost = "https://testnet-battery.tonkeeper.com",
         batteryBeta = true,

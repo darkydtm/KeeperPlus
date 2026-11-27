@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.ledger
 
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.chainkit.core.chain.model.account.core
 import com.tonapps.ledgerkit.LedgerFailure
@@ -13,16 +12,11 @@ import com.trustwallet.core.ethereum.SigningInput
 import com.trustwallet.core.ethereum.SigningOutput
 import com.trustwallet.core.ethereum.Transaction
 import com.trustwallet.core.ethereum.TransactionMode
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
-import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Hash
@@ -38,18 +32,6 @@ class EvmLedgerSignerTest {
     private val privateKey = ByteArray(32) { (it + 7).toByte() }
     private val keyPair = ECKeyPair.create(BigInteger(1, privateKey))
 
-    private val recorded = ArrayList<Throwable>()
-
-    @Before
-    fun setUp() {
-        mockkObject(IssueHelper)
-        every { IssueHelper.recordException(any(), any<Map<String, String>>()) } answers { recorded += firstArg<Throwable>() }
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
-    }
 
     @Test
     fun `eip1559 transfer compiled from a ledger signature equals the software signature`() = runTest {
@@ -108,7 +90,6 @@ class EvmLedgerSignerTest {
             tokenDescriptor = ByteArray(40),
             device = device,
         )
-        assertEquals(listOf("The Ethereum app rejected an ERC-20 descriptor"), recorded.map { it.message })
     }
 
     @Test

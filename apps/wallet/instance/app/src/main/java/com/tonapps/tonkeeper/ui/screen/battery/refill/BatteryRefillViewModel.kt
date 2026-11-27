@@ -13,7 +13,6 @@ import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.extensions.equalsAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeSize
@@ -129,7 +128,6 @@ class BatteryRefillViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
     private val environment: Environment,
-    private val analytics: AnalyticsHelper,
     savedStateHandle: SavedStateHandle,
     private val tonRecharge: BatteryTonRecharge,
 ) : BaseWalletVM(app) {
@@ -550,23 +548,9 @@ class BatteryRefillViewModel(
                 val tonWallet = resolveWallet()
                 val token = getTokens(tonWallet).firstOrNull { it.address == tokenAddress } ?: return@launch
                 val promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo
-                analytics.eventsTaggedWith(utm).batteryNative.batterySelect(
-                    from = from,
-                    type = BatteryNativeType.Crypto,
-                    size = packType.batterySize(),
-                    promo = promo,
-                    jetton = token.symbol,
-                )
                 when (val event = tonRecharge.request(tonWallet, token, packType, customAmount = null, recipient = null)) {
                     is BatteryRechargeEvent.Sign -> {
                         tonRecharge.sign(context, tonWallet, event.request, event.forceRelayer, utm, isGift = false)
-                        analytics.eventsTaggedWith(utm).batteryNative.batterySuccess(
-                            from = from,
-                            type = BatteryNativeType.Crypto,
-                            size = packType.batterySize(),
-                            promo = promo,
-                            jetton = token.symbol,
-                        )
                         toast(Localization.battery_please_wait)
                         withContext(Dispatchers.Main) {
                             navigation?.openURL("tonkeeper://activity?from=battery")
@@ -968,13 +952,6 @@ class BatteryRefillViewModel(
                         ignoreCache = true,
                     )
                     withContext(Dispatchers.Main) {
-                        analytics.eventsTaggedWith(utm).batteryNative.batterySuccess(
-                            from = from,
-                            type = BatteryNativeType.Fiat,
-                            size = batterySize(purchase.products.first()),
-                            promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo,
-                            jetton = null
-                        )
                     }
                     toast(Localization.battery_topped_up)
                     try {
@@ -1011,13 +988,6 @@ class BatteryRefillViewModel(
             purchaseLaunchFlow.value = false
             return
         }
-        analytics.eventsTaggedWith(utm).batteryNative.batterySelect(
-            from = from,
-            type = BatteryNativeType.Fiat,
-            size = batterySize(productId),
-            promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo,
-            jetton = null
-        )
 
         viewModelScope.launch {
             var launched = false

@@ -49,7 +49,7 @@ class BackupCheckInitScreen : BaseFragment(R.layout.fragment_compose_host) {
                     BackupCheckScreen(
                         data = BackupCheckData(words),
                         onDone = { initViewModel.completeBackup() },
-                        onError = { initViewModel.trackBackupError() },
+                        onError = {},
                         modifier = Modifier
                             .padding(top = with(LocalDensity.current) { topOffset.toDp() })
                             .navigationBarsPadding(),

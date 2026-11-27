@@ -2,12 +2,8 @@ package com.tonapps.deposit.multicoin.screens.ramp
 
 import com.tonapps.async.Async
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowAddFundsOption
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
 import com.tonapps.deposit.data.ExchangeRepository
-import com.tonapps.deposit.multicoin.analytics.DepositAnalytics
 import com.tonapps.deposit.screens.ramp.RampType
 import com.tonapps.log.L
 import com.tonapps.mvi.AsyncViewModel
@@ -36,10 +32,6 @@ class RampFeature(
 ) : AsyncViewModel() {
 
     val state: StateFlow<RampState> field = MutableStateFlow<RampState>(RampState.Loading)
-
-    val analytics = DepositAnalytics(
-        rampType, analyticsFrom, DepositFlowWalletMode.Multi, utm, DepositFlowDepositScreen.AddFunds,
-    )
 
     init {
         load()
@@ -72,7 +64,6 @@ class RampFeature(
                         isExchangeAvailable = isExchangeAvailable,
                     )
                 )
-                trackStarted(hasExchangeCards = cards.isNotEmpty())
             } catch (e: Throwable) {
                 L.e(e)
                 state.emit(
@@ -82,19 +73,8 @@ class RampFeature(
                         isExchangeAvailable = false,
                     )
                 )
-                trackStarted(hasExchangeCards = false)
             }
         }
-    }
-
-    private fun trackStarted(hasExchangeCards: Boolean) {
-        val options = buildList {
-            add(DepositFlowAddFundsOption.ReceiveTokens)
-            if (hasExchangeCards) {
-                add(DepositFlowAddFundsOption.BuyWithFiat)
-            }
-        }
-        analytics.started(options)
     }
 
     override fun onCleared() {

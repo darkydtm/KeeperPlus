@@ -24,15 +24,6 @@ class PerpsFragment : ComposableFragment(), BaseFragment.SwipeBack {
         fun onOpenPerpTrade(symbol: String)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) {
-            arguments?.getString(ARG_ENTRY_POINT)
-                ?.let { name -> PerpsEntryPoint.entries.firstOrNull { it.name == name } }
-                ?.let(PerpsAnalytics::sectionOpened)
-        }
-    }
-
     override fun onStart() {
         super.onStart()
         realtimeDemand.set(true)

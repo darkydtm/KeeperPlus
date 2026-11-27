@@ -1,9 +1,8 @@
 package com.tonapps.wallet.data.ledger.solana
 
+import com.tonapps.log.L
 import com.tonapps.ledgerkit.LedgerFailureException
 import com.tonapps.ledgerkit.transport.LedgerModel
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -70,7 +69,7 @@ internal class SolanaTrustedNames(
             .build()
         val response = json.decodeFromString(OwnerResponse.serializer(), get(url.toString()))
         if (!recipient.matches(response.tokenAccount, response.owner, response.contract)) {
-            LedgerNonFatals.report(IllegalStateException("The trusted name does not match the transaction recipient"), LedgerIssueSite.ClearSigning)
+            L.w(IllegalStateException("The trusted name does not match the transaction recipient"))
             return null
         }
         return response.signedDescriptor.decodeHex().toByteArray()
@@ -91,7 +90,7 @@ internal class SolanaTrustedNames(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        LedgerNonFatals.report(e, LedgerIssueSite.ClearSigning)
+        L.w(e)
         null
     }
 

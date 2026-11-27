@@ -117,7 +117,6 @@ class NftScreen : BaseWalletScreen<ScreenContext.None>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        analytics?.simpleTrackEvent("collectibles_select")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

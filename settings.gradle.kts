@@ -131,7 +131,6 @@ include(
     ":lib:ledgerkit",
     ":lib:ur",
     ":lib:base64",
-    ":lib:bus",
     ":lib:wallet",
     ":lib:wc",
     ":lib:webview-bridge",

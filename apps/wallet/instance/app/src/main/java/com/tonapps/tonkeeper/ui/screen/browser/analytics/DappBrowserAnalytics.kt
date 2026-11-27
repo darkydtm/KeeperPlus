@@ -1,7 +1,6 @@
 package com.tonapps.tonkeeper.ui.screen.browser.analytics
 
 import android.net.Uri
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.DappBrowser.DappAppClickFrom
@@ -20,46 +19,13 @@ object DappBrowserAnalytics {
     private const val UNKNOWN_LOCATION = "ZZ"
     private const val UNKNOWN_DOMAIN = "unknown"
 
-    internal val events: Events.DappBrowser
-        get() = AnalyticsHelper.Default.events.dappBrowser
+    fun browserOpen(from: String, type: DappBrowserType, country: String?, utm: UtmParameters = UtmParameters.Empty) = Unit
 
-    internal fun eventsTaggedWith(utm: UtmParameters): Events.DappBrowser {
-        return AnalyticsHelper.Default.eventsTaggedWith(utm).dappBrowser
-    }
+    fun tabClick(type: DappBrowserType, country: String?) = Unit
 
-    fun browserOpen(
-        from: String,
-        type: DappBrowserType,
-        country: String?,
-        utm: UtmParameters = UtmParameters.Empty,
-    ) {
-        eventsTaggedWith(utm).dappBrowserOpen(
-            from = openFrom(from),
-            type = type,
-            location = location(country)
-        )
-    }
+    fun searchOpen(country: String?) = Unit
 
-    fun tabClick(type: DappBrowserType, country: String?) {
-        events.dappBrowserTabClick(
-            type = type,
-            location = location(country)
-        )
-    }
-
-    fun searchOpen(country: String?) {
-        events.dappBrowserSearchOpen(
-            url = UNKNOWN_DOMAIN,
-            location = location(country)
-        )
-    }
-
-    fun searchClick(url: Uri?, country: String?) {
-        events.dappBrowserSearchClick(
-            url = domain(url),
-            location = location(country)
-        )
-    }
+    fun searchClick(url: Uri?, country: String?) = Unit
 
     fun catalogContext(
         source: String,

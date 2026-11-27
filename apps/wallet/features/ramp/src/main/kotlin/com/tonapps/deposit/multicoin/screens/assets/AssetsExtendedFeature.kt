@@ -7,11 +7,8 @@ import androidx.paging.cachedIn
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.chainkit.core.chain.model.account.Network
-import com.tonapps.deposit.multicoin.analytics.RampAnalytics
-import com.tonapps.deposit.multicoin.data.RampAsset
 import com.tonapps.deposit.multicoin.data.RampRepository
 import com.tonapps.deposit.screens.ramp.RampType
 import com.tonapps.log.L
@@ -28,7 +25,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import java.util.concurrent.atomic.AtomicBoolean
 
 data class AssetsExtendedFeatureData(
     val walletId: String,
@@ -61,13 +57,6 @@ class AssetsExtendedFeature(
         RampType.RampOff -> MutableStateFlow(Chain.displayOrder)
     }
 
-    private val analytics = RampAnalytics.of(
-        data.rampType, data.analyticsFrom, DepositFlowWalletMode.Multi, data.utm, data.depositScreen,
-    )
-
-    // The pager is rebuilt on every search/chain filter change; the screen is only "viewed" once.
-    private val viewTracked = AtomicBoolean(false)
-
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val assetsFlow = combine(
         selectedFilter,
@@ -91,7 +80,6 @@ class AssetsExtendedFeature(
                         query = query,
                         fiat = data.preferredCurrency,
                         chain = network?.id,
-                        onFirstPageLoaded = ::trackView,
                     )
                 },
             ).flow
@@ -106,19 +94,4 @@ class AssetsExtendedFeature(
         queryFilter.tryEmit(query.takeIf { it.isNotBlank() })
     }
 
-    // Buying only: selling reports through its own flow. Every pick counts, since the old list stays under the screen
-    // it opens and the user may come back and pick again.
-    fun onSelected(asset: RampAsset) {
-        if (data.rampType == RampType.RampOn) {
-            analytics.clickFiatAsset(asset.asset.id)
-        }
-    }
-
-    private fun trackView(assets: List<RampAsset>) {
-        if (!viewTracked.compareAndSet(false, true)) {
-            return
-        }
-
-        analytics.viewFiatChooseAsset(assets.map { it.asset.id })
-    }
 }

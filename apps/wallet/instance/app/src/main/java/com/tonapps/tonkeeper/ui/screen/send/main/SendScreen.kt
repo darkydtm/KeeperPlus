@@ -16,7 +16,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.tonapps.blockchain.contract.Blockchain
 import com.tonapps.blockchain.tron.isValidTronAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.bus.generated.Events
@@ -272,11 +271,6 @@ class SendScreen(wallet: WalletEntity) : WalletContextScreen(R.layout.fragment_s
         button.setMoonOnClickListener {
             lifecycleScope.launch {
                 val token = viewModel.uiInputTokenFlow.firstOrNull() ?: return@launch
-                AnalyticsHelper.Default.eventsTaggedWith(viewModel.analyticsUtm).sendNative.sendClick(
-                    from = viewModel.analyticsFrom,
-                    asset = token.analyticsAssetId(),
-                    amount = viewModel.currentAmountDouble,
-                )
             }
 
             next()
@@ -318,13 +312,6 @@ class SendScreen(wallet: WalletEntity) : WalletContextScreen(R.layout.fragment_s
             lifecycleScope.launch {
                 val token = viewModel.uiInputTokenFlow.firstOrNull() ?: return@launch
 
-                AnalyticsHelper.Default.eventsTaggedWith(viewModel.analyticsUtm).sendNative.sendConfirm(
-                    from = viewModel.analyticsFrom,
-                    asset = token.analyticsAssetId(),
-                    amount = viewModel.currentAmountDouble,
-                    feeAsset = viewModel.currentFeeAsset,
-                    appId = null,
-                )
             }
             signAndSend()
         }

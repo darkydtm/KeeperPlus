@@ -8,7 +8,6 @@ import com.tonapps.chainkit.core.chain.model.account.MnemonicWallet
 import com.tonapps.chainkit.core.chain.model.num.FiatRate
 import com.tonapps.chainkit.core.chain.model.num.toDisplayUnit
 import com.tonapps.chainkit.core.chain.model.transaction.Fee
-import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationError
 import com.tonapps.deposit.multicoin.screens.confirm.base.SignatureGate
 import com.tonapps.deposit.multicoin.screens.confirm.base.operation.BaseOperationConfirmFeature
 import com.tonapps.chainkit.core.op.Intent
@@ -27,18 +26,10 @@ import com.tonapps.wallet.data.passcode.WalletUnlocker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 /** The perps side of a deposit's send: the funding journal and the deposit's registration. */
-interface PerpetualDepositTracker : OperationTracker {
-
-    fun onError(error: ConfirmationError)
-
-    fun onQuoteChanged()
-}
+interface PerpetualDepositTracker : OperationTracker
 
 /** The perps side of a deposit [com.tonapps.blockchain.model.CommonTransactionData.preview]: the deposit, once the wallet is unlocked. */
 interface PerpetualDepositAuthorizer {
@@ -102,16 +93,7 @@ class PerpetualDepositConfirmFeature(
     }
         .cacheState(initialValue = null)
 
-    init {
-        if (tracker != null) {
-            stateScope.launch {
-                confirmationError.filterNotNull().collect { tracker.onError(it) }
-            }
-            stateScope.launch {
-                quoteChanged.filter { it }.collect { tracker.onQuoteChanged() }
-            }
-        }
-    }
+
 
     private suspend fun price(fee: Fee, deposit: ConfirmType.PerpetualDeposit): PerpetualDepositPricing {
         val networkFeeUsd = feeUsdRate(fee.asset)?.let { rate ->

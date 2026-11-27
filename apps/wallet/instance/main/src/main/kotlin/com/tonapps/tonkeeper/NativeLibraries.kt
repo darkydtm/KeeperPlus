@@ -1,7 +1,6 @@
 package com.tonapps.tonkeeper
 
 import android.os.Build
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.wallet.ChainKitProvider
 
 object NativeLibraries {
@@ -18,7 +17,6 @@ object NativeLibraries {
                 throw e
             }
             isUnavailable = true
-            IssueHelper.recordException(e)
             return false
         }
     }

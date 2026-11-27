@@ -1,59 +1,14 @@
 package com.tonapps.tonkeeper.ui.screen.browser.dapp.earn
 
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.Events.DappBrowser.DappAppClickFrom
 import com.tonapps.bus.generated.Events.EarnFlow.EarnFlowChain
-import com.tonapps.bus.generated.Events.EarnFlow.EarnFlowExitMethod
 import com.tonapps.bus.generated.Events.EarnFlow.EarnFlowMethod
-import com.tonapps.bus.generated.Events.EarnFlow.EarnSignRequestFrom
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.evm.EvmProviderProtocol
-import com.tonapps.tonkeeper.ui.screen.browser.dapp.evm.EvmProviderProtocol.Message.Request
-import com.tonapps.tonkeeper.ui.screen.browser.dapp.evm.EvmSignListener
 import java.net.URI
 import java.net.URISyntaxException
 
-internal class EarnDAppAnalytics(openedFrom: DappAppClickFrom) : EvmSignListener {
-
-    private val events: Events.EarnFlow
-        get() = AnalyticsHelper.Default.events.earnFlow
-
-    private val from = EarnSignRequestFrom.entries.firstOrNull { it.key == openedFrom.key }
-        ?: EarnSignRequestFrom.Other
-
-    override fun onRequested(request: Request, chain: Chain.Evm) {
-        val signMethod = method(request.method) ?: return
-        events.earnSignRequest(from, signMethod, chain(chain), vaultId(request.pageUrl))
-    }
-
-    override fun onSigned(request: Request, chain: Chain.Evm) {
-        val signMethod = method(request.method) ?: return
-        events.earnSignSuccess(from, signMethod, chain(chain), vaultId(request.pageUrl))
-    }
-
-    override fun onRejected(request: Request, chain: Chain.Evm) {
-        val signMethod = method(request.method) ?: return
-        events.earnSignRejected(from, signMethod, chain(chain), vaultId(request.pageUrl))
-    }
-
-    override fun onFailed(request: Request, chain: Chain.Evm, code: Int, message: String) {
-        val signMethod = method(request.method) ?: return
-        events.earnSignFailed(
-            from = from,
-            method = signMethod,
-            chain = chain(chain),
-            vaultId = vaultId(request.pageUrl),
-            errorCode = code.toString(),
-            errorMessage = message,
-        )
-    }
-
-    fun closed(exitMethod: EarnFlowExitMethod, durationMs: Long) {
-        events.earnClose(from, exitMethod, durationMs)
-    }
-
+internal class EarnDAppAnalytics {
     internal companion object {
 
         private const val EARN_SEGMENT = "earn"

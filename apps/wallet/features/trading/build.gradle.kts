@@ -53,7 +53,6 @@ dependencies {
     implementation(projects.lib.blockchain)
     implementation(projects.lib.extensions)
     implementation(projects.lib.icu)
-    implementation(projects.lib.bus)
 
     testImplementation(libs.junit)
 }

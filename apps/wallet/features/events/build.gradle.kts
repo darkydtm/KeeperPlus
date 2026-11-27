@@ -47,7 +47,6 @@ dependencies {
     implementation(projects.lib.icu)
     implementation(projects.lib.log)
     implementation(projects.lib.network)
-    implementation(projects.lib.bus)
 
     implementation(projects.ui.uikit.core)
 

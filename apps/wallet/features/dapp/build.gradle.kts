@@ -37,5 +37,4 @@ dependencies {
     implementation(projects.lib.icu)
     implementation(projects.lib.extensions)
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.bus)
 }

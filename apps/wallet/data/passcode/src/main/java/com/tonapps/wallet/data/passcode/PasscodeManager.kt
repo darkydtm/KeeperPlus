@@ -1,8 +1,6 @@
 package com.tonapps.wallet.data.passcode
 
 import android.content.Context
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.tracer.AnalyticException
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.extensions.logError
@@ -323,10 +321,8 @@ class PasscodeManager(
                         .use { }
                 }
             }
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault bootstrap failed", e)
-            )
+        } catch (_: Throwable) {
+            // The vault remains unavailable until the next attempt.
         }
     }
 
@@ -338,10 +334,8 @@ class PasscodeManager(
                         multichainVault.restoreSession()
                     }
                 }
-            } catch (e: Throwable) {
-                AnalyticsHelper.Default.captureException(
-                    AnalyticException.Vault("session restore on foreground failed", e)
-                )
+            } catch (_: Throwable) {
+                // The session stays locked if it cannot be restored.
             }
         }
     }
@@ -373,10 +367,8 @@ class PasscodeManager(
             }
             startNewChains(missingChains, code)
             lockscreen.biometric()
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Passcode("biometric unlock failed", e)
-            )
+        } catch (_: Throwable) {
+            // The wallet remains locked if biometric unlock fails.
         }
     }
 
@@ -411,10 +403,7 @@ class PasscodeManager(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault session restore failed", e)
-            )
+        } catch (_: Throwable) {
             false
         }
 
@@ -628,12 +617,9 @@ class PasscodeManager(
             }
 
             syncWalletBindings(code)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // The legacy PIN store accepted a code the vault can't open (stores desynced, e.g. by
             // a PIN change that predates the vault re-seal fix); the session simply stays locked.
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault session unlock failed", e)
-            )
         } finally {
             pin.fill('\u0000')
         }
@@ -646,10 +632,8 @@ class PasscodeManager(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("hardware app key restore failed", e)
-            )
+        } catch (_: Throwable) {
+            // Restoring hardware app keys is best-effort.
         }
     }
 
@@ -778,10 +762,7 @@ class PasscodeManager(
             true
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault first pin seal failed", e)
-            )
+        } catch (_: Throwable) {
             false
         } finally {
             pin.fill('\u0000')
@@ -805,10 +786,8 @@ class PasscodeManager(
                 multichainVault.deleteAll()
                 multichainVault.setPin(DEFAULT_PIN.toCharArray()).use { }
             }
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault reset failed", e)
-            )
+        } catch (_: Throwable) {
+            // Reset is best-effort, as before.
         }
     }
 

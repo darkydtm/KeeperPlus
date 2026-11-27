@@ -12,8 +12,6 @@ import com.tonapps.ledgerkit.controller.LedgerPurpose
 import com.tonapps.ledgerkit.controller.LedgerRequest
 import com.tonapps.ledgerkit.transport.LedgerModel
 import com.tonapps.ledgerkit.transport.usb.LedgerUsbIds
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.reportingLedgerIssues
 import com.tonapps.wallet.data.ledger.discovery.LedgerDevice
 import com.tonapps.wallet.data.ledger.discovery.LedgerDiscoveryInteractor
 import com.tonapps.wallet.data.ledger.discovery.LedgerImportCandidate
@@ -48,7 +46,7 @@ internal class LedgerWalletInteractorImpl(
         return missingApps(walletId).flatMap { it.chains }.filter { it !in chains }.distinct()
     }
 
-    override suspend fun rebind(walletId: String, device: LedgerDevice) = reportingLedgerIssues(LedgerIssueSite.Wallet) {
+    override suspend fun rebind(walletId: String, device: LedgerDevice) = run {
         val descriptor = descriptor(walletId)
         val tonAccount = accountRepository.getCoinAccounts(walletId).firstOrNull { it.chain == Chain.Ton.Mainnet }
             ?: throw LedgerFailureException(LedgerFailure.Unexpected("TON is not added to this Ledger wallet"))
@@ -109,7 +107,7 @@ internal class LedgerWalletInteractorImpl(
             .firstOrNull { walletId -> accountRepository.getWallet(walletId)?.isHardware == true }
     }
 
-    override suspend fun prepareWalletSeeds(device: LedgerDevice, candidates: List<LedgerImportCandidate>) = reportingLedgerIssues(LedgerIssueSite.Wallet) {
+    override suspend fun prepareWalletSeeds(device: LedgerDevice, candidates: List<LedgerImportCandidate>) = run {
         val targets = candidates.map { candidate ->
             val publicKeyHex = candidate.tonPublicKeyHex
                 ?: throw LedgerFailureException(LedgerFailure.Unexpected("A Ledger wallet needs a TON account"))
@@ -174,11 +172,11 @@ internal class LedgerWalletInteractorImpl(
         val tonPublicKey: ByteArray,
     )
 
-    override suspend fun addMissingNetworks(walletId: String): LedgerAddNetworksResult = reportingLedgerIssues(LedgerIssueSite.Wallet) {
+    override suspend fun addMissingNetworks(walletId: String): LedgerAddNetworksResult = run {
         val descriptor = descriptor(walletId)
         val missing = missingApps(walletId)
         if (missing.isEmpty()) {
-            return@reportingLedgerIssues LedgerAddNetworksResult(added = emptyList(), skipped = emptyMap())
+            return@run LedgerAddNetworksResult(added = emptyList(), skipped = emptyMap())
         }
         val accounts = accountRepository.getCoinAccounts(walletId)
         val tonAddress = accounts.firstOrNull { it.chain == Chain.Ton.Mainnet }?.displayAddress
@@ -197,7 +195,7 @@ internal class LedgerWalletInteractorImpl(
         val drafts = discovered.accounts.filter { it.chain !in existingChains }
         val skipped = result.skipped
         if (drafts.isEmpty()) {
-            return@reportingLedgerIssues LedgerAddNetworksResult(added = emptyList(), skipped = skipped)
+            return@run LedgerAddNetworksResult(added = emptyList(), skipped = skipped)
         }
         val merged = descriptor.copy(
             derivationPaths = descriptor.derivationPaths + discovered.descriptor(device).derivationPaths.filterKeys { it !in descriptor.derivationPaths },

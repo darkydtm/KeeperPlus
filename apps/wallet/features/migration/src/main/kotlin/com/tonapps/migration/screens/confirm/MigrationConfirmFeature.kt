@@ -6,8 +6,6 @@ import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.extensions.cellFromBase64
-import com.tonapps.bus.generated.Events.Migration.MigrationChain
-import com.tonapps.bus.generated.Events.Migration.MigrationFailedPart
 import com.tonapps.core.extensions.fiatRate
 import com.tonapps.core.extensions.formatFiat
 import com.tonapps.core.extensions.formatWithSymbol
@@ -15,7 +13,6 @@ import com.tonapps.deposit.usecase.sign.SignUseCase
 import com.tonapps.extensions.getUserMessage
 import com.tonapps.icu.Coins
 import com.tonapps.log.L
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.migration.data.MigrationEmulationMapper
 import com.tonapps.migration.data.MigrationEmulationMapper.Companion.asContinuousBundle
 import com.tonapps.migration.data.MigrationFeeShortage
@@ -140,11 +137,6 @@ class MigrationConfirmFeature(
                         MigrationConfirmUiState.Content(buildData(result))
                     } catch (throwable: Throwable) {
                         verifyError(throwable)
-                        MigrationAnalytics.prepareError(
-                            chain = MigrationChain.Multichain,
-                            isBlocking = true,
-                            error = throwable,
-                        )
                         MigrationConfirmUiState.Error
                     }
                 }
@@ -312,7 +304,6 @@ class MigrationConfirmFeature(
             return
         }
         preparedResult.tryEmit(result)
-        MigrationAnalytics.confirmationView(MigrationAnalytics.feeAsset(result))
     }
 
     private suspend fun buildData(result: MigrationPrepareResult): MigrationConfirmData {
@@ -467,8 +458,6 @@ class MigrationConfirmFeature(
             0
         }
         val totalSteps = transactions.size + tronSteps
-        val feeAsset = MigrationAnalytics.feeAsset(result)
-        var failedPart = MigrationFailedPart.Setup
         val sender = transactionManager.createCustomSender()
         val tonHeaders = migrationHeaders(
             if (result.paysTonFeeWithBattery) {
@@ -493,9 +482,6 @@ class MigrationConfirmFeature(
                 wallet = wallet,
                 reason = PasscodeReason.MIGRATE_WALLET,
             ) {
-                if (transactions.isNotEmpty()) {
-                    failedPart = MigrationFailedPart.Ton
-                }
                 if (result.paysTonFeeWithBattery &&
                     transactions.none { it.sponsored == true }
                 ) {
@@ -539,11 +525,6 @@ class MigrationConfirmFeature(
                     ) {
                         transactionManager.waitUntilBatteryIdle(wallet)
                     }
-                    failedPart = if (result.tronPrepare.willSendUsdt) {
-                        MigrationFailedPart.TronUsdt
-                    } else {
-                        MigrationFailedPart.TronTrx
-                    }
                     migrationRepository.sendTronMigration(
                         wallet = wallet,
                         prepare = result.tronPrepare,
@@ -552,7 +533,6 @@ class MigrationConfirmFeature(
                             val sent = sentTransactions.value + 1
                             sentTransactions.tryEmit(sent)
                             totalTransactions.tryEmit(maxOf(totalTransactions.value, sent))
-                            failedPart = MigrationFailedPart.TronTrx
                         },
                     )
                 }
@@ -566,7 +546,6 @@ class MigrationConfirmFeature(
 
             migrationRepository.invalidateWalletsCount()
             signingState.tryEmit(MigrationSigningState.Success)
-            MigrationAnalytics.transactionSuccess(feeAsset)
             if (batteryProof == null) {
                 L.w("MigrationConfirmFeature", "Battery migration proof is unavailable")
             } else {
@@ -580,12 +559,6 @@ class MigrationConfirmFeature(
             L.e("MigrationConfirmFeature", "Migration send failed", error)
             signingState.tryEmit(MigrationSigningState.Failed)
             errorMessage.tryEmit(error.getUserMessage(context) ?: error.message)
-            MigrationAnalytics.transactionError(
-                feeAsset = feeAsset,
-                failedPart = failedPart,
-                isPartial = sentTransactions.value > 0,
-                error = error,
-            )
         }
     }
 

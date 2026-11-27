@@ -54,9 +54,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tonapps.apps.wallet.features.portfolio.R
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleAction
-import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleKind
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
 import com.tonapps.portfolio.screens.raffle.components.RaffleConfetti
 import com.tonapps.uikit.icon.UIKitIcon
@@ -187,18 +184,6 @@ private fun RaffleContent(
     val raffle = content.raffle
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val events = AnalyticsHelper.Default.events.mysteryRaffle
-    val analyticsKind = content.analyticsKind
-    val ticketsTotal = content.ticketsTotal
-
-    LaunchedEffect(Unit) {
-        events.raffleOpen(
-            source = source,
-            kind = analyticsKind,
-            ticketsTotal = ticketsTotal,
-            prize = content.prize,
-        )
-    }
     val locale = LocalConfiguration.current.locales[0]
     val historyFormatter = remember(locale) {
         DateTimeFormatter.ofPattern("MMMM d, HH:mm", locale)
@@ -230,7 +215,6 @@ private fun RaffleContent(
                         isFinal = !content.participating,
                         showGetMore = content.showGetMore,
                         onGetMore = {
-                            events.raffleClickGetMore(analyticsKind, ticketsTotal)
                             scope.launch { listState.animateScrollToItem(content.earnHeaderIndex) }
                         },
                     )
@@ -243,14 +227,12 @@ private fun RaffleContent(
                         task = item.task,
                         position = item.pos,
                         onOpenDeeplink = onOpenDeeplink,
-                        onClickTask = { events.raffleClickTask(item.task.id) },
                     )
                     is RaffleListItem.Milestone -> MilestoneCell(
                         milestone = item.milestone,
                         position = item.pos,
                         isCurrent = item.isCurrent,
                         onOpenDeeplink = onOpenDeeplink,
-                        onClickMilestone = { events.raffleClickMilestone(item.milestone.id) },
                     )
                     is RaffleListItem.History -> HistoryCell(item.entry, item.pos, historyFormatter)
                     is RaffleListItem.Faq -> FaqCell(
@@ -293,9 +275,6 @@ private fun RaffleContent(
                 )
                 .padding(16.dp)
                 .navigationBarsPadding(),
-            onClickCta = {
-                events.raffleClickCta(content.ctaAction, analyticsKind, ticketsTotal)
-            },
             onOpenDeeplink = onOpenDeeplink,
             onOpenLink = onOpenLink,
         )
@@ -633,7 +612,6 @@ private fun TaskCell(
     task: RaffleEntity.Task,
     position: MoonBundlePosition,
     onOpenDeeplink: (String) -> Unit,
-    onClickTask: () -> Unit,
 ) {
     val done = task.done
     MoonBundleCell(position = position) {
@@ -658,7 +636,6 @@ private fun TaskCell(
             },
             onClick = task.deeplink?.takeIf { !done }?.let { deeplink ->
                 {
-                    onClickTask()
                     onOpenDeeplink(deeplink)
                 }
             },
@@ -672,7 +649,6 @@ private fun MilestoneCell(
     position: MoonBundlePosition,
     isCurrent: Boolean,
     onOpenDeeplink: (String) -> Unit,
-    onClickMilestone: () -> Unit,
 ) {
     val done = milestone.done
     val connectorColor = UIKit.colorScheme.background.contentTint
@@ -743,7 +719,6 @@ private fun MilestoneCell(
             },
             onClick = if (isCurrent) {
                 {
-                    onClickMilestone()
                     onOpenDeeplink(MILESTONE_SWAP_DEEPLINK)
                 }
             } else {
@@ -839,7 +814,6 @@ private fun HistoryCell(
 private fun CtaButton(
     cta: RaffleEntity.Cta,
     modifier: Modifier,
-    onClickCta: () -> Unit,
     onOpenDeeplink: (String) -> Unit,
     onOpenLink: (String) -> Unit,
 ) {
@@ -848,7 +822,6 @@ private fun CtaButton(
         size = ButtonSizeLarge,
         modifier = modifier,
         onClick = {
-            onClickCta()
             when (cta.action) {
                 RaffleEntity.Cta.Action.Deeplink -> onOpenDeeplink(cta.payload)
                 RaffleEntity.Cta.Action.Link -> onOpenLink(cta.payload)
@@ -999,10 +972,6 @@ private fun previewContent(): RaffleScreenState.Content {
         earnHeaderIndex = 5,
         participating = true,
         showGetMore = true,
-        analyticsKind = MysteryRaffleKind.Active,
-        ctaAction = MysteryRaffleAction.Swap,
-        ticketsTotal = 123,
-        prize = null,
     )
 }
 
@@ -1073,10 +1042,6 @@ private fun previewOfferContent(): RaffleScreenState.Content {
         earnHeaderIndex = -1,
         participating = true,
         showGetMore = false,
-        analyticsKind = MysteryRaffleKind.Migration,
-        ctaAction = MysteryRaffleAction.Migrate,
-        ticketsTotal = 0,
-        prize = null,
     )
 }
 
@@ -1132,9 +1097,5 @@ private fun previewWonContent(): RaffleScreenState.Content {
         earnHeaderIndex = -1,
         participating = false,
         showGetMore = false,
-        analyticsKind = MysteryRaffleKind.Won,
-        ctaAction = MysteryRaffleAction.ResultsLink,
-        ticketsTotal = 123,
-        prize = "Plush Pepe NFT",
     )
 }

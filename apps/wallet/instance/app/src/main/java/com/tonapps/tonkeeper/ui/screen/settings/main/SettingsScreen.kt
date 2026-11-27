@@ -8,11 +8,8 @@ import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.Wallet as TonWallet
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.contract.WalletVersion
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.InappReview.InappReviewAction
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
-import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
 import com.tonapps.tonkeeper.Wallet
 import com.tonapps.tonkeeper.extensions.toastLoading
@@ -52,8 +49,6 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     override val fragmentName: String = "SettingsScreen"
 
-    private val from: String by lazy { requireArguments().getString(ARG_FROM)!! }
-
     override val viewModel: SettingsViewModel by viewModel()
 
     private val searchEngineMenu: ActionSheet by lazy {
@@ -61,11 +56,6 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
     }
 
     private val adapter = Adapter(::onClickItem)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        analytics?.simpleTrackScreenEvent("settings_open", from)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -76,9 +66,6 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
     }
 
     private fun onClickItem(item: Item) {
-        analytics?.simpleTrackEvent("settings_select", hashMapOf(
-            "type" to item.name
-        ))
         if (item is Item.Promotions) {
             viewModel.togglePromotions()
             return
@@ -130,7 +117,7 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
             is Item.FAQ -> navigation?.openURL(item.url)
             is Item.Migration -> {
                 viewModel.markMigrationOpened()
-                navigation?.add(MigrationFragment.newInstance(MigrationFrom.Settings))
+                navigation?.add(MigrationFragment.newInstance())
             }
             else -> return
         }
@@ -222,14 +209,9 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     companion object {
 
-        private const val ARG_FROM = "from"
         private const val MARKET_DETAILS_URL = "market://details?id="
         private const val PLAY_STORE_DETAILS_URL = "https://play.google.com/store/apps/details?id="
 
-        fun newInstance(from: String): SettingsScreen {
-            val screen = SettingsScreen()
-            screen.putStringArg(ARG_FROM, from)
-            return screen
-        }
+        fun newInstance(@Suppress("UNUSED_PARAMETER") from: String): SettingsScreen = SettingsScreen()
     }
 }

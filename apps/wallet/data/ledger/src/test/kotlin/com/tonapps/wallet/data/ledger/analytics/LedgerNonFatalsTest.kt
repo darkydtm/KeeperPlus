@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.ledger.analytics
 
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.ledgerkit.LedgerAppId
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.LedgerFailureException
@@ -31,8 +30,6 @@ class LedgerNonFatalsTest {
 
     @Before
     fun setUp() {
-        mockkObject(IssueHelper)
-        every { IssueHelper.recordException(any(), any<Map<String, String>>()) } answers { recorded += firstArg<Throwable>() to secondArg() }
     }
 
     @After

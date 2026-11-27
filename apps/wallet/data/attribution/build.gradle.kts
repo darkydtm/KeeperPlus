@@ -6,7 +6,7 @@ dependencies {
     implementation(libs.koin.core)
 
     implementation(projects.kmp.async)
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
     implementation(projects.lib.log)
 
     testImplementation(libs.junit)

@@ -11,10 +11,7 @@ import com.tonapps.blockchain.model.CommonTransactionData
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
 import com.tonapps.blockchain.ton.TonNetwork
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeType
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeWalletMode
 import com.tonapps.wallet.api.API
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.chainkit.core.chain.model.num.BaseUnit
@@ -979,24 +976,6 @@ class SwapFeature(
         .onEach { settingsRepository.swapBatteryPromoShown = true }
         .cacheState()
 
-    private val swapClicked = send
-        .map { it?.takeIf { attempt -> attempt.clicked && attempt.phase == SwapSendPhase.Working }?.id }
-        .distinctUntilChanged()
-        .filterNotNull()
-        .withLatestFrom(assetPair, amountInput) { _, pair, input -> pair to input.isMax }
-        .onEach { (pair, isMax) ->
-            val sell = pair.sell ?: return@onEach
-            val buy = pair.buy ?: return@onEach
-            AnalyticsHelper.Default.eventsTaggedWith(utm).swapsNative.swapClick(
-                type = SwapsNativeType.Native,
-                walletMode = SwapsNativeWalletMode.Multi,
-                assetFrom = sell.id,
-                assetTo = buy.id,
-                isMax = isMax,
-            )
-        }
-        .cacheState()
-
     private val shownPlan = combine(send, shownQuote) { send, quote ->
         send?.plan?.takeIf { quote != null && send.quoteReceivedAt == quote.receivedAt }
     }
@@ -1536,9 +1515,6 @@ class SwapFeature(
  *   [request] failure ╌╌► ShowError event
  *
  *   send? [non-null, not Review or popup shown] ──► sendHoldsQuote
- *
- *   send? [clicked, Working, distinct id] ──┐
- *                assetPair / amountInput ⋯──┴──► swapClicked ╌╌► swap_click analytics
  *
  *   send? / amountBlocker? / quoteFetch / quoteError? / quote? ──► swapButton
  *

@@ -1,7 +1,6 @@
 package com.tonapps.wallet.data.ledger.lab
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.chainkit.core.chain.model.account.Account
 import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
@@ -33,15 +32,11 @@ import com.trustwallet.core.solana.TokenTransfer
 import com.trustwallet.core.solana.SigningInput
 import com.trustwallet.core.solana.SigningOutput
 import com.trustwallet.core.solana.Transfer
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okio.ByteString.Companion.toByteString
-import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
@@ -54,7 +49,6 @@ class LedgerLabSolanaTest {
     private lateinit var wallet: HDWallet
     private val signer = SolanaLedgerSigner(SolanaTrustedNames(OkHttpClient(), SolanaTrustedNames.SignatureKind.Test))
     private val path = LedgerDerivation.solana(0)
-    private val recorded = ArrayList<Throwable>()
 
     @Before
     fun setUp() {
@@ -63,13 +57,6 @@ class LedgerLabSolanaTest {
         wallet = HDWallet(SpeculosLab.seed, "")
         SpeculosLab.policy("approve")
         SpeculosLab.restart("Solana")
-        mockkObject(IssueHelper)
-        every { IssueHelper.recordException(any(), any<Map<String, String>>()) } answers { recorded += firstArg<Throwable>() }
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
     }
 
     private fun request() = LedgerRequest("lab", "Stax lab", LedgerPurpose.SignTransaction)
@@ -165,7 +152,6 @@ class LedgerLabSolanaTest {
             e.failure
         }
         assertEquals(LedgerFailure.SettingRequired(LedgerAppId.Solana, LedgerAppSetting.BlindSigning), failure)
-        assertEquals(listOf("The Solana app rejected a trusted name"), recorded.map { it.message })
     }
 
     private suspend fun assertTokenTransferClearSigned(unsigned: SigningInput, withKey: SigningInput) {

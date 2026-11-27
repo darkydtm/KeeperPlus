@@ -8,7 +8,6 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.icu.Coins
 import com.tonapps.ledger.ton.Transaction
 import com.tonapps.blockchain.model.legacy.Amount
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events
 import com.tonapps.core.helper.TON_COIN_ASSET_ID
 import com.tonapps.core.helper.TransactionSentAnalytics
@@ -39,7 +38,6 @@ import com.tonapps.wallet.data.multichain.account.nftAssetId
 import com.tonapps.wallet.data.multichain.account.tonCoinAssetId
 import com.tonapps.blockchain.model.legacy.MessageBodyEntity
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.wallet.data.battery.BatteryRepository
 import com.tonapps.wallet.data.core.entity.SignRequestEntity
 import com.tonapps.wallet.data.rates.RatesRepository
@@ -84,7 +82,6 @@ class SendTransactionViewModel(
     private val transactionManager: TransactionManager,
     private val batteryRepository: BatteryRepository,
     private val ratesRepository: RatesRepository,
-    private val analytics: AnalyticsHelper
 ) : BaseWalletVM(app) {
 
     private val currency = settingsRepository.currency
@@ -129,10 +126,6 @@ class SendTransactionViewModel(
         }
 
     init {
-        analytics.eventDelegateTaggedWith(analyticsContext.utm).tcViewConfirm(
-            request.appUri.toString(),
-            request.targetAddressValue
-        )
         viewModelScope.launch(Dispatchers.IO) {
             if (isSignMessage) {
                 emulateSignMessage()
@@ -235,16 +228,6 @@ class SendTransactionViewModel(
                     _stateFlow.value = SendTransactionState.FailedEmulation
                 }
             } catch (e: Throwable) {
-                IssueHelper.recordException(
-                    APIException.Emulation(
-                        boc = message?.createSignedBody(
-                            EmptyPrivateKeyEd25519.invoke(),
-                            relayerForced || useBattery
-                        )?.base64() ?: "failed",
-                        sourceUri = request.appUri,
-                        cause = e
-                    )
-                )
 
                 val tonBalance = getTONBalance()
                 if (tonBalance == Coins.ZERO && !request.ignoreInsufficientBalance) {
@@ -295,13 +278,6 @@ class SendTransactionViewModel(
             tonDetails = createDetails(emulated, includeFee = false, relayAddress = relayAddressDeferred.await())
             _stateFlow.value = tonDetails!!
         } catch (e: Throwable) {
-            IssueHelper.recordException(
-                APIException.Emulation(
-                    boc = message?.createSignedBody(EmptyPrivateKeyEd25519.invoke(), true)?.base64() ?: "failed",
-                    sourceUri = request.appUri,
-                    cause = e
-                )
-            )
             failureToast(e.getDebugMessage() ?: getString(Localization.unknown_error))
             _stateFlow.value = SendTransactionState.FailedEmulation
         }
@@ -484,11 +460,6 @@ class SendTransactionViewModel(
             isBattery -> "battery"
             else -> "ton"
         }
-        analytics.eventDelegateTaggedWith(analyticsContext.utm).tcSendSuccess(
-            url = request.appUri.toString(),
-            address = request.targetAddressValue,
-            feePaid = feePaid
-        )
         val initiatedBy = analyticsContext.sendNativeFrom?.let(TransactionSentAnalytics::initiatedBy)
             ?: if (request.appUri.host == "signRaw") {
                 Events.TransactionSent.TransactionSentInitiatedBy.DeepLink
@@ -605,13 +576,6 @@ class SendTransactionViewModel(
             tonAnalyticsTransfer
         }
         val transfer = emulatedTransfer ?: nativeAnalyticsTransfer()
-        analytics.eventsTaggedWith(analyticsContext.utm).sendNative.sendSuccess(
-            from = from,
-            asset = transfer.asset,
-            amount = transfer.amount,
-            feeAsset = currentFeeAsset,
-            appId = null,
-        )
     }
 
     private fun getConfirmationTimeMillis(): Long {

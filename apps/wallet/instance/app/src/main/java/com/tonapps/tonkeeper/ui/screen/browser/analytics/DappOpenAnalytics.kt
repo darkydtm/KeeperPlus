@@ -29,14 +29,6 @@ data class DappOpenAnalytics(
 
     fun click() {
         clickedAt = SystemClock.elapsedRealtime()
-        DappBrowserAnalytics.eventsTaggedWith(utm).dappAppClick(
-            from = from,
-            url = url,
-            assetChain = assetChain,
-            appId = appId,
-            bannerId = bannerId,
-            location = location
-        )
     }
 
     // The webview reports every navigation as finished, but the ratio with dapp_app_click only
@@ -46,15 +38,6 @@ data class DappOpenAnalytics(
             return
         }
 
-        DappBrowserAnalytics.eventsTaggedWith(utm).dappAppLoaded(
-            from = from,
-            url = url,
-            assetChain = assetChain,
-            appId = appId,
-            bannerId = bannerId,
-            location = location,
-            loadDurationMs = loadDurationMs()
-        )
     }
 
     fun loadFailed(errorCode: String, httpStatus: Int?) {
@@ -62,26 +45,9 @@ data class DappOpenAnalytics(
             return
         }
 
-        DappBrowserAnalytics.eventsTaggedWith(utm).dappAppLoadFailed(
-            from = from,
-            url = url,
-            assetChain = assetChain,
-            appId = appId,
-            bannerId = bannerId,
-            location = location,
-            errorCode = errorCode,
-            httpStatus = httpStatus,
-            loadDurationMs = loadDurationMs()
-        )
     }
 
     fun sharingCopy(from: DappSharingCopyFrom) {
-        DappBrowserAnalytics.eventsTaggedWith(utm).dappSharingCopy(
-            url = url,
-            assetChain = assetChain,
-            from = from,
-            location = location
-        )
     }
 
     /** Null for a screen restored from its saved state: its click was reported by another one. */

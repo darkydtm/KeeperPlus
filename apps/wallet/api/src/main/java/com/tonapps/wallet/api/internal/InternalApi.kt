@@ -3,7 +3,6 @@ package com.tonapps.wallet.api.internal
 import android.content.Context
 import androidx.core.net.toUri
 import com.tonapps.blockchain.ton.TonNetwork
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.extensions.isDebug
 import com.tonapps.extensions.locale
 import com.tonapps.extensions.map
@@ -37,7 +36,6 @@ import okhttp3.Call
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
 
 private const val MULTICHAIN_FEATURE = "multichain"
 
@@ -52,8 +50,6 @@ internal class InternalApi(
 
     val hasCountryConfig: Boolean
         get() = config != null
-
-    private val configFailureRecorded = AtomicBoolean(false)
 
     private var _apiEndpoint = Constants.TONKEEPER_API.toUri()
 
@@ -196,16 +192,11 @@ internal class InternalApi(
                 "https://boot.tonkeeper.com"
             }
             val json = request(::KeysApi, host = host) { getAllKeys() }
-            val config = ConfigResponseEntity(JSONObject(json.toString()), context.isDebug)
-            configFailureRecorded.set(false)
-            config
-        } catch (e: Throwable) {
+            ConfigResponseEntity(JSONObject(json.toString()), context.isDebug)
+        } catch (_: Throwable) {
             if (!fallback) {
                 downloadConfig(true)
             } else {
-                if (configFailureRecorded.compareAndSet(false, true)) {
-                    IssueHelper.recordException(e)
-                }
                 null
             }
         }
@@ -215,8 +206,7 @@ internal class InternalApi(
         return try {
             val story = request(::StoriesApi, walletId = walletId) { getStories(storyId = id, isNew = isNew) }
             parseStories(story)
-        } catch (e: Throwable) {
-            IssueHelper.recordException(e)
+        } catch (_: Throwable) {
             null
         }
     }
@@ -236,13 +226,11 @@ internal class InternalApi(
             }.getValue("stories").jsonArray.mapNotNull { item ->
                 try {
                     parseStories(Serializer.JSON.decodeFromJsonElement<StoryInfo>(item))
-                } catch (e: Throwable) {
-                    IssueHelper.recordException(e)
+                } catch (_: Throwable) {
                     null
                 }
             }
-        } catch (e: Throwable) {
-            IssueHelper.recordException(e)
+        } catch (_: Throwable) {
             emptyList()
         }
     }

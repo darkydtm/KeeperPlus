@@ -52,7 +52,6 @@ import com.tonapps.blockchain.model.legacy.Wallet
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.contract.WalletVersion
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
 import com.tonapps.core.components.BannersViewer
 import com.tonapps.core.components.Emoji
@@ -163,13 +162,6 @@ fun WalletsListScreen(
         }
     }
 
-    val raffleEvents = AnalyticsHelper.Default.events.mysteryRaffle
-    LaunchedEffect(banners.isNotEmpty()) {
-        if (banners.isNotEmpty()) {
-            raffleEvents.raffleBannerView(MysteryRaffleSource.WalletsList)
-        }
-    }
-
     MoonScaffold(
         modifier = Modifier
             .fillMaxWidth()
@@ -233,13 +225,10 @@ fun WalletsListScreen(
                 item(key = "banners") {
                     BannersViewer(
                         banners = banners,
-                        analytics = null,
                         onClick = { button ->
-                            raffleEvents.raffleBannerClick(MysteryRaffleSource.WalletsList)
                             onOpenLink(button.payload.withRaffleSource(MysteryRaffleSource.WalletsList.key))
                         },
                         onHide = { banner ->
-                            raffleEvents.raffleBannerDismiss(MysteryRaffleSource.WalletsList)
                             feature.hideBanner(banner)
                         },
                     )

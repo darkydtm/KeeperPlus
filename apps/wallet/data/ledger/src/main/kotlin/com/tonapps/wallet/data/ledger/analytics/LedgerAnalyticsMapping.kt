@@ -1,5 +1,6 @@
 package com.tonapps.wallet.data.ledger.analytics
 
+import com.tonapps.log.L
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDiscoveryErrorFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerFlowFailureType
@@ -203,6 +204,6 @@ suspend fun McAccountRepository.ledgerModel(walletId: String): LedgerModel? = tr
 } catch (e: CancellationException) {
     throw e
 } catch (e: Exception) {
-    LedgerNonFatals.report(e, LedgerIssueSite.Storage)
+    L.w(e)
     null
 }

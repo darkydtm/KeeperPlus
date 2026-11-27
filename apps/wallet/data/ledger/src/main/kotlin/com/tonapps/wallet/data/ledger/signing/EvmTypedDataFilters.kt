@@ -1,12 +1,11 @@
 package com.tonapps.wallet.data.ledger.signing
 
+import com.tonapps.log.L
 import com.tonapps.ledgerkit.app.eth.Eip712ClearSigning
 import com.tonapps.ledgerkit.app.eth.Eip712FieldFilter
 import com.tonapps.ledgerkit.app.eth.Eip712FieldFormat
 import com.tonapps.ledgerkit.app.eth.Eip712Filters
 import com.tonapps.ledgerkit.app.eth.Eip712TypedData
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -46,7 +45,7 @@ internal class EvmTypedDataFilters(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        LedgerNonFatals.report(e, LedgerIssueSite.ClearSigning)
+        L.w(e)
         null
     }
 

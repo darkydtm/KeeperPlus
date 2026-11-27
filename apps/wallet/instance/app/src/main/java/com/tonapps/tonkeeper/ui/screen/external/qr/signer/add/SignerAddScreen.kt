@@ -6,7 +6,7 @@ import android.view.View
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.lifecycleScope
 import com.tonapps.blockchain.ton.extensions.publicKeyFromHex
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletSource
+import com.tonapps.bus.walletimport.WalletImportPairingSource
 import com.tonapps.bus.walletimport.WalletImportPairingSession
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
 import com.tonapps.tonkeeper.helper.BrowserHelper
@@ -16,7 +16,6 @@ import com.tonapps.tonkeeper.ui.base.QRCameraScreen
 import com.tonapps.tonkeeper.ui.component.CameraFlashIconView
 import com.tonapps.tonkeeper.ui.screen.init.InitArgs
 import com.tonapps.tonkeeper.ui.screen.init.InitScreen
-import com.tonapps.tonkeeper.ui.screen.init.WalletImportAnalytics
 import com.tonapps.tonkeeperx.R
 import com.tonapps.uikit.color.constantWhiteColor
 import com.tonapps.uikit.color.stateList
@@ -41,12 +40,10 @@ class SignerAddScreen: QRCameraScreen(R.layout.fragment_signer_add), BaseFragmen
 
     override lateinit var cameraView: PreviewView
 
-    private val importAnalytics: WalletImportAnalytics by inject()
-
     private val pairingSessions: WalletImportPairingSessions by inject()
 
     private val pairingSession: WalletImportPairingSession? by lazy {
-        pairingSessions.active(WalletFlowWalletSource.Signer)
+        pairingSessions.active(WalletImportPairingSource.Signer)
     }
 
     private var isHandedOff = false
@@ -90,27 +87,14 @@ class SignerAddScreen: QRCameraScreen(R.layout.fragment_signer_add), BaseFragmen
 
         readerFlow.map { Uri.parse(it) }.filter { it.host == "signer" }.catch {
             navigation?.failureToast(Localization.unknown_error)
-            trackImportError("signer_qr_scan_error", it.message)
         }.onEach { uri ->
             val pk = uri.getQueryParameter("pk")
                 ?.let { value -> runCatching { value.publicKeyFromHex() }.getOrNull() }
-                ?: run {
-                    trackImportError("signer_qr_invalid")
-                    return@onEach
-                }
+                ?: return@onEach
             val name = uri.getQueryParameter("name") ?: ""
             pairingSession?.connected()
-            importAnalytics.trackSignerScanned()
             addAccount(pk, name)
         }.launchIn(lifecycleScope)
-    }
-
-    override fun onCameraStarted() {
-        pairingSession?.cameraStarted()
-    }
-
-    override fun onCameraPermissionDenied() {
-        pairingSession?.setBlocked(WalletImportPairingSession.Blocker.CameraPermissionDenied)
     }
 
     override fun onDestroy() {
@@ -118,14 +102,6 @@ class SignerAddScreen: QRCameraScreen(R.layout.fragment_signer_add), BaseFragmen
             pairingSession?.exit()
         }
         super.onDestroy()
-    }
-
-    private suspend fun trackImportError(errorType: String, errorMessage: String? = null) {
-        importAnalytics.trackError(
-            walletSource = WalletFlowWalletSource.Signer,
-            errorType = errorType,
-            errorMessage = errorMessage,
-        )
     }
 
     private fun addAccount(publicKey: PublicKeyEd25519, name: String) {

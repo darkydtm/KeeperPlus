@@ -7,10 +7,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
-import com.tonapps.core.screenrender.ScreenRenderFragmentLifecycle
 import com.tonapps.tonkeeper.koin.walletViewModel
 import com.tonapps.tonkeeper.ui.component.MainRecyclerView
 import com.tonapps.tonkeeper.ui.component.wallet.WalletHeaderView
@@ -44,8 +40,6 @@ class WalletScreen(wallet: WalletEntity): MainScreen.Child(R.layout.fragment_wal
 
     private val adapter = WalletAdapter()
 
-    private val screenRender = ScreenRenderFragmentLifecycle(this, ScreenRenderId.Portfolio)
-
     private lateinit var headerView: WalletHeaderView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var listView: MainRecyclerView
@@ -57,7 +51,6 @@ class WalletScreen(wallet: WalletEntity): MainScreen.Child(R.layout.fragment_wal
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        screenRender.onViewCreated()
         headerView = view.findViewById(R.id.header)
         headerView.onWalletClick = { navigation?.add(WalletsListFragment()) }
         headerView.onScanClick = {
@@ -68,7 +61,6 @@ class WalletScreen(wallet: WalletEntity): MainScreen.Child(R.layout.fragment_wal
             }
         }
         headerView.onHistoryClick = {
-            ScreenRenderTracker.shared.begin(ScreenRenderId.History, ScreenRenderTrigger.InApp, isFirstOpen = true)
             navigation?.add(TxEventsScreen.newInstance(wallet))
         }
 
@@ -141,14 +133,6 @@ class WalletScreen(wallet: WalletEntity): MainScreen.Child(R.layout.fragment_wal
                     }
                 },
             )
-        }
-    }
-
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        screenRender.onHiddenChanged(hidden)
-        if (!hidden) {
-            viewModel.onScreenShown()
         }
     }
 

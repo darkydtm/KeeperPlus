@@ -72,9 +72,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import org.json.JSONObject
 import java.math.BigDecimal
 import java.util.concurrent.CopyOnWriteArrayList
@@ -157,7 +154,7 @@ class TransferConfirmFeatureTest : BaseUnitTest() {
 
     @After
     fun tearDown() {
-        unmockkObject(InAppReviewManager, AnalyticsHelper.Companion)
+        unmockkObject(InAppReviewManager)
     }
 
     @Test
@@ -255,22 +252,15 @@ class TransferConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aPrepareThatThrowsEndsTheRedEmulateAsUnknown() {
-        val events = recordAnalytics()
         coEvery { provider.getNonce(any()) } throws IllegalStateException("node client broke")
         val feature = open(TestAssets.eth.id, amount = AMOUNT)
         scheduler.runCurrent()
 
         assertEquals(ConfirmationError.Unknown, feature.confirmationError.value)
-        val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "emulate" }.second
-        assertEquals("fail", terminal["outcome"])
-        assertEquals("emulate", terminal["stage"])
-        assertEquals("unknown", terminal["error_type"])
-        assertEquals("node client broke", terminal["error_message"])
     }
 
     @Test
     fun aSendReportsToRedWhatItSends() {
-        val events = recordAnalytics()
         reserve = GasReserveResult(LEFT, isAmountAdjusted = true, error = null)
         val feature = open(TestAssets.eth.id, amount = BALANCE, isMax = true)
         scheduler.runCurrent()
@@ -278,12 +268,6 @@ class TransferConfirmFeatureTest : BaseUnitTest() {
         feature.sendAction(OperationConfirmAction.Confirm)
         scheduler.runCurrent()
 
-        // What is left past the fee, as the transaction confirm reported it.
-        val attempt = events.single { (event, props) -> event == "op_attempt" && props["operation"] == "send" }.second
-        val metadata = JSONObject(attempt["other_metadata"] as String)
-        val left = TestAssets.eth.value.toDisplayUnit(LEFT).value.doubleValue(exactRequired = false)
-        assertEquals(left, metadata.getDouble("amount"), 0.0)
-        assertEquals("coin", metadata.getString("fee_paid_in"))
         scheduler.advanceTimeBy(SUCCESS_HOLD_MS + 1)
     }
 
@@ -751,22 +735,7 @@ class TransferConfirmFeatureTest : BaseUnitTest() {
 
     private fun dapp() = ConfirmContext.Dapp(requestId = "1", topic = "topic", name = "dapp", url = "https://dapp.example")
 
-    // ConfirmAnalytics reads AnalyticsHelper.Default when the feature is built: call before open().
-    private fun recordAnalytics(): List<Pair<String, Map<String, Any>>> {
-        val tracked = CopyOnWriteArrayList<Pair<String, Map<String, Any>>>()
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-        return tracked
-    }
+
 
     // A battery option the relayer has priced, with [RELAYED] as what it would sign.
     private fun givenRelayedOperation() {

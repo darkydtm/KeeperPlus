@@ -9,11 +9,6 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.tonapps.blockchain.ton.TonNetwork
-import com.tonapps.bus.screenrender.ScreenRenderErrors
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderLifecycle
-import com.tonapps.bus.screenrender.ScreenRenderStage
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.chainkit.core.chain.model.account.Asset
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.core.flags.WalletFeature
@@ -123,14 +118,7 @@ class EventsFeature(
     val isOnline: StateFlow<Boolean> = networkMonitor.isOnlineFlow
         .cacheState(initialValue = true)
 
-    // Asset and perps histories use the same screen; only the wallet history reports its render timing.
-    private val reportsScreenRender = mode == EventsScreenMode.General && assetId == null
-    private val screenRender = ScreenRenderTracker.shared
-
     init {
-        if (reportsScreenRender) {
-            screenRender.lifecycle(ScreenRenderLifecycle.Created, ScreenRenderId.History, this)
-        }
         eventsRepository.invalidateFirstPageCache()
         bgScope.launch {
             accountRepo.refreshTrigger.collect { eventsRepository.invalidateFirstPageCache() }
@@ -439,32 +427,6 @@ class EventsFeature(
         eventsRepository.invalidateFirstPageCache()
     }
 
-    fun onScreenStarted() {
-        if (!reportsScreenRender) {
-            return
-        }
-        screenRender.lifecycle(ScreenRenderLifecycle.WillShow, ScreenRenderId.History, this)
-        screenRender.lifecycle(ScreenRenderLifecycle.Shown, ScreenRenderId.History, this)
-    }
-
-    fun onScreenStopped() {
-        if (reportsScreenRender) {
-            screenRender.abandon(ScreenRenderId.History, this)
-        }
-    }
-
-    private fun reportInitialLoad(error: Throwable?) {
-        if (!reportsScreenRender) {
-            return
-        }
-        screenRender.requestFinished(ScreenRenderId.History, this)
-        if (error == null) {
-            screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.History, this)
-        } else {
-            screenRender.failed(ScreenRenderId.History, ScreenRenderErrors.kind(error), this)
-        }
-    }
-
     private fun createActivitiesFlow(
         query: EventsQuery,
     ): Flow<PagingData<WalletActivityListItem>> = flow {
@@ -489,12 +451,6 @@ class EventsFeature(
                     hideDust = query.hideDust,
                     showPerps = query.showPerps,
                     onInitialLoad = { hasAnyActivity.value = it },
-                    onInitialRequestStarted = {
-                        if (reportsScreenRender) {
-                            screenRender.requestStarted(ScreenRenderId.History, this@EventsFeature)
-                        }
-                    },
-                    onInitialRequestFinished = { error -> reportInitialLoad(error) },
                     onPageLoaded = { activities, isInitialLoad ->
                         if (isInitialLoad) {
                             hasPendingActivities.value = activities.any { it.isPending }

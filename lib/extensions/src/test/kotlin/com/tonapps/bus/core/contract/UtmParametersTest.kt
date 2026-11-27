@@ -1,5 +1,6 @@
 package com.tonapps.bus.core.contract
 
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -7,6 +8,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class UtmParametersTest {
+
+    @Test
+    fun serializedTagsRemainCompatible() {
+        val oldJson = """{"source":"push","campaign":"autumn"}"""
+        val tags = UtmParameters(source = "push", campaign = "autumn")
+
+        assertEquals(tags, Json.decodeFromString(UtmParameters.serializer(), oldJson))
+        assertEquals(oldJson, Json.encodeToString(UtmParameters.serializer(), tags))
+        assertEquals("com.tonapps.bus.core.contract.UtmParameters", tags.javaClass.name)
+    }
 
     @Test
     fun everyStandardParameterIsRead() {

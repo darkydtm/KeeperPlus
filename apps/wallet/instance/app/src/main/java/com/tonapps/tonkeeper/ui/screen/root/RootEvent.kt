@@ -4,7 +4,6 @@ import android.net.Uri
 import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.core.deeplink.DeepLink
 import com.tonapps.icu.Coins
 import com.tonapps.ledger.ton.LedgerConnectData
@@ -18,7 +17,6 @@ sealed class RootEvent {
         val wallet: WalletEntity,
         val from: String,
         val utm: UtmParameters,
-        val trigger: ScreenRenderTrigger = ScreenRenderTrigger.Deeplink,
     ): RootEvent()
 
     data class Swap(

@@ -6,10 +6,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenFrom
 import com.tonapps.bus.generated.Events.Perps.PerpsEntryPoint
-import com.tonapps.bus.screenrender.ScreenRenderId
 import com.tonapps.core.ComposableFragment
 import com.tonapps.core.navigation.NavigationDelegate
-import com.tonapps.core.screenrender.ScreenRenderFragmentLifecycle
 import com.tonapps.trading.AssetsFragment
 import io.tradingapi.models.AssetsTab
 import io.tradingapi.models.MarketListKey
@@ -25,7 +23,6 @@ class ShelvesFragment : ComposableFragment(), TabScreen {
 
     // Taken here rather than in Compose, so the tab can tell the feature it is shown again.
     private val feature: ShelvesFeature by viewModel()
-    private val screenRender = ScreenRenderFragmentLifecycle(this, ScreenRenderId.Trade)
 
     private val scrollToShelfFlow = MutableStateFlow<MarketListKey?>(null)
     private val scrollToTopEvents = MutableSharedFlow<Unit>(
@@ -44,7 +41,6 @@ class ShelvesFragment : ComposableFragment(), TabScreen {
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        screenRender.onHiddenChanged(hidden)
         if (!hidden) {
             feature.onScreenShown()
             feature.reloadPerpsShelf()
@@ -60,8 +56,6 @@ class ShelvesFragment : ComposableFragment(), TabScreen {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        screenRender.onViewCreated()
-
         val delegate = context?.activity as? NavigationDelegate
         setContent {
             val viewModel = feature

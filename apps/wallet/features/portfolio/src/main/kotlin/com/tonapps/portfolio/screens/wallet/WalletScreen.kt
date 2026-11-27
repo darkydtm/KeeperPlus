@@ -34,9 +34,6 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.Banner.BannerFrom
-import com.tonapps.bus.generated.Events.Banner.BannerWalletMode
 import com.tonapps.bus.generated.Events.EarnFlow.EarnEntryViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
@@ -44,7 +41,6 @@ import com.tonapps.bus.generated.Events.Perps.PerpsEntryPoint
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.core.components.AccountCell
 import com.tonapps.core.components.AccountCellShimmer
-import com.tonapps.core.components.BannerAnalytics
 import com.tonapps.core.components.BannersViewer
 import com.tonapps.core.components.assetImageUrl
 import com.tonapps.core.deeplink.isRaffleDeeplink
@@ -99,7 +95,6 @@ private const val EARN_VAULTS_KEY = "earn_vaults"
 private const val PERPS_SHELF_KEY = "perps_shelf"
 private const val MAX_ASSETS_SHIMMER_ROWS = 7
 private const val MORE_ASSETS_PREVIEW_IMAGES = 2
-private val WalletBannerAnalytics = BannerAnalytics(BannerWalletMode.Multi, BannerFrom.Home)
 
 private sealed interface WalletAssetRow {
     val fiat: BigDecimal
@@ -189,11 +184,6 @@ fun WalletScreen(
 
     val wallet = walletState ?: return
 
-    // earn_entry_view goes once per appearance of the screen: coming back to it or to another
-    // wallet counts again, scrolling a block out and back does not.
-    var appearance by remember { mutableIntStateOf(0) }
-    val shownEarnEntries = remember(wallet.id, appearance) { mutableSetOf<EarnEntryViewFrom>() }
-
     val isLoading = pagingItems.loadState.refresh is LoadState.Loading
     val showsAssetsShimmer = isLoading && pagingItems.itemCount == 0 && staked.isEmpty()
     val showsTotalShimmer by remember { derivedStateOf { totalState == null } }
@@ -230,21 +220,8 @@ fun WalletScreen(
         if (isTop) {
             feature.refreshPerps()
             feature.setResumed(true)
-            feature.onScreenShown()
-            appearance++
         }
         onPauseOrDispose { feature.setResumed(false) }
-    }
-
-    val raffleEvents = AnalyticsHelper.Default.events.mysteryRaffle
-    val raffleSurfaceVisible = remember(banners, raffleRows) {
-        raffleRows.isNotEmpty() ||
-                banners.any { it.button?.payload?.let(::isRaffleDeeplink) == true }
-    }
-    LaunchedEffect(raffleSurfaceVisible) {
-        if (raffleSurfaceVisible) {
-            raffleEvents.raffleBannerView(MysteryRaffleSource.WalletMain)
-        }
     }
 
     val toastHost = rememberMoonToastHostState()
@@ -387,10 +364,8 @@ fun WalletScreen(
                         item(contentType = "banners") {
                             BannersViewer(
                                 banners = shownBanners,
-                                analytics = WalletBannerAnalytics,
                                 onClick = { button ->
                                     if (isRaffleDeeplink(button.payload)) {
-                                        raffleEvents.raffleBannerClick(MysteryRaffleSource.WalletMain)
                                         onOpenLink(button.payload.withRaffleSource(MysteryRaffleSource.WalletMain.key))
                                     } else {
                                         onOpenLink(button.payload.withPerpsBannerEntry())
@@ -420,7 +395,6 @@ fun WalletScreen(
                         RaffleRow(
                             raffle = raffle,
                             onClick = {
-                                raffleEvents.raffleBannerClick(MysteryRaffleSource.WalletMain)
                                 onOpenRaffle(wallet.id, raffle.id)
                             },
                         )
@@ -597,11 +571,6 @@ fun WalletScreen(
                                         )
                                     }
                                     is WalletSection.Earn.Positions -> item(key = "earn_positions", contentType = "earn_positions") {
-                                        LaunchedEffect(shownEarnEntries) {
-                                            if (appearance > 0 && shownEarnEntries.add(EarnEntryViewFrom.EarnYourVaults)) {
-                                                feature.onEarnPositionsShown()
-                                            }
-                                        }
                                         SectionSpacer(spaced)
                                         EarnPositionsSection(
                                             totalFormat = section.totalFormat,
@@ -624,11 +593,6 @@ fun WalletScreen(
                                         SectionSpacer(!spaced)
                                     }
                                     is WalletSection.Earn.Vaults -> item(key = EARN_VAULTS_KEY, contentType = "earn_vaults") {
-                                        LaunchedEffect(shownEarnEntries) {
-                                            if (appearance > 0 && shownEarnEntries.add(EarnEntryViewFrom.EarnFeatured)) {
-                                                feature.onEarnVaultsShown()
-                                            }
-                                        }
                                         SectionSpacer(spaced)
                                         EarnSection(
                                             vaults = section.vaults,

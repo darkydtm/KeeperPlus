@@ -1,7 +1,6 @@
 package com.tonapps.wallet.api
 
 import android.os.SystemClock
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.log.L
 import com.tonapps.network.OkHttpError
 import com.tonapps.network.backoff.ExponentialBackoff
@@ -35,7 +34,6 @@ fun <R> withRetry(
             return null
         } catch (e: SerializationException) {
             L.e("RetryLogNew", "SerializationException occurred: ${e.message}", e)
-            IssueHelper.recordException(e)
             return null
         } catch (e: Throwable) {
             L.e("RetryLogNew", "Error occurred: ${e.message}", e)
@@ -50,7 +48,6 @@ fun <R> withRetry(
                 return null
             }
 
-            IssueHelper.recordException(e)
         }
     } while (index < times)
 

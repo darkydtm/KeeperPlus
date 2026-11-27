@@ -1,6 +1,5 @@
 package com.tonapps.trading.screens.assets
 
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.core.helper.EnvironmentHelper
 import com.tonapps.log.L
 import com.tonapps.mvi.MviFeature
@@ -8,7 +7,6 @@ import com.tonapps.mvi.contract.MviAction
 import com.tonapps.mvi.contract.MviState
 import com.tonapps.mvi.contract.MviViewState
 import com.tonapps.mvi.props.MviProperty
-import com.tonapps.trading.TradeEntryTracker
 import com.tonapps.trading.data.TradingRepository
 import io.tradingapi.models.AssetsTab
 
@@ -16,7 +14,6 @@ sealed interface AssetsAction : MviAction {
     data object Init : AssetsAction
     data class Search(val query: String, val tab: AssetsTab) : AssetsAction
     data object LoadMore : AssetsAction
-    data class TrackAssetClick(val asset: AssetItem, val query: String) : AssetsAction
 }
 
 sealed interface AssetsState : MviState {
@@ -62,7 +59,6 @@ class AssetsFeature(
             }
 
             AssetsAction.LoadMore -> loadMore()
-            is AssetsAction.TrackAssetClick -> trackAssetClick(action.asset, action.query)
         }
     }
 
@@ -86,10 +82,6 @@ class AssetsFeature(
                     tab = tab,
                 )
             }
-            AnalyticsHelper.Default.events.tradeUiFlow.tradeSearch(
-                from = TradeEntryTracker.consumeFrom(),
-                query = query.ifBlank { null }
-            )
         } catch (e: Throwable) {
             L.e(e)
             setState {
@@ -139,13 +131,5 @@ class AssetsFeature(
                 data.copy(isLoadingMore = false)
             }
         }
-    }
-
-    private fun trackAssetClick(asset: AssetItem, query: String) {
-        AnalyticsHelper.Default.events.tradeUiFlow.tradeSearchClick(
-            from = TradeEntryTracker.consumeFrom(),
-            asset = asset.id,
-            query = query.ifBlank { null }
-        )
     }
 }

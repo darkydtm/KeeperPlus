@@ -14,7 +14,8 @@ import com.tonapps.ledgerkit.app.eth.EthApp
 import com.tonapps.ledgerkit.app.eth.EthSignature
 import com.tonapps.ledgerkit.controller.LedgerScope
 import com.tonapps.ledgerkit.transport.LedgerModel
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
+import com.tonapps.ledgerkit.LedgerFallbackException
+import com.tonapps.log.L
 import com.trustwallet.core.ethereum.SigningInput
 import com.trustwallet.core.ethereum.SigningOutput
 import java.math.BigInteger
@@ -80,7 +81,7 @@ internal class EvmLedgerSigner {
             if (!e.failure.isDescriptorRejection()) {
                 throw e
             }
-            LedgerNonFatals.reportFallback("The Ethereum app rejected an ERC-20 descriptor", e)
+            L.w(LedgerFallbackException("The Ethereum app rejected an ERC-20 descriptor", e))
         }
     }
 

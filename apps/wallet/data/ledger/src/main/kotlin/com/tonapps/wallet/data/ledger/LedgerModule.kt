@@ -10,8 +10,7 @@ import com.tonapps.ledgerkit.transport.ble.LedgerBleScanner
 import com.tonapps.ledgerkit.transport.ble.LedgerBleTransport
 import com.tonapps.ledgerkit.transport.usb.LedgerUsbEnvironment
 import com.tonapps.ledgerkit.transport.usb.LedgerUsbTransport
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
-import com.tonapps.wallet.data.ledger.analytics.LedgerRequestAnalytics
+import com.tonapps.log.L
 import com.tonapps.wallet.data.ledger.connection.LedgerActivityLog
 import com.tonapps.wallet.data.ledger.connection.LedgerActivityPrefsStore
 import com.tonapps.wallet.data.ledger.connection.LedgerBleRadio
@@ -58,8 +57,8 @@ val ledgerModule = module {
         LedgerActivityLog(get<LedgerController>(), CoroutineScope(SupervisorJob() + Dispatchers.Default), LedgerActivityPrefsStore(get<Context>()))
     }
     single(createdAtStart = true) {
-        LedgerDiagnostics.sink = LedgerNonFatals::recordFallback
-        LedgerRequestAnalytics(get<LedgerController>(), CoroutineScope(SupervisorJob() + Dispatchers.Default))
+        LedgerDiagnostics.sink = L::w
+        Unit
     }
     single<LedgerConnectionInteractor> {
         LedgerConnectionInteractorImpl(get(), get(), get(), LedgerBleRadio(get(), get(), get(), get(), get()))

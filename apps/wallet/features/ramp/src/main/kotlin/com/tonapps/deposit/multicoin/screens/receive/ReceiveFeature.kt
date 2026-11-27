@@ -3,8 +3,6 @@ package com.tonapps.deposit.multicoin.screens.receive
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
-import com.tonapps.deposit.multicoin.analytics.DepositAnalytics
 import com.tonapps.deposit.multicoin.domain.ReceiveAccountsInteractor
 import com.tonapps.deposit.screens.ramp.RampType
 import com.tonapps.ledgerkit.LedgerFailureException
@@ -37,8 +35,6 @@ class ReceiveFeature(
 
     val canVerifyOnLedger: StateFlow<Boolean> field = MutableStateFlow(false)
 
-    private val analytics = DepositAnalytics(rampType, analyticsFrom, DepositFlowWalletMode.Multi, utm, screen)
-
     init {
         bgScope.launch {
             val accounts = receiveAccounts.getAccounts(walletId)
@@ -70,10 +66,5 @@ class ReceiveFeature(
 
     fun selectAccount(account: AccountEntity?) {
         selectedAccount.value = account
-        account?.let { trackViewQr(it) }
-    }
-
-    private fun trackViewQr(account: AccountEntity) {
-        DepositAnalytics.networkOrNull(account.network)?.let { analytics.viewReceiveTokens(it) }
     }
 }

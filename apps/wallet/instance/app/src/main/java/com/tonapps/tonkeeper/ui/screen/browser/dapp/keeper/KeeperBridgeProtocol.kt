@@ -1,6 +1,5 @@
 package com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper
 
-import com.tonapps.tonkeeper.ui.screen.browser.dapp.DAppPageEvent
 import com.tonapps.webview.bridge.InAppBridgeContract.HapticStyle
 import com.tonapps.webview.bridge.InAppBridgeContract.Protocol
 import com.tonapps.webview.bridge.InAppBridgeContract.Script
@@ -27,12 +26,7 @@ internal class KeeperBridgeProtocol : Protocol<KeeperBridgeProtocol.Request, Kee
 
         class Share(override val queryId: String, val text: String) : Request
 
-        class AnalyticsTrack(
-            override val queryId: String,
-            val event: String,
-            val params: Map<String, Any?>,
-            val provider: String,
-        ) : Request
+        class AnalyticsTrack(override val queryId: String) : Request
 
         class Rejected(override val queryId: String, val error: ErrorCode) : Request
     }
@@ -93,9 +87,7 @@ internal class KeeperBridgeProtocol : Protocol<KeeperBridgeProtocol.Request, Kee
             TYPE_HAPTIC -> hapticStyle(json.string(KEY_STYLE))?.let { Request.Haptic(queryId, it) }
             TYPE_SET_CLOSE_BUTTON -> (json.opt(KEY_VISIBLE) as? Boolean)?.let { Request.SetCloseButton(queryId, it) }
             TYPE_SHARE -> json.string(KEY_TEXT)?.let { Request.Share(queryId, it) }
-            TYPE_ANALYTICS_TRACK -> json.string(KEY_EVENT)?.let { event ->
-                Request.AnalyticsTrack(queryId, event, DAppPageEvent.rawParams(json.optJSONObject(KEY_PARAMS)), host.lowercase())
-            }
+            TYPE_ANALYTICS_TRACK -> json.string(KEY_EVENT)?.let { Request.AnalyticsTrack(queryId) }
             else -> return Request.Rejected(queryId, ErrorCode.UnsupportedMethod)
         }
         return request ?: Request.Rejected(queryId, ErrorCode.InvalidParams)
@@ -172,7 +164,6 @@ internal class KeeperBridgeProtocol : Protocol<KeeperBridgeProtocol.Request, Kee
         private const val KEY_VISIBLE = "visible"
         private const val KEY_TEXT = "text"
         private const val KEY_EVENT = "event"
-        private const val KEY_PARAMS = "params"
         private const val KEY_PAYLOAD = "payload"
         private const val KEY_ERROR = "error"
 

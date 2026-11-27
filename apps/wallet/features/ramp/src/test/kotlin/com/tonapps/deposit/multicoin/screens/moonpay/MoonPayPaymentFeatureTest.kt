@@ -1,14 +1,6 @@
 package com.tonapps.deposit.multicoin.screens.moonpay
 
 import androidx.lifecycle.SavedStateHandle
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.DefaultEvents
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowProviderMode
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoPurchase
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoReport
 import com.tonapps.deposit.multicoin.moonpay.api.MoonPayAsset
 import com.tonapps.deposit.multicoin.moonpay.api.MoonPayBuyQuote
 import com.tonapps.deposit.multicoin.moonpay.api.MoonPayMoney
@@ -21,8 +13,6 @@ import com.tonapps.deposit.testing.PlatformNumberFormat
 import com.tonapps.wallet.testing.BaseUnitTest
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -46,110 +36,20 @@ class MoonPayPaymentFeatureTest : BaseUnitTest() {
         every { pay(any(), any(), any(), any(), any()) } returns updates
     }
 
-    private val tracked = mutableListOf<Pair<String, Map<String, Any>>>()
 
-    @Before
-    fun recordAnalytics() {
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { events } returns DefaultEvents(recording)
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-    }
 
-    @After
-    fun stopRecordingAnalytics() {
-        unmockkObject(AnalyticsHelper.Companion)
-    }
 
-    @Test
-    fun `the outcome is reported once per payment, not again by a restored sheet`() {
-        val handle = SavedStateHandle()
-        feature(handle)
-        updates.value = MoonPayPaymentState.Processing("tx-1")
-        updates.value = MoonPayPaymentState.Completed("tx-1")
-        feature(handle).closedBeforeOutcome()
 
-        assertEquals(
-            listOf(
-                mapOf(
-                    "from" to "wallet_screen",
-                    "wallet_mode" to "multi",
-                    "add_funds_option" to "buy_with_fiat",
-                    "deposit_screen" to "buy_crypto",
-                    "buy_asset" to "usdt",
-                    "sell_asset" to "USD",
-                    "payment_method" to "card",
-                    "provider_name" to "MoonPay",
-                    "provider_mode" to "headless",
-                    "tx_id" to "order-1",
-                    "outcome" to "success",
-                ),
-            ),
-            results(),
-        )
-    }
 
-    @Test
-    fun `a failure is reported with its reason, a cancel before any transaction as cancelled`() {
-        feature()
-        updates.value = MoonPayPaymentState.Failed(MoonPayPaymentFailure.Declined, transactionId = "tx-1")
-        assertEquals("failed" to "declined", results().single().let { it["outcome"] to it["failure_reason"] })
 
-        tracked.clear()
-        updates.value = MoonPayPaymentState.Starting
-        feature()
-        updates.value = MoonPayPaymentState.Failed(MoonPayPaymentFailure.Cancelled, transactionId = null)
-        assertEquals(listOf("cancelled"), results().map { it["outcome"] })
-    }
 
-    @Test
-    fun `a transaction cancelled by MoonPay is reported as failed with its reason`() {
-        feature()
-        updates.value = MoonPayPaymentState.Failed(MoonPayPaymentFailure.TransactionCancelled, transactionId = "tx-1")
 
-        val result = results().single()
-        assertEquals("failed", result["outcome"])
-        assertEquals("transaction_cancelled", result["failure_reason"])
-    }
 
-    @Test
-    fun `a sheet closed while MoonPay settles is pending, after a start without a transaction unknown`() {
-        val settling = feature()
-        updates.value = MoonPayPaymentState.Processing("tx-1")
-        settling.closedBeforeOutcome()
-        updates.value = MoonPayPaymentState.Completed("tx-1")
-        assertEquals(listOf("pending"), results().map { it["outcome"] })
 
-        tracked.clear()
-        updates.value = MoonPayPaymentState.Starting
-        val started = feature()
-        updates.value = MoonPayPaymentState.Started(transactionId = null)
-        started.closedBeforeOutcome()
-        assertEquals(listOf("unknown"), results().map { it["outcome"] })
-    }
 
-    @Test
-    fun `a sheet closed before MoonPay's widget opened took nothing`() {
-        updates.value = MoonPayPaymentState.Starting
-        feature().closedBeforeOutcome()
 
-        assertEquals(listOf("cancelled"), results().map { it["outcome"] })
-    }
 
-    @Test
-    fun `a sheet opened without a report sends nothing`() {
-        feature(report = null)
-        updates.value = MoonPayPaymentState.Completed("tx-1")
 
-        assertTrue(results().isEmpty())
-    }
 
     @Test
     fun `a failure before the start marks the first step`() {
@@ -687,7 +587,7 @@ class MoonPayPaymentFeatureTest : BaseUnitTest() {
         val quote = quote(method = "google_pay")
         val buttons = MoonPayButtonPayments(interactor)
         buttons.start(MoonPayPaymentData(quote, "Google Pay", "order-1", theme = null))
-        val feature = MoonPayPaymentFeature(MoonPayPaymentData(quote, "Google Pay", "order-1", theme = null, report = REPORT), interactor, buttons, SavedStateHandle())
+        val feature = MoonPayPaymentFeature(MoonPayPaymentData(quote, "Google Pay", "order-1", theme = null, , interactor, buttons, SavedStateHandle())
         assertEquals(MoonPayPaymentDismissal.Back, feature.dismissal.value)
 
         updates.value = MoonPayPaymentState.ButtonPressed
@@ -704,13 +604,10 @@ class MoonPayPaymentFeatureTest : BaseUnitTest() {
         assertEquals(MoonPayPaymentRetry.AnotherMethod, feature.retry.value)
     }
 
-    private fun results(): List<Map<String, Any>> = tracked.filter { it.first == "deposit_ramp_result" }.map { it.second }
-
     private fun feature(
         handle: SavedStateHandle = SavedStateHandle(),
         quote: MoonPayBuyQuote = quote(),
         assetLabel: String? = null,
-        report: BuyCryptoReport? = REPORT,
     ): MoonPayPaymentFeature {
         val data = MoonPayPaymentData(
             quote,
@@ -718,7 +615,7 @@ class MoonPayPaymentFeatureTest : BaseUnitTest() {
             externalTransactionId = "order-1",
             theme = null,
             assetLabel = assetLabel,
-            report = report,
+
         )
         return MoonPayPaymentFeature(data, interactor, MoonPayButtonPayments(interactor), handle)
     }
@@ -741,11 +638,6 @@ class MoonPayPaymentFeatureTest : BaseUnitTest() {
     }
 
     companion object {
-        private val REPORT = BuyCryptoReport(
-            from = DepositFlowFrom.WalletScreen,
-            utm = UtmParameters.Empty,
-            purchase = BuyCryptoPurchase(assetId = "usdt", fiat = "USD", paymentMethod = "card", provider = "MoonPay", mode = DepositFlowProviderMode.Headless),
-        )
 
         @JvmStatic
         @BeforeClass

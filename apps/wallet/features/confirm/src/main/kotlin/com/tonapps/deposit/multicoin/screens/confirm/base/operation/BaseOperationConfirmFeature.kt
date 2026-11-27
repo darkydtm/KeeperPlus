@@ -4,7 +4,6 @@ import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.tonapps.async.Async
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.generated.Events.RedOperations.RedOperationsOperation
 import com.tonapps.chainkit.core.chain.api.models.NodeError
 import com.tonapps.chainkit.core.chain.model.account.Account
 import com.tonapps.chainkit.core.chain.model.account.Chain
@@ -21,9 +20,7 @@ import com.tonapps.chainkit.core.op.PayloadMeta
 import com.tonapps.chainkit.core.op.SignedOperation
 import com.tonapps.chainkit.core.op.ValidationError
 import com.tonapps.core.flags.BootFlags
-import com.tonapps.deposit.multicoin.screens.confirm.ConfirmAnalytics
 import com.tonapps.deposit.multicoin.screens.confirm.ConfirmResultListener
-import com.tonapps.deposit.multicoin.screens.confirm.RedOperation
 import com.tonapps.deposit.multicoin.screens.confirm.base.BaseConfirmFeature
 import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationError
 import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationErrorCause
@@ -353,8 +350,6 @@ abstract class BaseOperationConfirmFeature(
 
     private val sender: OperationSender = DefaultOperationSender(provider)
     private val walletId = request.data.walletId
-    private val analytics = ConfirmAnalytics(request)
-
     // Signed once: a retry sends the same bytes again, so a send that did land is never doubled.
     // The signature is immutable per operation, so a payload that lands late is redundant, never stale.
     private val signed = actions
@@ -594,10 +589,6 @@ abstract class BaseOperationConfirmFeature(
         watchRequestGone()
     }
 
-    override fun onStoppedAsGone() {
-        analytics.markRequestGone()
-    }
-
     fun pickFee(option: TxFee) {
         if (sendingState.value != SendingState.None || signed.value != null) {
             return
@@ -629,40 +620,27 @@ abstract class BaseOperationConfirmFeature(
             L.e(e)
             return KResult.Err(e.toPrepareFailure())
         }
-        return analytics.redOperation(RedOperationsOperation.Emulate, otherMetadata = analytics.emulateMetadata(shown)) {
-            // The terminal names the provider the route was prepared with, once the build quoted it.
-            var prepared = shown
-            try {
-                val data = withContext(Async.Io) {
-                    prepared = quote.build(prepared)
-                    prepareSend(prepared)
-                }
-                success(analytics.emulateMetadata(data.request))
-                KResult.Ok(data)
-            } catch (e: Throwable) {
-                verifyError(e)
-                L.e(e)
-                report(e, otherMetadata = analytics.emulateMetadata(prepared))
-                KResult.Err(e.toPrepareFailure())
-            }
+        return try {
+            val data = withContext(Async.Io) { prepareSend(quote.build(shown)) }
+            KResult.Ok(data)
+        } catch (e: Throwable) {
+            verifyError(e)
+            L.e(e)
+            KResult.Err(e.toPrepareFailure())
         }
     }
 
     private suspend fun requoteIfPending(): ConfirmRequest? {
         val pendingRequote = requote?.takeIf { requotePending.get() } ?: return null
         val shown = quoted.value
-        return analytics.redOperation(RedOperationsOperation.Quote, otherMetadata = analytics.emulateMetadata(shown)) {
-            try {
-                val requoted = withContext(Async.Io) { pendingRequote.requote(shown) }
-                requotePending.set(false)
-                sendAction(OperationConfirmAction.Internal.Requoted(requoted))
-                success(analytics.emulateMetadata(requoted))
-                requoted
-            } catch (e: Throwable) {
-                verifyError(e)
-                report(e, otherMetadata = analytics.emulateMetadata(shown))
-                throw e
-            }
+        return try {
+            val requoted = withContext(Async.Io) { pendingRequote.requote(shown) }
+            requotePending.set(false)
+            sendAction(OperationConfirmAction.Internal.Requoted(requoted))
+            requoted
+        } catch (e: Throwable) {
+            verifyError(e)
+            throw e
         }
     }
 
@@ -1020,11 +998,7 @@ abstract class BaseOperationConfirmFeature(
         }
 
         var out: Pair<SignedData, List<SentPayload>>? = null
-        val (signed, sent) = analytics.redOperation(
-            operation = analytics.sendOperation,
-            attemptSource = analytics.sendAttemptSource,
-            otherMetadata = analytics.sendMetadata(data.account.asset, sentAmount(data, feeMethod.value), data.fee.asset),
-        ) {
+        val (signed, sent) = run {
             try {
                 val signed = attempt.signed ?: sign(data).also {
                     stopIfGone()
@@ -1047,13 +1021,13 @@ abstract class BaseOperationConfirmFeature(
                         broadcast
                     }
                 }
-                success()
+
                 signed to sent
             } catch (thrown: Throwable) {
                 // The screen closed once the operation was out: it is reported, and counted, as sent all the same.
                 out?.let { (outSigned, outSent) ->
                     afterSent(outSigned, outSent)
-                    success()
+
                 }
                 currentCoroutineContext().ensureActive()
                 val e = thrown.namingCoin(data.position)
@@ -1061,7 +1035,7 @@ abstract class BaseOperationConfirmFeature(
                     L.e(e)
                     return showChangedQuote(data, e)
                 }
-                report(e)
+
                 // Nothing was signed or sent and the swipe is ready again.
                 if (e is PasscodeDismissed) {
                     return null
@@ -1223,11 +1197,7 @@ abstract class BaseOperationConfirmFeature(
         var target: RelayTarget? = null
         // What the relayer's send itself threw: a closed screen's cancellation replaces it on the way out.
         var sendFailure: Throwable? = null
-        analytics.redOperation(
-            operation = analytics.sendOperation,
-            attemptSource = analytics.sendAttemptSource,
-            otherMetadata = analytics.sendMetadata(data.account.asset, sentAmount(data, method), method.fee.asset),
-        ) {
+        run {
             try {
                 requireSignatureEnabled(data.account)
                 val cryptoWallet = try {
@@ -1265,12 +1235,12 @@ abstract class BaseOperationConfirmFeature(
                     }
                     relayed = Relayed(relaying.request, relaying.account, txHash)
                 }
-                success()
+
             } catch (e: Throwable) {
                 // The screen closed once the relayer had sent it: it is reported, and counted, as sent all the same.
                 relayed?.let {
                     afterRelayed(it)
-                    success()
+
                 }
                 // A send that may have gone out is handled before a closed screen's cancellation is rethrown.
                 val outcome = sendFailure ?: e
@@ -1282,7 +1252,7 @@ abstract class BaseOperationConfirmFeature(
                     L.e(e)
                     return showChangedQuote(data, e)
                 }
-                report(e, e.toRelayedError())
+
                 if (e is PasscodeDismissed) {
                     return null
                 }
@@ -1310,16 +1280,16 @@ abstract class BaseOperationConfirmFeature(
 
     // The send is given up for the new quote once that is ready to show; a re-prepare that fails is
     // the send's failure, as the user sees it.
-    private suspend fun RedOperation.showChangedQuote(data: SendData, changed: QuoteChangedException): SendFailure? {
+    private suspend fun showChangedQuote(data: SendData, changed: QuoteChangedException): SendFailure? {
         val prepared = try {
             withContext(Async.Io) { prepareSend(changed.request) }
         } catch (e: Throwable) {
             currentCoroutineContext().ensureActive()
             L.e(e)
-            report(e)
+
             return SendFailure(data, e.toConfirmationError())
         }
-        cancel(QUOTE_CHANGED_ERROR_TYPE, changed.message)
+
         sendAction(OperationConfirmAction.Internal.QuoteChanged(prepared))
         return null
     }
@@ -1408,27 +1378,6 @@ abstract class BaseOperationConfirmFeature(
         return expiresAt != null && expiresAt - EXPIRY_LEAD_MS <= timeProvider.currentTimeMillis()
     }
 
-    // Reports what the screen shows for [e]: a closed passcode prompt or a cancellation ends the
-    // operation as cancelled, anything else as [error]. [otherMetadata] null keeps the attempt's.
-    private fun RedOperation.report(
-        e: Throwable,
-        error: ConfirmationError = e.toConfirmationError(),
-        otherMetadata: String? = null,
-    ) {
-        // A ConfirmationException's own text only repeats the error, and [namingCoin] wraps one in
-        // another: tell what threw the innermost, if anything did.
-        val cause = if (e is ConfirmationException) {
-            generateSequence(e.cause) { it.cause }.firstOrNull { it !is ConfirmationException }
-        } else {
-            e
-        }
-        when {
-            e is CancellationException -> failure(e)
-            otherMetadata != null -> failure(error, otherMetadata, cause)
-            else -> failure(error, cause = cause)
-        }
-    }
-
     private fun Throwable.toConfirmationError(): ConfirmationError {
         return when (this) {
             is ConfirmationException -> error
@@ -1436,12 +1385,6 @@ abstract class BaseOperationConfirmFeature(
             is NodeError -> parseNodeError(this)
             else -> ConfirmationError.Unknown
         }
-    }
-
-    // What a send reports it moves, in its asset's display unit; nothing where the feature does not say.
-    private fun sentAmount(data: SendData, method: TxFee?): Double? {
-        val sent = spending?.sent(data, method) ?: return null
-        return data.account.asset.toDisplayUnit(sent).value.doubleValue(exactRequired = false)
     }
 
     private fun TxFee.shortfall(): ConfirmationError {

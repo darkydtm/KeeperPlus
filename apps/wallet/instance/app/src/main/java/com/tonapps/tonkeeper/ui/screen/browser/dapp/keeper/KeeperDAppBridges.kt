@@ -2,7 +2,6 @@ package com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper
 
 import com.tonapps.async.Async
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.core.loyalty.LOYALTY_HOST
 import com.tonapps.wallet.data.loyalty.LoyaltyRepository
 import com.tonapps.webview.bridge.InAppBridgeContract.BaseBridges
@@ -31,7 +30,6 @@ internal class KeeperDAppBridges(
     private val deviceRepository: SecureDeviceRepository,
     private val settingsRepository: SettingsRepository,
     private val accountRepository: UnifiedAccountRepository,
-    private val analytics: AnalyticsHelper,
     private val loyaltyRepository: LoyaltyRepository,
 ) : BaseBridges() {
 
@@ -46,7 +44,6 @@ internal class KeeperDAppBridges(
             scope = scope,
             loadCredentials = ::loadCredentials,
             appSettings = ::appSettings,
-            track = analytics::simpleTrackEvent,
             referralCode = ::referralCode,
             walletDeactivated = walletDeactivated(),
         )

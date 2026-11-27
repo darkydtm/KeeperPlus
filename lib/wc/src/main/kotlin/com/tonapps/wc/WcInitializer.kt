@@ -133,7 +133,7 @@ object WcInitializer {
                 projectId = config.projectId,
                 connectionType = ConnectionType.AUTOMATIC,
                 application = application,
-                telemetryEnabled = true,
+                telemetryEnabled = false,
                 onError = { L.e(it.throwable) },
             )
 

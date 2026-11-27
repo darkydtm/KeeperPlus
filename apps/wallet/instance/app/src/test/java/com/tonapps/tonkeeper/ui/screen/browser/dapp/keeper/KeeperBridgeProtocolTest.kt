@@ -147,27 +147,25 @@ class KeeperBridgeProtocolTest {
     }
 
     @Test
-    fun `analytics track carries the event, its params and the sending host`() {
+    fun `analytics track accepts an event and ignores its params`() {
         val request = protocol.parse(
             """{"type":"analytics.track","queryId":"q","event":"loyalty_open","params":{"source":"banner","count":2}}""",
             "Loyalty.KeeperWallet.com",
             null,
         ) as Request.AnalyticsTrack
 
-        assertEquals("loyalty_open", request.event)
-        assertEquals(mapOf<String, Any?>("source" to "banner", "count" to 2), request.params)
-        assertEquals("loyalty.keeperwallet.com", request.provider)
+        assertEquals("q", request.queryId)
     }
 
     @Test
-    fun `analytics track without params tracks the event alone`() {
+    fun `analytics track accepts an event without params`() {
         val request = protocol.parse(
             """{"type":"analytics.track","queryId":"q","event":"loyalty_open"}""",
             TRUSTED_HOST,
             null,
         ) as Request.AnalyticsTrack
 
-        assertTrue(request.params.isEmpty())
+        assertEquals("q", request.queryId)
     }
 
     @Test

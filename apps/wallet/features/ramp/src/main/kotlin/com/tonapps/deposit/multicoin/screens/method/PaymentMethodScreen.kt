@@ -118,7 +118,6 @@ fun PaymentMethodScreen(
                         asset = current.asset,
                         methods = current.methods,
                         onPaymentMethodSelected = { asset, method ->
-                            feature.trackPaymentMethodClick(method, current.fiatCode)
                             onPaymentMethodSelected(asset, method, current.fiatCode)
                         },
                         onP2PMethodClick = {

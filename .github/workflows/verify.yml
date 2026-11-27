@@ -35,3 +35,16 @@ jobs:
 
       - name: Compile debug Kotlin
         run: ./gradlew -q :apps:wallet:instance:app:compileDebugKotlin --no-daemon
+
+      - name: Test pairing state
+        run: ./gradlew -q :lib:extensions:testDebugUnitTest --no-daemon --tests 'com.tonapps.bus.walletimport.WalletImportPairingSessionsTest'
+
+      - name: Test UTM parsing
+        run: ./gradlew -q :lib:extensions:testDebugUnitTest --no-daemon --tests 'com.tonapps.bus.core.contract.UtmParametersTest'
+
+      - name: Test dApp bridge compatibility
+        run: >-
+          ./gradlew -q :apps:wallet:instance:app:testDebugUnitTest --no-daemon
+          --tests 'com.tonapps.tonkeeper.ui.screen.browser.dapp.earn.EarnNativeMethodsTest'
+          --tests 'com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper.KeeperBridgeHandlerTest'
+          --tests 'com.tonapps.tonkeeper.ui.screen.browser.dapp.keeper.KeeperBridgeProtocolTest'

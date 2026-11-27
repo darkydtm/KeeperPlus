@@ -33,7 +33,7 @@ dependencies {
     implementation(projects.kmp.mvi)
     implementation(projects.kmp.async)
 
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
 
     implementation(projects.apps.wallet.localization)
     implementation(projects.apps.wallet.api)
@@ -117,7 +117,6 @@ dependencies {
     implementation(projects.lib.emoji)
     implementation(projects.lib.security)
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.extensions)
     implementation(projects.lib.ledger)
     implementation(projects.lib.ledgerkit)
     implementation(projects.lib.ur)

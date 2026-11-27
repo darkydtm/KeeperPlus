@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.ledger.analytics
 
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.LedgerFailureException
 import com.tonapps.ledgerkit.LedgerFallbackException
@@ -64,7 +63,7 @@ object LedgerNonFatals {
 
     private fun record(error: Throwable, keys: Map<String, String>) {
         if (recorded.add(error)) {
-            IssueHelper.recordException(error, keys)
+            L.w(error, "Ledger issue: $keys")
         }
     }
 }

@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.errors.InsufficientFundsException
-import com.tonapps.bus.core.contract.EventDelegate
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.deposit.multicoin.analytics.asDepositFlowFrom
 import com.tonapps.extensions.getUserMessage
@@ -82,10 +81,6 @@ class OmnistonScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragmen
         InsufficientFundsDialog(this, OmnistonArgs(requireArguments()).initiator.asDepositFlowFrom())
     }
 
-    private val swapAnalytics: EventDelegate? by lazy {
-        analytics?.eventDelegateTaggedWith(OmnistonArgs(requireArguments()).utm)
-    }
-
     private val feeMethodSelector: ActionSheet by lazy {
         ActionSheet(requireContext())
     }
@@ -120,7 +115,6 @@ class OmnistonScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragmen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        swapAnalytics?.swapOpen(viewModel.swapUri, true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -397,14 +391,6 @@ class OmnistonScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragmen
     }
 
     private fun signSuccess() {
-        swapAnalytics?.swapSuccess(
-            jettonSymbolFrom = viewModel.jettonSymbolFrom,
-            jettonSymbolTo = viewModel.jettonSymbolTo,
-            providerName = viewModel.providerName,
-            providerUrl = viewModel.providerUrl,
-            native = true,
-        )
-
         rootViewMode.routeToHistoryTab("swap")
         taskView.visibility = View.VISIBLE
         taskView.state = ProcessTaskView.State.SUCCESS
@@ -422,13 +408,6 @@ class OmnistonScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragmen
 
     private fun sign() {
         signLoading()
-        swapAnalytics?.swapConfirm(
-            jettonSymbolFrom = viewModel.jettonSymbolFrom,
-            jettonSymbolTo = viewModel.jettonSymbolTo,
-            providerName = viewModel.providerName,
-            providerUrl = viewModel.providerUrl,
-            native = true,
-        )
         viewModel.sign(
             onSuccess = { signSuccess() },
             onError = { e ->
@@ -482,12 +461,6 @@ class OmnistonScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragmen
                 continueButton.isLoading = false
             }
         }
-        swapAnalytics?.swapClick(
-            jettonSymbolFrom = viewModel.jettonSymbolFrom,
-            jettonSymbolTo = viewModel.jettonSymbolTo,
-            native = true,
-            providerName = viewModel.providerName,
-        )
     }
 
     private fun applyQuoteState(state: SwapQuoteState) {

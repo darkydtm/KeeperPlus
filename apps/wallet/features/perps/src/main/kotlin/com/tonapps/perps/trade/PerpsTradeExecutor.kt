@@ -56,7 +56,6 @@ import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.TimeSource
 import com.tonapps.chainkit.perpetual.PerpsPositionState as PerpsContextPosition
 import com.tonapps.chainkit.perpetual.PerpsStepKind as PerpsPlanStepKind
 
@@ -128,7 +127,7 @@ class PerpsTradeExecutor(
 
     private val settling = ConcurrentHashMap.newKeySet<String>()
 
-    private val running = PerpsRunningOperations(repository, scope)
+    private val running = PerpsRunningOperations()
 
     private val reconcilers = ConcurrentHashMap<String, Job>()
 
@@ -150,9 +149,8 @@ class PerpsTradeExecutor(
     }
 
     suspend fun start(planned: PerpsPlannedTrade, unlock: suspend () -> PerpsOwnerMessageSigner?): PerpsSubmitStart {
-        val startedAt = TimeSource.Monotonic.markNow()
         return withContext(Async.Io) {
-            walletLock(planned.request.walletId).withLock { gate(planned, unlock, startedAt) }
+            walletLock(planned.request.walletId).withLock { gate(planned, unlock) }
         }
     }
 
@@ -195,7 +193,6 @@ class PerpsTradeExecutor(
     private suspend fun gate(
         planned: PerpsPlannedTrade,
         unlock: suspend () -> PerpsOwnerMessageSigner?,
-        startedAt: TimeSource.Monotonic.ValueTimeMark,
     ): PerpsSubmitStart {
         val request = planned.request
         recoverOperations(request.walletId, resume = false)
@@ -260,7 +257,7 @@ class PerpsTradeExecutor(
             if (!inserted) {
                 return@withContext PerpsSubmitStart.Blocked(operationId)
             }
-            running.start(operationId, request, startedAt)
+            running.start(operationId)
             scope.launch {
                 val settled = try {
                     run(planned, operationId, unlock)
@@ -334,13 +331,11 @@ class PerpsTradeExecutor(
                     )
                     when (outcome) {
                         StepOutcome.Accepted, StepOutcome.PartiallyFilled -> {
-                            running.reportSent(operationId, step, clientOrderIndex(current, step))
                             applied += appliedPrerequisite(current, step)
                             completed += step.stepId
                         }
 
                         StepOutcome.Unknown -> {
-                            running.reportSent(operationId, step, clientOrderIndex(current, step))
                             holdOperationUnknown(operationId, step.stepId)
                             reconcile(planned.request.walletId)
                             return null
@@ -1091,7 +1086,7 @@ class PerpsTradeExecutor(
         if (accepted) {
             val status = PerpsOperationStatus.PARTIALLY_FILLED.takeIf { steps.any { it.error == PARTIAL_FILL } }
                 ?: PerpsOperationStatus.SUCCEEDED
-            val written = write {
+            write {
                 journal.updateOperation(
                     operationId = operationId,
                     status = status,
@@ -1100,9 +1095,6 @@ class PerpsTradeExecutor(
                 )
             }
             accountRefresh.notifyChanged()
-            if (written) {
-                running.reportSettled(operationId, status)
-            }
             L.d("Perps operation $operationId settled: ${status.value}")
         } else {
             failOperation(

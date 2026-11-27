@@ -2,8 +2,6 @@ package com.tonapps.wallet.data.multichain.account
 
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.tonapps.async.Async
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.tracer.AnalyticException
 import com.tonapps.chainkit.core.chain.model.account.Account
 import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
@@ -602,12 +600,6 @@ class AccountRepositoryImpl(
             ?: return
 
         val accepted = syncs.filter { results[it.registration.walletId]?.status == WalletRegisterResult.Status.ok }
-        val rejected = syncs.size - accepted.size
-        if (rejected > 0) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.WalletAuth("wallet registration rejected (count=$rejected)")
-            )
-        }
         if (accepted.isNotEmpty()) {
             settings.multichainPushSyncState = null
             _walletsBoundTrigger.tryEmit(Unit)
@@ -820,9 +812,6 @@ class AccountRepositoryImpl(
                     "Wallet registration rejected (walletId=${registration.walletId}, error=${result?.error})"
                 )
             )
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.WalletAuth("wallet registration rejected", error)
-            )
             throw error
         }
     }
@@ -919,9 +908,6 @@ class AccountRepositoryImpl(
             getWalletAppKeyPair(walletId)
         } catch (e: Throwable) {
             L.e(e)
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.WalletAuth("wallet registration skipped, app key unavailable", e)
-            )
             return null
         }
 

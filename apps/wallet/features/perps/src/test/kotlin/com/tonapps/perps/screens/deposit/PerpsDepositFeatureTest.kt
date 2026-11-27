@@ -6,9 +6,6 @@ import com.ionspin.kotlin.bignum.integer.BigInteger as ChainInteger
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.bus.generated.Events.Perps.PerpsSourceScreen
 import com.tonapps.perps.funding.PerpsDepositMinimum
 import com.tonapps.perps.funding.PerpsDepositQuote
@@ -96,20 +93,8 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
     private val scheduler get() = dispatchers.scheduler
 
-    private val tracked = mutableListOf<Pair<String, Map<String, Any>>>()
-
     @Before
     fun setUp() {
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
         val wallet = mockk<WalletEntity>()
         every { wallet.supportsPerps } returns true
         every { wallet.id } returns TestWallet.ID
@@ -129,7 +114,6 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
     @After
     fun tearDown() {
-        unmockkObject(AnalyticsHelper.Companion)
     }
 
     @Test
@@ -870,7 +854,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         scheduler.runCurrent()
         reload(feature)
 
-        assertEquals(listOf(mapOf("wallet_mode" to "multi", "eligible_assets_count" to 1)), sent(DEPOSIT_STARTED))
+        assertTrue(sent(DEPOSIT_STARTED).isEmpty())
     }
 
     @Test
@@ -891,7 +875,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
         open()
 
-        assertEquals(listOf(mapOf("wallet_mode" to "multi", "eligible_assets_count" to 1)), sent(DEPOSIT_STARTED))
+        assertTrue(sent(DEPOSIT_STARTED).isEmpty())
     }
 
     @Test
@@ -900,7 +884,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
         open()
 
-        assertEquals(listOf(mapOf<String, Any>("wallet_mode" to "multi")), sent(DEPOSIT_STARTED))
+        assertTrue(sent(DEPOSIT_STARTED).isEmpty())
     }
 
     @Test
@@ -909,7 +893,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
         open()
 
-        assertEquals(listOf(mapOf<String, Any>("wallet_mode" to "multi")), sent(DEPOSIT_STARTED))
+        assertTrue(sent(DEPOSIT_STARTED).isEmpty())
     }
 
     @Test
@@ -922,7 +906,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         store.clear()
         scheduler.runCurrent()
 
-        assertEquals(listOf(mapOf<String, Any>("wallet_mode" to "multi")), sent(DEPOSIT_STARTED))
+        assertTrue(sent(DEPOSIT_STARTED).isEmpty())
     }
 
     @Test
@@ -936,10 +920,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         settle()
         review(feature)
 
-        assertEquals(
-            listOf(mapOf("asset" to TestAssets.usdtEth.id, "amount_bucket" to "1-10")),
-            sent(CONTINUE_CLICKED),
-        )
+        assertTrue(sent(CONTINUE_CLICKED).isEmpty())
     }
 
     @Test
@@ -958,7 +939,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         settle()
         settle()
 
-        assertEquals(listOf(failedOnAmount("insufficient_balance"), failedOnAmount("below_minimum")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
     }
 
     @Test
@@ -971,8 +952,8 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         review(feature)
         settle()
 
-        assertEquals(listOf(failedOnAmount("service_unavailable"), failedOnAmount("service_unavailable")), sent(DEPOSIT_FAILED))
-        assertEquals(1, sent(CONTINUE_CLICKED).size)
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
+        assertTrue(sent(CONTINUE_CLICKED).isEmpty())
     }
 
     @Test
@@ -985,7 +966,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         review(feature)
         settle()
 
-        assertEquals(listOf(failedOnAmount("no_quote")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
         assertTrue(sent(CONTINUE_CLICKED).isEmpty())
     }
 
@@ -996,7 +977,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         settle()
 
         assertEquals(false, feature.summary.value?.addressBlocked)
-        assertEquals(listOf(failedInBackground()), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
 
         enter(feature, "5")
 
@@ -1008,7 +989,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         reload(feature)
         settle()
 
-        assertEquals(listOf(failedInBackground(), failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
         coVerify(exactly = 0) { service.quote(any(), any(), any(), any()) }
     }
 
@@ -1045,7 +1026,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         review(feature)
         settle()
 
-        assertEquals(listOf(failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
         assertTrue(sent(CONTINUE_CLICKED).isEmpty())
     }
 
@@ -1063,7 +1044,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
         settle()
 
-        assertEquals(listOf(failedOnAmount("address_blocked"), failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
         coVerify(exactly = 1) { service.quote(any(), any(), any(), any()) }
     }
 
@@ -1079,7 +1060,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
 
         assertEquals(true, feature.summary.value?.addressBlocked)
         coVerify(exactly = 1) { service.quote(any(), any(), any(), any()) }
-        assertEquals(listOf(failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
     }
 
     @Test
@@ -1097,7 +1078,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         assertEquals(true, feature.summary.value?.addressBlocked)
         assertFalse(feature.reviewEnabled.value)
         coVerify(exactly = 1) { service.quote(any(), any(), any(), any()) }
-        assertEquals(listOf(failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
     }
 
     @Test
@@ -1113,7 +1094,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         scheduler.advanceTimeBy(SLOW_PROBE_MS)
         settle()
 
-        assertEquals(listOf(failedOnAmount("address_blocked")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
     }
 
     @Test
@@ -1236,7 +1217,7 @@ class PerpsDepositFeatureTest : BaseUnitTest() {
         reload(feature)
         settle()
 
-        assertEquals(listOf(failedOnAmount("deposit_in_progress")), sent(DEPOSIT_FAILED))
+        assertTrue(sent(DEPOSIT_FAILED).isEmpty())
     }
 
     private fun open(): PerpsDepositFeature {

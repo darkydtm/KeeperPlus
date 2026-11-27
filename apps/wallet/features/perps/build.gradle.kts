@@ -75,9 +75,8 @@ dependencies {
 
     implementation(projects.lib.blockchain)
     implementation(projects.lib.time)
-    implementation(projects.lib.bus)
-    implementation(projects.lib.security)
     implementation(projects.lib.extensions)
+    implementation(projects.lib.security)
     implementation(projects.lib.log)
     implementation(projects.lib.network)
 

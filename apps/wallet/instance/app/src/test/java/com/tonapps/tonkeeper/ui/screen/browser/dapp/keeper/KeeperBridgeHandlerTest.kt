@@ -18,7 +18,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -151,37 +150,14 @@ class KeeperBridgeHandlerTest {
     }
 
     @Test
-    fun `analytics track is sent marked with the page host and acknowledged`() = runTest {
-        val tracked = mutableListOf<Pair<String, Map<String, Any>>>()
-        val handler = handler(backgroundScope, track = { event, params -> tracked += event to params })
+    fun `analytics track is acknowledged without an effect`() = runTest {
+        val handler = handler(backgroundScope)
         handler.attach()
         val events = collectAnswersAndEffects(handler)
 
-        handler.onMessage(
-            Request.AnalyticsTrack(
-                queryId = "q11",
-                event = "loyalty_open",
-                params = mapOf(
-                    "source" to "banner",
-                    "address" to "0x0eE3CdEE4f010BF6c49aF86E9e67ef2bc80a508b",
-                    "nested" to JSONObject(),
-                ),
-                provider = "loyalty.keeperwallet.com",
-            )
-        )
+        handler.onMessage(Request.AnalyticsTrack("q11"))
 
         assertEquals(listOf("answer Done #q11"), events)
-        assertEquals(
-            listOf(
-                "loyalty_open" to mapOf<String, Any>(
-                    "source" to "banner",
-                    "address" to "<hex>",
-                    "isExternalWebView" to 1,
-                    "eventProvider" to "loyalty.keeperwallet.com",
-                )
-            ),
-            tracked,
-        )
     }
 
     @Test
@@ -258,7 +234,6 @@ class KeeperBridgeHandlerTest {
     private fun handler(
         scope: CoroutineScope,
         loadCredentials: suspend (String?) -> Credentials? = { credentials },
-        track: (String, MutableMap<String, Any>) -> Unit = { _, _ -> },
         referralCode: suspend (String) -> String? = { null },
         walletDeactivated: Flow<Unit> = emptyFlow(),
     ): KeeperBridgeHandler {
@@ -266,7 +241,6 @@ class KeeperBridgeHandlerTest {
             scope = scope,
             loadCredentials = loadCredentials,
             appSettings = { settings },
-            track = track,
             referralCode = referralCode,
             walletDeactivated = walletDeactivated,
         )

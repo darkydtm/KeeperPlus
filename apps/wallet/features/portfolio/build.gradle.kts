@@ -58,5 +58,4 @@ dependencies {
     implementation(projects.lib.extensions)
     implementation(projects.lib.blockchain)
     implementation(projects.lib.log)
-    implementation(projects.lib.bus)
 }

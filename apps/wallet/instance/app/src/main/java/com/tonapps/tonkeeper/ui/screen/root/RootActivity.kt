@@ -44,24 +44,17 @@ import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenFrom
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
-import com.tonapps.bus.generated.Events.DeeplinkOpen.DeeplinkOpenFrom
 import com.tonapps.bus.generated.Events.EarnFlow.EarnEntryViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.bus.generated.Events.Perps.PerpsEntryPoint
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderLaunchStep
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.chainkit.core.chain.model.account.Network
 import com.tonapps.core.RNLegacyDelegate
 import com.tonapps.core.deeplink.DeepLink
 import com.tonapps.core.deeplink.DeepLinkBuilder
 import com.tonapps.core.deeplink.DeepLinkRoute
-import com.tonapps.core.deeplink.DeeplinkOpenAnalytics
 import com.tonapps.core.flags.FeatureManager
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.wallet.api.internal.BootConfigOverrides
@@ -120,7 +113,6 @@ import com.tonapps.tonkeeper.extensions.isDarkMode
 import com.tonapps.tonkeeper.extensions.openAppSettings
 import com.tonapps.tonkeeper.extensions.toast
 import com.tonapps.tonkeeper.helper.BrowserHelper
-import com.tonapps.tonkeeper.koin.analytics
 import com.tonapps.tonkeeper.koin.remoteConfig
 import com.tonapps.tonkeeper.manager.earn.EarnUrlResolver
 import com.tonapps.tonkeeper.manager.push.PushManager
@@ -264,7 +256,6 @@ class RootActivity : BaseWalletActivity(),
     private val moonPayFrames by inject<MoonPayFrames>()
     private val lockScreenShown = MutableStateFlow(false)
     private lateinit var uiHandler: Handler
-    private var isLaunchLockShown = false
     private var isIntentConsumed = false
 
     // Only a sheet that is going away frees the queue: one destroyed together with the activity, by a
@@ -316,7 +307,6 @@ class RootActivity : BaseWalletActivity(),
             super.onCreate(savedInstanceState)
             attributionManager.onLauncherActivityCreated(this)
         }
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.SceneConnect)
 
         if (theme.isSystem) {
             setAppearanceLight(!isDarkMode)
@@ -400,12 +390,6 @@ class RootActivity : BaseWalletActivity(),
         }
         collectFlow(attributionManager.deepLinkFlow.flowWithLifecycle(lifecycle)) { attributionLink ->
             val uri = DeepLink.fixBadUri(attributionLink.appLink)
-            val from = if (attributionLink.isDeferred) {
-                DeeplinkOpenFrom.DeferredLink
-            } else {
-                DeeplinkOpenFrom.UniversalLink
-            }
-            DeeplinkOpenAnalytics.report(uri, attributionLink.isColdStart, from)
             if (DeepLinkRoute.resolve(uri) !is DeepLinkRoute.Unknown) {
                 processDeepLink(uri, false, null, fromExternal = true, waitForWallet = true)
             }
@@ -746,7 +730,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     override fun onOpenMigration() {
-        navigation?.add(MigrationFragment.newInstance(MigrationFrom.Setup))
+        navigation?.add(MigrationFragment.newInstance())
     }
 
     override fun onOpenLedgerDevice(walletId: String, from: LedgerDeviceViewFrom) {
@@ -825,8 +809,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     // The multichain history knows only multichain wallets; a legacy one, back from a swap, has its own.
-    override fun onOpenHistory(trigger: ScreenRenderTrigger) {
-        ScreenRenderTracker.shared.begin(ScreenRenderId.History, trigger, isFirstOpen = true)
+    override fun onOpenHistory() {
         lifecycleScope.launch {
             val wallet = unifiedAccountRepository.getSelectedWallet() ?: return@launch
             if (wallet.type == WalletType.Multichain) {
@@ -1039,7 +1022,6 @@ class RootActivity : BaseWalletActivity(),
     private suspend fun pinState(state: LockScreen.State) {
         // The lock is an overlay, so stop the covered fragments from reopening their keyboard over the numpad.
         lockKeyboard(state != LockScreen.State.None)
-        reportLaunchLock(state)
         lockPasscodeView.setLoading(state == LockScreen.State.Migrating)
         if (state == LockScreen.State.NewChains) {
             // Part of the lock screen: shown over it first, so the wallet never shows in between.
@@ -1428,22 +1410,7 @@ class RootActivity : BaseWalletActivity(),
         }
     }
 
-    // The time the user spends on the lock is left out of the cold launch timing.
-    private fun reportLaunchLock(state: LockScreen.State) {
-        val tracker = ScreenRenderTracker.shared
-        if (state != LockScreen.State.None) {
-            isLaunchLockShown = true
-            tracker.launchMark(ScreenRenderLaunchStep.PasscodeShown)
-            tracker.pauseLaunch()
-        } else if (isLaunchLockShown) {
-            isLaunchLockShown = false
-            tracker.resumeLaunch()
-            tracker.launchMark(ScreenRenderLaunchStep.PasscodeEntered)
-        }
-    }
-
     fun init(hasWallet: Boolean) {
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.RootStart)
         if (hasWallet) {
             setMainFragment()
         } else {
@@ -1452,7 +1419,6 @@ class RootActivity : BaseWalletActivity(),
     }
 
     private fun setIntroFragment() {
-        ScreenRenderTracker.shared.cancelLaunch()
         setPrimaryFragment(StartScreen.newInstance(), runnable = {
             lockView.visibility = View.GONE
             passcodeManager.lockscreenHidden()
@@ -1460,8 +1426,6 @@ class RootActivity : BaseWalletActivity(),
     }
 
     private fun setMainFragment() {
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.MainStart)
-        ScreenRenderTracker.shared.beginLaunch()
         setPrimaryFragment(MainScreen.newInstance())
     }
 
@@ -1497,7 +1461,6 @@ class RootActivity : BaseWalletActivity(),
         if (0 >= DevSettings.firstLaunchDate) {
             DevSettings.firstLaunchDeeplink = uri?.toString() ?: ""
         } else if (uri?.hasRefer() == true || uri?.hasUtmSource() == true) {
-            analytics?.openRefDeeplink(uri.toString())
         }
         val extras = intent.extras
         if (extras != null && !extras.isEmpty && viewModel.processIntentExtras(extras)) {
@@ -1506,7 +1469,6 @@ class RootActivity : BaseWalletActivity(),
         } else if (uri != null && !attributionManager.interceptLink(uri, isColdStart)) {
             val link = DeepLink.fixBadUri(uri)
             if (!isRedelivery) {
-                DeeplinkOpenAnalytics.report(link, isColdStart)
             }
             processDeepLink(
                 link,

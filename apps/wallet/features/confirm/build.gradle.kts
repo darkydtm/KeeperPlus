@@ -72,14 +72,13 @@ dependencies {
     implementation(projects.ui.uikit.icon)
     implementation(projects.ui.uikit.core)
 
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
     implementation(projects.lib.icu)
     implementation(projects.lib.log)
     implementation(projects.lib.time)
     implementation(projects.lib.security)
     implementation(projects.lib.wallet)
     implementation(projects.lib.ledger)
-    implementation(projects.lib.extensions)
     implementation(projects.lib.blockchain)
 
     // Host tests (src/test) — junit, mockk and coroutines-test come with the testing module.

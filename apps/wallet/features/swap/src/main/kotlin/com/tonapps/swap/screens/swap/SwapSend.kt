@@ -13,7 +13,6 @@ data class SwapSend(
     val retries: Int = 0,
     val inSheet: Boolean = false,
     val feeId: String? = null,
-    val clicked: Boolean = false,
     val prepared: Boolean = false,
     val plan: SwapFeePlan = SwapFeePlan.Preparing,
     val shortagePopup: Boolean = false,
@@ -93,7 +92,6 @@ internal fun reduceSend(node: SendNode, cmd: SendCmd): SendNode {
                         id = it,
                         request = cmd.request,
                         prepared = false,
-                        clicked = false,
                         plan = SwapFeePlan.Preparing,
                         shortagePopup = false,
                     )
@@ -178,7 +176,7 @@ private fun continueReview(attempt: SwapSend, quoteReceivedAt: Long?): SwapSend 
         plan.summary.isUnpaid -> attempt.copy(shortagePopup = true)
         plan.summary == SwapFeeSummary.Unknown -> attempt.copy(inSheet = true)
         current && attempt.prepared && plan.quoteReceivedAt == quoteReceivedAt ->
-            attempt.copy(phase = SwapSendPhase.Working, clicked = true)
+            attempt.copy(phase = SwapSendPhase.Working)
         else -> attempt
     }
 }

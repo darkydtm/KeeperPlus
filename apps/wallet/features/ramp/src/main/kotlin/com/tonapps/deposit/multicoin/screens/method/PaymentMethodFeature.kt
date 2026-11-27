@@ -1,14 +1,9 @@
 package com.tonapps.deposit.multicoin.screens.method
 
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowAddFundsOption
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
 import com.tonapps.deposit.data.ExchangeRepository
-import com.tonapps.deposit.multicoin.analytics.DepositAnalytics
-import com.tonapps.deposit.multicoin.analytics.RampAnalytics
 import com.tonapps.deposit.multicoin.data.RampAssetDetail
 import com.tonapps.deposit.multicoin.data.RampMethod
 import com.tonapps.deposit.multicoin.data.RampRepository
@@ -23,7 +18,6 @@ import com.tonapps.wallet.data.multichain.account.McAccountRepository
 import com.tonapps.wallet.data.multichain.account.UnifiedAccountRepository
 import com.tonapps.wallet.data.settings.SettingsRepository
 import io.exchangeapi.models.CreateP2PSessionRequest
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,14 +70,6 @@ class PaymentMethodFeature(
     val state: StateFlow<PaymentMethodState> field = MutableStateFlow<PaymentMethodState>(PaymentMethodState.Loading)
     val events: SharedFlow<PaymentMethodEvent> field = MutableSharedFlow(extraBufferCapacity = 1)
 
-    private val depositAnalytics = DepositAnalytics(
-        data.rampType, data.analyticsFrom, DepositFlowWalletMode.Multi, data.utm, DepositFlowDepositScreen.AddFunds,
-    )
-    private val rampAnalytics = RampAnalytics.of(
-        data.rampType, data.analyticsFrom, DepositFlowWalletMode.Multi, data.utm, DepositFlowDepositScreen.AddFunds,
-    )
-    private val viewTracked = AtomicBoolean(false)
-
     init {
         load()
     }
@@ -113,20 +99,11 @@ class PaymentMethodFeature(
                     fiatCurrency = current.fiatCode,
                 )
             )
-            depositAnalytics.continueToP2pMarket(DepositFlowAddFundsOption.BuyWithFiat)
             events.tryEmit(PaymentMethodEvent.OpenP2P(response.deeplinkUrl))
         } catch (e: Throwable) {
             L.e(e)
             events.tryEmit(PaymentMethodEvent.ShowP2PError)
         }
-    }
-
-    fun trackPaymentMethodClick(method: RampMethod, fiatCode: String) {
-        rampAnalytics.clickFiatPaymentMethod(
-            cryptoAsset = data.assetId,
-            fiatCode = fiatCode,
-            paymentMethod = method.type.value,
-        )
     }
 
     fun selectCurrency(currency: WalletCurrency) {
@@ -145,7 +122,6 @@ class PaymentMethodFeature(
                     fiatCode = fiatCode,
                 )
                 state.emit(loaded)
-                trackViewFiatPaymentMethod(loaded)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
@@ -153,17 +129,6 @@ class PaymentMethodFeature(
                 state.emit(PaymentMethodState.Empty)
             }
         }
-    }
-
-    private fun trackViewFiatPaymentMethod(loaded: PaymentMethodState.Data) {
-        if (!viewTracked.compareAndSet(false, true)) {
-            return
-        }
-        rampAnalytics.viewFiatPaymentMethod(
-            cryptoAsset = data.assetId,
-            fiatCode = loaded.fiatCode,
-            availableOptions = loaded.methods.map { it.type.value },
-        )
     }
 
     private suspend fun resolveFiatCode(asset: RampAssetDetail): String {

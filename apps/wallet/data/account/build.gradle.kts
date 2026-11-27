@@ -26,6 +26,5 @@ dependencies {
     implementation(projects.lib.blockchain)
     implementation(projects.lib.sqlite)
     implementation(projects.lib.ledger)
-    implementation(projects.lib.bus)
     implementation(projects.kmp.async)
 }

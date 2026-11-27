@@ -8,9 +8,6 @@ import com.tonapps.blockchain.model.ConfirmContext
 import com.tonapps.blockchain.model.ConfirmOperations
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.chainkit.core.chain.api.models.ChainRes
 import com.tonapps.chainkit.core.chain.api.models.NodeError
 import com.tonapps.chainkit.core.chain.api.models.NodeRes
@@ -60,7 +57,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * A dapp's EVM transaction, confirmed as the operation the dapp sent: signed as it reads, and the
@@ -81,8 +77,6 @@ class DappTxConfirmFeatureTest : BaseUnitTest() {
     )
     private val signed = mutableListOf<Payload>()
     private val broadcast = mutableListOf<String>()
-    private val tracked = CopyOnWriteArrayList<Pair<String, Map<String, Any>>>()
-
     private var broadcastError: Throwable? = null
     private var broadcastGate: CompletableDeferred<Unit>? = null
     private val requestGone = MutableStateFlow(false)
@@ -110,23 +104,11 @@ class DappTxConfirmFeatureTest : BaseUnitTest() {
         }
         coEvery { provider.reportPayloadSent(any(), any(), any(), any(), any()) } returns Unit
 
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
     }
 
     @After
     fun tearDown() {
         store.clear()
-        unmockkObject(AnalyticsHelper.Companion)
     }
 
     @Test

@@ -67,7 +67,6 @@ dependencies {
     implementation(projects.ui.uikit.core)
 
     implementation(projects.lib.icu)
-    implementation(projects.lib.bus)
     implementation(projects.lib.extensions)
     implementation(projects.lib.blockchain)
     implementation(projects.lib.features)

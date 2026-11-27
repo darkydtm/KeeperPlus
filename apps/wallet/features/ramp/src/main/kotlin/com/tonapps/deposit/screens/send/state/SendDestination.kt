@@ -1,7 +1,7 @@
 package com.tonapps.deposit.screens.send.state
 
 import com.tonapps.blockchain.contract.Blockchain
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.blockchain.model.legacy.TokenEntity
 import io.tonapi.models.AccountStatus
 import org.ton.kotlin.crypto.PublicKeyEd25519

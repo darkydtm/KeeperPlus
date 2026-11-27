@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.compose.LifecycleStartEffect
 import com.tonapps.wallet.data.multichain.account.displayOrder
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -96,10 +95,6 @@ fun EventsScreen(
     onOpenNft: (address: String) -> Unit = {},
 ) {
     val feature = koinViewModel<EventsFeature> { parametersOf(assetId, mode, awaitsFundingActivity) }
-    LifecycleStartEffect(feature) {
-        feature.onScreenStarted()
-        onStopOrDispose { feature.onScreenStopped() }
-    }
     val isPerpsHistory = mode == EventsScreenMode.Perps
     val showsTypeMenu = !isPerpsHistory && perpsMarketIndexOrNull(assetId) == null
     val showsFilters = !isPerpsHistory && assetId == null

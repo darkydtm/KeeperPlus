@@ -1,7 +1,5 @@
 package com.tonapps.wallet.data.multichain.vault
 
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.tracer.AnalyticException
 import com.tonapps.chainkit.core.chain.model.account.KeyPair
 import com.tonapps.log.L
 import com.tonapps.security.multichain.VaultStorage
@@ -81,9 +79,6 @@ class VaultRepository(
                 readDeviceKey() ?: mintDeviceKey()
             } catch (e: Throwable) {
                 L.e(e)
-                AnalyticsHelper.Default.captureException(
-                    AnalyticException.DeviceAuth("device key unavailable", e)
-                )
                 null
             }
         }
@@ -210,9 +205,6 @@ class VaultRepository(
             KeyPair.fromPrivateKey(privateKey)
         } catch (e: Throwable) {
             L.e(e)
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.DeviceAuth("corrupted device key dropped", e)
-            )
             deleteDeviceKey()
             null
         }

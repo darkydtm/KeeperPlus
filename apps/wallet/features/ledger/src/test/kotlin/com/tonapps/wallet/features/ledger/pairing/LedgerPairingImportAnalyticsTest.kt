@@ -2,18 +2,12 @@ package com.tonapps.wallet.features.ledger.pairing
 
 import android.util.Log
 import androidx.lifecycle.ViewModelStore
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowFrom
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletMode
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletSource
+import com.tonapps.bus.walletimport.WalletImportPairingSource
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
 import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.ledgerkit.LedgerAppId
 import com.tonapps.ledgerkit.LedgerFailure
-import com.tonapps.ledgerkit.LedgerFailureException
 import com.tonapps.ledgerkit.controller.LedgerController
 import com.tonapps.ledgerkit.controller.LedgerOpenLink
 import com.tonapps.ledgerkit.controller.LedgerOperationState
@@ -70,13 +64,10 @@ class LedgerPairingImportAnalyticsTest {
 
     @Before
     fun setUp() {
-        val recording = object : EventExecutor {
             override fun trackEvent(eventName: String, props: Map<String, Any>) {
                 tracked += eventName to props
             }
         }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns mockk { every { events } returns DefaultEvents(recording) }
         mockkStatic(Log::class)
         every { Log.println(any(), any(), any()) } returns 0
     }
@@ -120,144 +111,34 @@ class LedgerPairingImportAnalyticsTest {
         ),
     )
 
-    private fun event(name: String): Map<String, Any> = tracked.single { it.first == name }.second
-
     @Test
-    fun `pairing a ledger over bluetooth reports the funnel steps with the model and the apps it holds`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } returns discovered()
-        val feature = feature()
-        link.value = LedgerOpenLink(DEVICE.address, LedgerAppInfo("TON", "2.9.1"), LedgerLinkKind.Bluetooth)
-
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
-
-        assertEquals(
-            listOf(
-                "wallet_import_ledger_bluetooth_connected",
-                "wallet_import_ledger_app_opened",
-                "ledger_discovery_error",
-                "wallet_import_ledger_accounts_view",
-            ),
-            tracked.map { it.first },
-        )
-        val funnel = mapOf("wallet_mode" to "multi", "wallet_source" to "ledger", "from" to "main", "ledger_model" to "stax")
-        assertEquals(funnel, event("wallet_import_ledger_bluetooth_connected"))
-        assertEquals(funnel + ("ledger_apps" to "ethereum,ton"), event("wallet_import_ledger_accounts_view"))
-        assertEquals(
-            mapOf("from" to "import", "ledger_app" to "tron", "failure_type" to "app_not_installed", "ledger_model" to "stax"),
-            event("ledger_discovery_error"),
-        )
-    }
-
-    @Test
-    fun `a ledger on the cable reports a usb connection`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } returns discovered()
-        val feature = feature()
-        link.value = LedgerOpenLink(DEVICE.address, null, LedgerLinkKind.Usb)
-
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
-
-        assertEquals("stax", event("wallet_import_ledger_usb_connected")["ledger_model"])
-    }
-
-    @Test
-    fun `a failed read reports an import error with a stable ledger failure type`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } throws
-            LedgerFailureException(LedgerFailure.DeviceLocked)
-        val feature = feature()
-
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
-
-        val error = event("wallet_import_error")
-        assertEquals("device_locked", error["error_type"])
-        assertEquals("multi", error["wallet_mode"])
-        assertEquals("stax", error["ledger_model"])
-    }
-
-    @Test
-    fun `an import session reports the search, each found device once and the furthest step on leaving`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } returns discovered()
+    fun `closing pairing finishes the active session`() {
         val pairingSessions = WalletImportPairingSessions()
-        pairingSessions.start(WalletFlowWalletMode.Multi, WalletFlowWalletSource.Ledger, WalletFlowFrom.Main)
-        val feature = feature(pairingSessions)
-        feature.onPermissionsResult(granted = true)
-        scheduler.advanceUntilIdle()
-        link.value = LedgerOpenLink(DEVICE.address, LedgerAppInfo("TON", "2.9.1"), LedgerLinkKind.Bluetooth)
+        val session = pairingSessions.start(WalletImportPairingSource.Ledger)
+        feature(pairingSessions)
 
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
         store.clear()
 
-        assertEquals(
-            listOf(
-                "wallet_import_started",
-                "wallet_import_pairing_action",
-                "wallet_import_ledger_device_found",
-                "wallet_import_ledger_bluetooth_connected",
-                "wallet_import_ledger_app_opened",
-                "ledger_discovery_error",
-                "wallet_import_ledger_accounts_view",
-                "wallet_import_pairing_exit",
-            ),
-            tracked.map { it.first },
-        )
-        val funnel = mapOf("wallet_mode" to "multi", "wallet_source" to "ledger", "from" to "main")
-        assertEquals(funnel + ("pairing_entry" to "menu"), event("wallet_import_started"))
-        assertEquals(funnel + ("pairing_action" to "device_search_started"), event("wallet_import_pairing_action"))
-        assertEquals(funnel + ("ledger_transport" to "bluetooth") + ("ledger_model" to "stax"), event("wallet_import_ledger_device_found"))
-        assertEquals(
-            funnel + ("pairing_last_step" to "accounts_view") + ("pairing_exit_reason" to "back"),
-            event("wallet_import_pairing_exit"),
-        )
+        assertEquals(false, session.isActive)
     }
 
     @Test
     fun `an import session handed to the import screen does not report leaving`() {
         coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } returns discovered()
         val pairingSessions = WalletImportPairingSessions()
-        pairingSessions.start(WalletFlowWalletMode.Multi, WalletFlowWalletSource.Ledger, WalletFlowFrom.Main)
+        val session = pairingSessions.start(WalletImportPairingSource.Ledger)
         val feature = feature(pairingSessions)
+        session.signerAppOpened()
         link.value = LedgerOpenLink(DEVICE.address, LedgerAppInfo("TON", "2.9.1"), LedgerLinkKind.Bluetooth)
         feature.selectDevice(DEVICE)
         scheduler.advanceUntilIdle()
 
+        assertEquals(false, session.isAwaitingSignerReturn)
         feature.importSelected()
         scheduler.advanceUntilIdle()
         store.clear()
 
-        assertEquals(emptyList<String>(), tracked.map { it.first }.filter { it == "wallet_import_pairing_exit" })
-    }
-
-    @Test
-    fun `a failed read before leaving is the reason of the exit`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } throws
-            LedgerFailureException(LedgerFailure.DeviceLocked)
-        val pairingSessions = WalletImportPairingSessions()
-        pairingSessions.start(WalletFlowWalletMode.Multi, WalletFlowWalletSource.Ledger, WalletFlowFrom.Main)
-        val feature = feature(pairingSessions)
-
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
-        store.clear()
-
-        assertEquals("error", event("wallet_import_pairing_exit")["pairing_exit_reason"])
-    }
-
-    @Test
-    fun `a read the user cancels is not reported as an error on leaving`() {
-        coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } throws
-            LedgerFailureException(LedgerFailure.Cancelled)
-        val pairingSessions = WalletImportPairingSessions()
-        pairingSessions.start(WalletFlowWalletMode.Multi, WalletFlowWalletSource.Ledger, WalletFlowFrom.Main)
-        val feature = feature(pairingSessions)
-
-        feature.selectDevice(DEVICE)
-        scheduler.advanceUntilIdle()
-        store.clear()
-
-        assertEquals("back", event("wallet_import_pairing_exit")["pairing_exit_reason"])
+        assertEquals(true, session.isActive)
     }
 
     private companion object {

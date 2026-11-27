@@ -11,9 +11,6 @@ import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.extensions.query
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.extensions.removeAllFragments
@@ -23,7 +20,6 @@ import com.tonapps.tonkeeper.ui.base.ScreenContext
 import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.browser.base.BrowserBaseScreen
 import com.tonapps.portfolio.PortfolioFragment
-import com.tonapps.portfolio.analytics.PortfolioAnalytics
 import com.tonapps.tonkeeper.ui.screen.wallet.main.WalletScreen
 import com.tonapps.trading.screens.shelves.ShelvesFragment
 import com.tonapps.tonkeeper.ui.screen.root.RootEvent
@@ -164,7 +160,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         }
         rootViewModel.eventFlow.filterIsInstance<RootEvent.OpenTab>().onEach {
             val itemId = resolveId(it.link.toString())
-            beginTabScreenRender(itemId, it.trigger)
             bottomTabsView.selectedItemId = itemId
             val extra = when (itemId) {
                 R.id.browser -> it.link.query("category")
@@ -236,24 +231,8 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         currentWalletId = wallet.id
 
         bottomTabsView.doOnClick = { itemId ->
-            beginTabScreenRender(itemId, ScreenRenderTrigger.InApp)
             setFragment(itemId, wallet, DappBrowserAnalytics.WALLET_TAB_SOURCE, null, false, scrollUpOnReTap = true)
         }
-    }
-
-    // Before the tab is shown, so its lifecycle reaches the session; a re-tap of the visible tab starts none.
-    private fun beginTabScreenRender(itemId: Int, trigger: ScreenRenderTrigger) {
-        val existing = fragments[itemId]
-        if (existing != null && existing.isAdded && !existing.isHidden) {
-            return
-        }
-        val screen = when (itemId) {
-            R.id.wallet -> ScreenRenderId.Portfolio
-            R.id.trading -> ScreenRenderId.Trade
-            R.id.browser -> ScreenRenderId.Browser
-            else -> return
-        }
-        ScreenRenderTracker.shared.begin(screen, trigger, isFirstOpen = existing == null)
     }
 
     private fun getFragment(itemId: Int, wallet: WalletEntity): Fragment {
@@ -343,8 +322,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
                 if (!extra.isNullOrBlank()) {
                     fragment.scrollToShelf(extra)
                 }
-            } else if (fragment is PortfolioFragment || fragment is WalletScreen) {
-                PortfolioAnalytics.open(wallet)
             }
         }
         try {

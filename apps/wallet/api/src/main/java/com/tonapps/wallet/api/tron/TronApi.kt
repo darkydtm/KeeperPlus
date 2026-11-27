@@ -6,7 +6,6 @@ import androidx.core.net.toUri
 import com.tonapps.blockchain.ton.extensions.base64
 import com.tonapps.blockchain.tron.TronTransactionRequest
 import com.tonapps.blockchain.tron.TronTransaction
-import com.tonapps.blockchain.tron.TronTransactionMismatchException
 import com.tonapps.blockchain.tron.TronTransfer
 import com.tonapps.blockchain.tron.encodeTronAddress
 import com.tonapps.blockchain.tron.toEvmHex
@@ -20,7 +19,6 @@ import com.tonapps.network.get
 import com.tonapps.network.postJSON
 import com.tonapps.network.backoff.ExponentialBackoff
 import com.tonapps.blockchain.model.legacy.BalanceEntity
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.wallet.api.entity.Authorization
 import com.tonapps.wallet.api.entity.ConfigEntity
 import com.tonapps.blockchain.model.legacy.TokenEntity
@@ -635,9 +633,7 @@ class TronApi(
             throw Exception(message)
         }
 
-        return reportMismatch {
-            TronTransaction.fromNodeResponse(json = json, request = request)
-        }
+        return TronTransaction.fromNodeResponse(json = json, request = request)
     }
 
     fun getTransactionInfo(txId: String): JSONObject? {
@@ -795,21 +791,10 @@ class TronApi(
         val body = response.readBody()
         val json = JSONObject(body)
 
-        return reportMismatch {
-            TronTransaction.fromNodeResponse(
-                json = json.getJSONObject("transaction"),
-                request = request,
-            )
-        }
-    }
-
-    private fun <R> reportMismatch(block: () -> R): R {
-        try {
-            return block()
-        } catch (e: TronTransactionMismatchException) {
-            IssueHelper.recordException(e)
-            throw e
-        }
+        return TronTransaction.fromNodeResponse(
+            json = json.getJSONObject("transaction"),
+            request = request,
+        )
     }
 
     private fun <R> tronRetry(retryBlock: () -> R) = withRetry(

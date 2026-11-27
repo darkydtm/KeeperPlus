@@ -104,9 +104,3 @@
 
 -keepnames class com.tonapps.ledgerkit.LedgerFailureException
 -keepnames class com.tonapps.wallet.data.ledger.signing.LedgerDismissedException
-# ScreenRenderErrors classifies load failures by exception name.
--keepnames class io.infrastructure.ClientException
--keepnames class io.infrastructure.ServerException
--keepnames class kotlinx.serialization.SerializationException
--keepnames class kotlinx.serialization.MissingFieldException
--keepnames class kotlinx.serialization.json.internal.JsonDecodingException

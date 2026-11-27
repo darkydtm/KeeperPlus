@@ -79,7 +79,6 @@ class DAppShareScreen(wallet: WalletEntity) : ComposeWalletScreen(wallet),
             val screen = DAppShareScreen(wallet)
             screen.putParcelableArg(ARG_APP, app)
             screen.putStringArg(ARG_URL, url.toString())
-            analytics?.let { screen.putParcelableArg(ARG_ANALYTICS, it) }
             return screen
         }
     }

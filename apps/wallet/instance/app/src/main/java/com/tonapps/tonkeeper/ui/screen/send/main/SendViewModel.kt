@@ -12,7 +12,7 @@ import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.model.legacy.errors.InsufficientBalanceType
 import com.tonapps.blockchain.model.legacy.errors.isEmptyBalance
 import com.tonapps.blockchain.model.legacy.errors.isTON
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.blockchain.ton.contract.WalletFeature
 import com.tonapps.blockchain.ton.extensions.EmptyPrivateKeyEd25519
 import com.tonapps.blockchain.ton.extensions.base64
@@ -20,7 +20,6 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.blockchain.ton.extensions.isValidTonAddress
 import com.tonapps.blockchain.tron.TronTransfer
 import com.tonapps.blockchain.tron.isValidTronAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.core.helper.SendRedMetadata
 import com.tonapps.core.helper.TransactionSentAnalytics
@@ -132,7 +131,6 @@ class SendViewModel(
     private val transactionManager: TransactionManager,
     private val emulationUseCase: EmulationUseCase,
     private val signUseCase: SignUseCase,
-    private val analytics: AnalyticsHelper
 ) : BaseWalletVM(app) {
 
     private val isNft: Boolean
@@ -530,7 +528,6 @@ class SendViewModel(
         utm: UtmParameters,
     ) {
         restoreBus(from, utm)
-        AnalyticsHelper.Default.eventsTaggedWith(utm).sendNative.sendOpen(from = from)
     }
 
     fun restoreBus(
@@ -954,14 +951,6 @@ class SendViewModel(
             L.d("SendViewModelLog", "next: start")
             val operationId = generateUuid()
             val startedAtMs = currentTimeMillis()
-            analytics.events.redOperations.opAttempt(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                attemptSource = null,
-                startedAtMs = startedAtMs,
-                otherMetadata = null,
-            )
             try {
                 if (selectedTokenFlow.value.blockchain == Blockchain.TRON) {
                     nextTron()
@@ -970,25 +959,9 @@ class SendViewModel(
                 }
                 L.d("SendViewModelLog", "next: success")
                 val finishedAtMs = currentTimeMillis()
-                analytics.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                    operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = null,
-                )
             } catch (e: Throwable) {
                 L.e("SendViewModelLog", "next error", e)
                 val finishedAtMs = currentTimeMillis()
-                analytics.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                    operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = e,
-                )
                 delay(100)
                 _uiEventFlow.tryEmit(SendEvent.Failed(e))
             }
@@ -1542,14 +1515,6 @@ class SendViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val operationId = generateUuid()
             val startedAtMs = currentTimeMillis()
-            analytics.events.redOperations.opAttempt(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Send,
-                attemptSource = SendRedMetadata.attemptSource(analyticsFrom),
-                startedAtMs = startedAtMs,
-                otherMetadata = sendRedMetadata(),
-            )
             try {
                 if (selectedTokenFlow.value.blockchain == Blockchain.TRON) {
                     signTron()
@@ -1557,21 +1522,6 @@ class SendViewModel(
                     signTon()
                 }
                 val finishedAtMs = currentTimeMillis()
-                analytics.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                    operation = Events.RedOperations.RedOperationsOperation.Send,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = null,
-                )
-                analytics.eventsTaggedWith(analyticsUtm).sendNative.sendSuccess(
-                    from = analyticsFrom,
-                    asset = currentToken.analyticsAssetId(),
-                    amount = currentAmountDouble,
-                    feeAsset = currentFeeAsset,
-                    appId = null,
-                )
                 TransactionSentAnalytics.transactionSent(
                     wallet = wallet,
                     category = Events.TransactionSent.TransactionSentCategory.Transfer,
@@ -1604,26 +1554,9 @@ class SendViewModel(
             } catch (e: Throwable) {
                 L.d("SendViewModelLog", "sign error", e)
                 val finishedAtMs = currentTimeMillis()
-                analytics.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                    operation = Events.RedOperations.RedOperationsOperation.Send,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = e,
-                )
                 if (e is CancellationException) {
                     _uiEventFlow.tryEmit(SendEvent.Canceled)
                 } else {
-                    analytics.eventsTaggedWith(analyticsUtm).sendNative.sendFailed(
-                        from = analyticsFrom,
-                        asset = currentToken.analyticsAssetId(),
-                        amount = currentAmountDouble,
-                        feeAsset = currentFeeAsset,
-                        errorCode = 0,
-                        errorMessage = e.message ?: "unknown",
-                        appId = null,
-                    )
 // Crash reporting disabled
 
                     _uiEventFlow.tryEmit(SendEvent.Failed(e))

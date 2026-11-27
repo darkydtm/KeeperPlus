@@ -13,11 +13,8 @@ import androidx.fragment.app.FragmentManager
 import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenFrom
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.core.ComposableFragment
 import com.tonapps.core.navigation.NavigationDelegate
-import com.tonapps.core.screenrender.ScreenRenderFragmentLifecycle
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import uikit.base.TabScreen
@@ -29,8 +26,6 @@ class PortfolioFragment : ComposableFragment(), TabScreen {
     override val fragmentName: String = "PortfolioFragment"
 
     private var isTop by mutableStateOf(true)
-
-    private val screenRender = ScreenRenderFragmentLifecycle(this, ScreenRenderId.Portfolio)
 
     private var topCallbacksHost: FragmentManager? = null
 
@@ -63,7 +58,6 @@ class PortfolioFragment : ComposableFragment(), TabScreen {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        screenRender.onViewCreated()
         val fm = requireActivity().supportFragmentManager
         fm.registerFragmentLifecycleCallbacks(topCallbacks, true)
         topCallbacksHost = fm
@@ -97,7 +91,7 @@ class PortfolioFragment : ComposableFragment(), TabScreen {
                     },
                     onOpenScanner = { delegate?.onOpenScanner() },
                     onSettingsClick = { delegate?.onOpenSettings() },
-                    onHistoryClick = { delegate?.onOpenHistory(ScreenRenderTrigger.InApp) },
+                    onHistoryClick = { delegate?.onOpenHistory() },
                     onBackupClick = { delegate?.onOpenBackup() },
                     onEnablePushClick = { delegate?.onEnablePush() },
                     onMigrationClick = { delegate?.onOpenMigration() },
@@ -125,7 +119,6 @@ class PortfolioFragment : ComposableFragment(), TabScreen {
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         updateTop()
-        screenRender.onHiddenChanged(hidden)
     }
 
     override fun onDestroyView() {

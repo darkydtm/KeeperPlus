@@ -2,9 +2,6 @@ package com.tonapps.deposit.multicoin.screens.moonpay
 
 import com.tonapps.deposit.multicoin.moonpay.MOONPAY_GOOGLE_PAY_TYPE
 import com.tonapps.deposit.multicoin.moonpay.api.MOONPAY_CARD_TYPE
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoAnalytics
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowOutcome
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFailureReason
 import androidx.lifecycle.SavedStateHandle
 import com.tonapps.deposit.multicoin.moonpay.domain.MoonPayPaymentFailure
 import com.tonapps.deposit.multicoin.moonpay.domain.MoonPayButtonPayments
@@ -122,8 +119,6 @@ class MoonPayPaymentFeature(
     private val relay = MviRelay<MoonPayPaymentEvent>()
     val events: Flow<MoonPayPaymentEvent> = relay.events
 
-    private val analytics = data.report?.let { BuyCryptoAnalytics(it.from, it.utm) }
-
     private val quoteSummary = MoonPayQuoteSummary(data.quote, data.assetLabel)
 
     private val authorised: String
@@ -172,7 +167,6 @@ class MoonPayPaymentFeature(
         .runningFold(initial, ::reduce)
         .onEach { phase ->
             savedStateHandle[KEY_PHASE] = Json.encodeToString(phase)
-            outcome(phase)?.let { (outcome, failure) -> report(outcome, failure) }
             if (phase is Phase.Cancelled) {
                 relay.emit(MoonPayPaymentEvent.Cancelled)
             }
@@ -213,77 +207,6 @@ class MoonPayPaymentFeature(
             is Phase.Unknown -> transactionId
             is Phase.Failed -> transactionId
         }
-
-    // The sheet closed before the outcome: MoonPay still settles a payment it named; one closed before MoonPay's widget
-    // opened took nothing; otherwise nobody learns how it ended.
-    // Called by the fragment, not as an action: on its last destroy the view model is already cleared.
-    fun closedBeforeOutcome() {
-        val outcome = when (val phase = phase.value) {
-            is Phase.Verifying,
-            is Phase.Processing,
-            is Phase.StillProcessing,
-            -> DepositFlowOutcome.Pending
-            is Phase.Starting -> when (phase.widgetOpenedAt) {
-                null -> DepositFlowOutcome.Cancelled
-                else -> DepositFlowOutcome.Unknown
-            }
-            is Phase.Started,
-            is Phase.Checking,
-            is Phase.Cancelled,
-            is Phase.Completed,
-            is Phase.Unknown,
-            is Phase.Failed,
-            -> DepositFlowOutcome.Unknown
-        }
-        report(outcome, failure = null)
-    }
-
-    // Once per payment: a restored sheet has reported already.
-    private fun report(outcome: DepositFlowOutcome, failure: DepositFlowFailureReason?) {
-        val report = data.report ?: return
-        if (savedStateHandle.get<Boolean>(KEY_REPORTED) == true) {
-            return
-        }
-        savedStateHandle[KEY_REPORTED] = true
-        analytics?.result(report.purchase, data.externalTransactionId, outcome, failure)
-    }
-
-    private fun outcome(phase: Phase): Pair<DepositFlowOutcome, DepositFlowFailureReason?>? {
-        return when (phase) {
-            is Phase.Completed -> DepositFlowOutcome.Success to null
-            is Phase.Failed -> DepositFlowOutcome.Failed to failureReason(phase.failure)
-            is Phase.Unknown -> DepositFlowOutcome.Unknown to null
-            is Phase.Cancelled -> DepositFlowOutcome.Cancelled to null
-            is Phase.Starting,
-            is Phase.Started,
-            is Phase.Checking,
-            is Phase.Verifying,
-            is Phase.Processing,
-            is Phase.StillProcessing,
-            -> null
-        }
-    }
-
-    private fun failureReason(failure: MoonPayPaymentFailure): DepositFlowFailureReason {
-        return when (failure) {
-            MoonPayPaymentFailure.Declined -> DepositFlowFailureReason.Declined
-            MoonPayPaymentFailure.LimitReached -> DepositFlowFailureReason.LimitReached
-            MoonPayPaymentFailure.QuoteRejected,
-            MoonPayPaymentFailure.QuoteExpired,
-            -> DepositFlowFailureReason.QuoteRejected
-            MoonPayPaymentFailure.TransactionCancelled -> DepositFlowFailureReason.TransactionCancelled
-            MoonPayPaymentFailure.NotConfirmed -> DepositFlowFailureReason.NotConfirmed
-            MoonPayPaymentFailure.Unavailable -> DepositFlowFailureReason.Unavailable
-            MoonPayPaymentFailure.VerificationPending -> DepositFlowFailureReason.VerificationPending
-            MoonPayPaymentFailure.VerificationUnavailable -> DepositFlowFailureReason.VerificationUnavailable
-            MoonPayPaymentFailure.NoResponse -> DepositFlowFailureReason.NoResponse
-            // A customer's cancel is `Phase.Cancelled` before a transaction; after one, MoonPay's status decides.
-            MoonPayPaymentFailure.Cancelled,
-            MoonPayPaymentFailure.SignInRequired,
-            MoonPayPaymentFailure.Unknown,
-            -> DepositFlowFailureReason.Unknown
-        }
-    }
 
     private fun decode(saved: String): Phase {
         return runCatching { Json.decodeFromString<Phase>(saved) }.getOrElse {
@@ -457,7 +380,6 @@ class MoonPayPaymentFeature(
 
     private companion object {
         const val KEY_PHASE = "moonpay_payment_phase"
-        const val KEY_REPORTED = "moonpay_payment_reported"
         val WAITING = MoonPayPaymentStepStatus.Waiting
         val IN_PROGRESS = MoonPayPaymentStepStatus.InProgress
         val DONE = MoonPayPaymentStepStatus.Done

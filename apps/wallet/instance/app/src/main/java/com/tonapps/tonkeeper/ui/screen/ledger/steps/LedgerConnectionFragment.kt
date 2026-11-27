@@ -36,7 +36,6 @@ class LedgerConnectionFragment : Fragment(R.layout.fragment_ledger_steps) {
         if (isPermissionGranted()) {
             checkPermissionsAndScan()
         } else {
-            connectionViewModel.onBluetoothPermissionDenied()
             showBluetoothPermissionsAlert()
         }
     }

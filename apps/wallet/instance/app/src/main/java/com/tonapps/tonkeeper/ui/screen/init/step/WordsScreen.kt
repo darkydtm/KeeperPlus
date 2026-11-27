@@ -275,28 +275,24 @@ class WordsScreen: BaseFragment(R.layout.fragment_init_words) {
             setLoading()
             val words = getMnemonic()
             if (!initViewModel.isValidMnemonic(words)) {
-                initViewModel.trackImportInputError("invalid_mnemonic")
                 navigation?.toast(Localization.incorrect_phrase)
                 setDefault()
                 return@launch
             }
             if (initViewModel.watchRecoveryAccountId != null && initViewModel.getRecoveryWatchWallet(words) == null) {
-                initViewModel.trackImportInputError("recovery_mismatch")
                 navigation?.toast(Localization.mnemonic_match_error)
             } else if (initViewModel.isWalletAlreadyImported(words)) {
                 when (initViewModel.importTelegramWalletOnly(words)) {
-                    MnemonicResult.Accepted -> initViewModel.trackMnemonicAccepted()
+                    MnemonicResult.Accepted -> Unit
                     MnemonicResult.Invalid -> {
-                        initViewModel.trackImportInputError("already_imported")
                         navigation?.toast(Localization.wallet_already_imported)
                     }
                     MnemonicResult.Failed -> Unit
                 }
             } else {
                 when (initViewModel.setMnemonic(words)) {
-                    MnemonicResult.Accepted -> initViewModel.trackMnemonicAccepted()
+                    MnemonicResult.Accepted -> Unit
                     MnemonicResult.Invalid -> {
-                        initViewModel.trackImportInputError("invalid_mnemonic")
                         navigation?.toast(Localization.incorrect_phrase)
                     }
                     MnemonicResult.Failed -> Unit

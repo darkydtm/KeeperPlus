@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.log.L
 import kotlinx.coroutines.flow.Flow
 import android.net.Network
@@ -40,7 +39,6 @@ class NetworkMonitor(
             _isOnlineFlow.value = isOnline == true
         } catch (e: SecurityException) {
             L.w(e, "NetworkMonitor: network callback is unavailable")
-            IssueHelper.recordException(e)
         }
     }
 

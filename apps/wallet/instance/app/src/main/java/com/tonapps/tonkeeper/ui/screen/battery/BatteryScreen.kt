@@ -10,7 +10,6 @@ import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.core.ComposableFragment
 import com.tonapps.extensions.getParcelableCompat
-import com.tonapps.tonkeeper.koin.analytics
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.tonkeeper.ui.screen.battery.refill.BatteryRefillRoute
 import com.tonapps.tonkeeper.ui.screen.battery.refill.BatteryRefillViewModel
@@ -43,7 +42,6 @@ class BatteryScreen : ComposableFragment(), BaseFragment.BottomSheet, BaseWallet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context?.analytics?.eventsTaggedWith(utm)?.batteryNative?.batteryOpen(from)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

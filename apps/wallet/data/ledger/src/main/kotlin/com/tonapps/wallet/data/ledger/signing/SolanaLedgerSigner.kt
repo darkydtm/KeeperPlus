@@ -12,7 +12,8 @@ import com.tonapps.ledgerkit.controller.LedgerScope
 import com.tonapps.ledgerkit.session.LedgerAppInfo
 import com.tonapps.ledgerkit.session.LedgerPki
 import com.tonapps.ledgerkit.util.Base58
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
+import com.tonapps.ledgerkit.LedgerFallbackException
+import com.tonapps.log.L
 import com.tonapps.wallet.data.ledger.solana.SolanaTokenRecipient
 import com.tonapps.wallet.data.ledger.solana.SolanaTrustedNames
 import com.tonapps.wallet.data.ledger.solana.SolanaWireTransaction
@@ -141,7 +142,7 @@ internal class SolanaLedgerSigner(private val trustedNames: SolanaTrustedNames) 
         if (failure !is LedgerFailure.Unexpected && failure !is LedgerFailure.DeviceError && failure !is LedgerFailure.InvalidPayload) {
             throw e
         }
-        LedgerNonFatals.reportFallback("The Solana app configuration could not be read", e)
+        L.w(LedgerFallbackException("The Solana app configuration could not be read", e))
         false
     }
 
@@ -160,7 +161,7 @@ internal class SolanaLedgerSigner(private val trustedNames: SolanaTrustedNames) 
             if (failure !is LedgerFailure.DeviceError && failure !is LedgerFailure.InvalidPayload && failure !is LedgerFailure.Unexpected) {
                 throw e
             }
-            LedgerNonFatals.reportFallback("The Solana app rejected a trusted name", e)
+            L.w(LedgerFallbackException("The Solana app rejected a trusted name", e))
         }
     }
 

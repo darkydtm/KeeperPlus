@@ -1,37 +1,10 @@
 package com.tonapps.core.deeplink
 
-import android.net.Uri
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.DeeplinkOpen.DeeplinkOpenFrom
 import com.tonapps.bus.generated.Events.DeeplinkOpen.DeeplinkOpenLinkType
 import com.tonapps.extensions.hostOrNull
-import com.tonapps.extensions.query
 
 object DeeplinkOpenAnalytics {
-
-    private val DeepLinkRoute.WalletConnect.isWakeUp: Boolean
-        get() {
-            val link = uri.toString()
-            val pairingUri = if (link.startsWith("wc:", ignoreCase = true)) {
-                link
-            } else {
-                uri.query("uri")
-            }
-            return pairingUri == null || !isWalletConnectPairing(pairingUri)
-        }
-
-    fun report(link: Uri, isColdStart: Boolean, from: DeeplinkOpenFrom = from(link.toString())) {
-        val deeplink = DeepLink(link, fromQR = false, referrer = null, fromExternal = true)
-        val route = deeplink.route
-        if (route is DeepLinkRoute.WalletConnect && route.isWakeUp) {
-            return
-        }
-        AnalyticsHelper.Default.eventsTaggedWith(deeplink.utm).deeplinkOpen.deeplinkOpen(
-            from = from,
-            linkType = linkType(route),
-            isColdStart = isColdStart,
-        )
-    }
 
     fun isWalletConnectPairing(uri: String): Boolean {
         return uri.substringAfter('?', missingDelimiterValue = "").split('&').any { parameter ->

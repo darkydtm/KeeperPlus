@@ -1,6 +1,5 @@
 package com.tonapps.wallet.data.ledger
 
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.ledgerkit.LedgerConfirmDetail
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.LedgerProgress
@@ -20,8 +19,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import com.trustwallet.core.AnySigner
 import com.trustwallet.core.CoinType
 import com.trustwallet.core.Curve
@@ -36,12 +33,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okio.ByteString.Companion.toByteString
-import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Before
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
@@ -62,18 +57,6 @@ class SolanaLedgerSignerTest {
         coEvery { descriptor(any(), any()) } returns null
     }
 
-    private val recorded = ArrayList<Throwable>()
-
-    @Before
-    fun setUp() {
-        mockkObject(IssueHelper)
-        every { IssueHelper.recordException(any(), any<Map<String, String>>()) } answers { recorded += firstArg<Throwable>() }
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
-    }
 
     private fun signer(trustedNames: SolanaTrustedNames = noTrustedNames) = SolanaLedgerSigner(trustedNames)
 
@@ -216,7 +199,6 @@ class SolanaLedgerSignerTest {
         val software = SigningOutput.ADAPTER.decode(AnySigner.sign(tokenInput(withKey = true).encode(), CoinType.Solana))
         assertEquals(software.encoded, SigningOutput.ADAPTER.decode(compiled).encoded)
         assertTrue(sent.none { it[1] == 0x21.toByte() })
-        assertEquals(listOf("The Solana app rejected a trusted name"), recorded.map { it.message })
     }
 
     @Test
@@ -325,7 +307,6 @@ class SolanaLedgerSignerTest {
         val software = SigningOutput.ADAPTER.decode(AnySigner.sign(transferInput(withKey = true).encode(), CoinType.Solana))
         assertEquals(software.encoded, SigningOutput.ADAPTER.decode(compiled).encoded)
         assertEquals(listOf<LedgerConfirmDetail?>(null), shown)
-        assertEquals(listOf("The Solana app configuration could not be read"), recorded.map { it.message })
     }
 
     private fun signingLedger(

@@ -2,11 +2,7 @@ package com.tonapps.wallet.features.ledger.pairing
 
 import android.util.Log
 import androidx.lifecycle.ViewModelStore
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.IssueHelper
-import com.tonapps.bus.core.contract.EventExecutor
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.ledgerkit.controller.LedgerController
 import com.tonapps.ledgerkit.controller.LedgerOperationState
 import com.tonapps.ledgerkit.transport.LedgerModel
@@ -47,19 +43,12 @@ class LedgerPairingRepairTest {
     private val wallets = mockk<LedgerWalletInteractor>(relaxed = true)
     private val store = ViewModelStore()
     private val collection by lazy { CoroutineScope(dispatchers.main) }
-    private val issues = CopyOnWriteArrayList<Throwable>()
-
     @Before
     fun setUp() {
-        val silent = object : EventExecutor {
             override fun trackEvent(eventName: String, props: Map<String, Any>) = Unit
         }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns mockk { every { events } returns DefaultEvents(silent) }
         mockkStatic(Log::class)
         every { Log.println(any(), any(), any()) } returns 0
-        mockkObject(IssueHelper)
-        every { IssueHelper.recordException(any(), any<Map<String, String>>()) } answers { issues += firstArg<Throwable>() }
     }
 
     @After
@@ -94,7 +83,6 @@ class LedgerPairingRepairTest {
         assertEquals(LedgerPairingStep.Connect, feature.state.value.step)
         assertNull(feature.state.value.device)
         assertTrue(events.none { it == LedgerPairingEvent.Repaired })
-        assertEquals(listOf<Throwable>(error), issues)
     }
 
     private companion object {

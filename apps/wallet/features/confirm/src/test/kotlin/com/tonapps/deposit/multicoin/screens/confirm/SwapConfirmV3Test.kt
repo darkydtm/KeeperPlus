@@ -3,9 +3,6 @@ package com.tonapps.deposit.multicoin.screens.confirm
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.chainkit.core.chain.api.models.ChainError
 import com.tonapps.chainkit.core.chain.api.models.ChainRes
 import com.tonapps.chainkit.core.chain.api.models.NodeRes
@@ -94,7 +91,6 @@ class SwapConfirmV3Test : BaseUnitTest() {
     fun tearDown() {
         headlessJob.cancel()
         env.clear()
-        unmockkObject(AnalyticsHelper.Companion)
     }
 
     // ─── prepare ───
@@ -879,21 +875,11 @@ class SwapConfirmV3Test : BaseUnitTest() {
 
     @Test
     fun aScreenedWalletIsToldSo() {
-        val events = recordAnalytics()
         env.prepareAnswerV3 = { throw walletScreened() }
 
         open(tonUsdt())
 
         assertEquals(ConfirmationError.WalletScreened, feature.confirmationError.value)
-        // The RED emulate ends as the user-state failure the screen shows, with the swap it was for.
-        val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "emulate" }.second
-        assertEquals("fail", terminal["outcome"])
-        assertEquals("validation", terminal["stage"])
-        assertEquals("wallet_screened", terminal["error_type"])
-        val metadata = JSONObject(terminal["other_metadata"] as String)
-        assertEquals("omniston", metadata.getString("provider_name"))
-        assertEquals(SwapConfirmFixtures.TON_ASSET_ID, metadata.getString("asset_from"))
-        assertEquals(SwapConfirmFixtures.USDT_TON_ASSET_ID, metadata.getString("asset_to"))
     }
 
     // ─── headless ───
@@ -930,7 +916,6 @@ class SwapConfirmV3Test : BaseUnitTest() {
      */
     @Test
     fun aHeadlessSwapRefusedBeforeItWasSignedEndsAndReportsWhy() {
-        val events = recordAnalytics()
         env.prepareAnswerV3 = { SwapConfirmFixtures.prepareV3(V3_USDT_TRON) }
         relayedBy { throw RelayerRejectedException(reason = OVERSPEND_REASON, nothingSent = true) }
         open(usdtTron())
@@ -942,8 +927,6 @@ class SwapConfirmV3Test : BaseUnitTest() {
         scheduler.runCurrent()
 
         assertEquals(HeadlessSwapPhase.Ended(ConfirmationError.RelayerRejected(OVERSPEND_REASON)), headless.updates.value.phase)
-        val terminal = events.single { (event, props) -> event == "op_terminal" && props["error_type"] == "relayer_rejected" }.second
-        assertEquals(OVERSPEND_REASON, terminal["error_message"])
     }
 
     @Test
@@ -1223,21 +1206,7 @@ class SwapConfirmV3Test : BaseUnitTest() {
         return Serializer.JSON.decodeFromJsonElement(CrossSwapPrepareV3.serializer(), JsonObject(prepared))
     }
 
-    private fun recordAnalytics(): List<Pair<String, Map<String, Any>>> {
-        val tracked = CopyOnWriteArrayList<Pair<String, Map<String, Any>>>()
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-        return tracked
-    }
+
 
     private fun walletScreened(): ClientException {
         val body = """{"error":"wallet screened","code":"${CrossSwapProviderErrorCode.wallet_screened.value}"}"""

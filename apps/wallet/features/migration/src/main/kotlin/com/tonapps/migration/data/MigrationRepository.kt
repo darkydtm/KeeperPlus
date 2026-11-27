@@ -8,10 +8,8 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.extensions.hex
 import com.tonapps.blockchain.tron.TronTransaction
 import com.tonapps.blockchain.tron.TronTransfer
-import com.tonapps.bus.generated.Events.Migration.MigrationChain
 import com.tonapps.icu.Coins
 import com.tonapps.log.L
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.api.AuthorizationProvider
 import com.tonapps.wallet.api.tron.entity.TronResourcesEntity
@@ -152,7 +150,6 @@ class MigrationRepository(
         val mcWalletId = accountRepository.getSelectedWalletId()
         val destinationWallet = mcWalletId?.let { mcAccountRepository.getWallet(it) }
         if (mcWalletId == null || destinationWallet == null) {
-            MigrationAnalytics.prepareError(chain = MigrationChain.Multichain, isBlocking = true)
             return@withContext null
         }
 
@@ -161,7 +158,6 @@ class MigrationRepository(
         val tonLeg = if (wallet.hasTonAssets) {
             val destinationAddress = mcAccountRepository.getTonAccount(mcWalletId)?.displayAddress
             if (destinationAddress == null) {
-                MigrationAnalytics.prepareError(chain = MigrationChain.Multichain, isBlocking = true)
                 return@withContext null
             }
             prepareTonLeg(
@@ -180,7 +176,6 @@ class MigrationRepository(
             TonLegPrepare.Empty
         }
 
-        var tronError: Throwable? = null
         val tronPrepare = try {
             prepareTron(
                 source = source,
@@ -192,25 +187,11 @@ class MigrationRepository(
             throw e
         } catch (e: Throwable) {
             L.e("MigrationRepository", "Failed to prepare TRON migration", e)
-            tronError = e
             MigrationTronPrepare.Empty
         }
 
         val tonResponse = tonLeg.response
         val hasTonPrepare = !tonResponse?.transactions.isNullOrEmpty()
-        if (wallet.hasTonAssets && tonResponse == null) {
-            MigrationAnalytics.prepareError(
-                chain = MigrationChain.Ton,
-                isBlocking = !tronPrepare.hasTransfers,
-            )
-        }
-        if (tronError != null) {
-            MigrationAnalytics.prepareError(
-                chain = MigrationChain.Tron,
-                isBlocking = !hasTonPrepare,
-                error = tronError,
-            )
-        }
         if (!hasTonPrepare && !tronPrepare.hasTransfers) {
             return@withContext null
         }

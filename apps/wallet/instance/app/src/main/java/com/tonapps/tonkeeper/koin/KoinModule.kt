@@ -13,7 +13,6 @@ import com.tonapps.core.flags.LedgerMigrationTooltipInteractor
 import com.tonapps.core.flags.RemoteConfig
 import com.tonapps.tonkeeper.billing.BillingManager
 import com.tonapps.tonkeeper.client.safemode.SafeModeClient
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.core.helper.EnvironmentHelper
 import com.tonapps.extensions.AppLifecycleProvider
 import com.tonapps.legacy.assets.AssetsManager
@@ -47,7 +46,6 @@ import com.tonapps.tonkeeper.ui.screen.events.compose.McEncryptedCommentDecrypto
 import com.tonapps.tonkeeper.ui.screen.start.StartFeature
 import com.tonapps.tonkeeper.ui.screen.init.InitViewModel
 import com.tonapps.tonkeeper.ui.screen.init.TonWalletVersionInteractor
-import com.tonapps.tonkeeper.ui.screen.init.WalletImportAnalytics
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
 import com.tonapps.tonkeeper.ui.screen.settings.currency.CurrencyViewModel
 import com.tonapps.tonkeeper.ui.screen.ledger.steps.LedgerConnectionViewModel
@@ -138,8 +136,6 @@ val koinModel = module {
     singleOf(::APKManager)
     singleOf(::AppShortcutRepository)
     singleOf(::CacheHelper)
-    singleOf(AnalyticsHelper::Default)
-    singleOf(::WalletImportAnalytics)
     single { WalletImportPairingSessions() }
 
     factoryOf(::SignUseCase)

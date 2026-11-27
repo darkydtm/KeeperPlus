@@ -13,7 +13,6 @@ import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.ton.extensions.equalsAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.RedAttemptSource
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
@@ -75,7 +74,6 @@ class SwapScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragment_sw
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        analytics?.eventDelegateTaggedWith(args.utm)?.swapOpen(args.uri, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -135,42 +133,16 @@ class SwapScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fragment_sw
     private suspend fun sing(
         request: SignRequestEntity
     ): String {
-        analytics?.simpleTrackEvent("swap_click", HashMap(args.utm.toEventProps()))
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Swap,
-            operation = Events.RedOperations.RedOperationsOperation.Send,
-            attemptSource = RedAttemptSource.NATIVE_UI,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         return try {
             val boc = SendTransactionScreen.run(requireContext(), wallet, request, PasscodeReason.CONFIRM_SWAP, BatteryTransaction.SWAP, utm = args.utm)
             if (boc.isNotBlank()) {
-                analytics?.simpleTrackEvent("swap_success", HashMap(args.utm.toEventProps()))
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Swap,
-                    operation = Events.RedOperations.RedOperationsOperation.Send,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = null,
-                )
             }
             boc
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Swap,
-                operation = Events.RedOperations.RedOperationsOperation.Send,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             ""
         }
     }

@@ -16,4 +16,10 @@ dependencies {
     implementation(projects.lib.icu)
     implementation(projects.lib.base64)
     api(projects.lib.log)
+
+    testImplementation(libs.junit)
+}
+
+tasks.withType<com.android.build.gradle.tasks.factory.AndroidUnitTest>().configureEach {
+    enabled = true
 }

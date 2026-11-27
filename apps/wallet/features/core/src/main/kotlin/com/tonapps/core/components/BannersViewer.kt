@@ -28,7 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -48,10 +47,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.core.net.toUri
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.Banner.BannerAction
-import com.tonapps.core.deeplink.DeepLinkRoute
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.api.entity.BannerEntity
 import kotlinx.coroutines.CoroutineScope
@@ -78,32 +73,13 @@ private const val EntranceDurationMs = 150
 @Composable
 fun BannersViewer(
     banners: List<BannerEntity>,
-    analytics: BannerAnalytics?,
     onHide: (BannerEntity) -> Unit,
     onClick: (BannerEntity.Button) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
     val state = remember(banners) { BannerCarouselState(banners, scope) }
-    val shownBannerIds = remember { mutableSetOf<String>() }
-
-    LaunchedEffect(state.current?.id) {
-        val banner = state.current ?: return@LaunchedEffect
-        val tracking = analytics ?: return@LaunchedEffect
-        if (shownBannerIds.add(banner.id)) {
-            AnalyticsHelper.Default.events.banner.bannerView(banner.id, tracking.walletMode, tracking.from)
-        }
-    }
-
-    val trackingClick: (BannerEntity, BannerEntity.Button) -> Unit = { banner, button ->
-        if (analytics != null) {
-            AnalyticsHelper.Default.events.banner.bannerClick(
-                banner.id,
-                bannerAction(button),
-                analytics.walletMode,
-                analytics.from,
-            )
-        }
+    val trackingClick: (BannerEntity, BannerEntity.Button) -> Unit = { _, button ->
         onClick(button)
     }
     val widthPx = LocalWindowInfo.current.containerSize.width.toFloat()
@@ -447,30 +423,6 @@ private fun BannerCard(
             )
         }
     }
-}
-
-private fun bannerAction(button: BannerEntity.Button): BannerAction {
-    if (button.type != BannerEntity.Button.Type.DEEPLINK) {
-        return BannerAction.Other
-    }
-    return runCatching {
-        when (DeepLinkRoute.resolve(button.payload.toUri())) {
-            is DeepLinkRoute.Deposit, DeepLinkRoute.Purchase -> BannerAction.Deposit
-            is DeepLinkRoute.Withdraw -> BannerAction.Withdraw
-            is DeepLinkRoute.Swap -> BannerAction.Swap
-            DeepLinkRoute.Staking, is DeepLinkRoute.StakingPool -> BannerAction.Staking
-            is DeepLinkRoute.Battery -> BannerAction.Battery
-            is DeepLinkRoute.Send, is DeepLinkRoute.Transfer -> BannerAction.Send
-            is DeepLinkRoute.Tabs.Trading, is DeepLinkRoute.Asset -> BannerAction.Trade
-            is DeepLinkRoute.Exchange -> BannerAction.Exchange
-            is DeepLinkRoute.DApp,
-            is DeepLinkRoute.MultichainDApp,
-            is DeepLinkRoute.Loyalty,
-            is DeepLinkRoute.Earn,
-            is DeepLinkRoute.Tabs.Browser -> BannerAction.Dapp
-            else -> BannerAction.Other
-        }
-    }.getOrDefault(BannerAction.Other)
 }
 
 @Composable

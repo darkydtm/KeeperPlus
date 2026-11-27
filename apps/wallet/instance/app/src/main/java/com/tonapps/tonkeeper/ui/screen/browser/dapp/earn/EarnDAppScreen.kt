@@ -2,12 +2,10 @@ package com.tonapps.tonkeeper.ui.screen.browser.dapp.earn
 
 import android.content.res.Configuration
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.generated.Events.EarnFlow.EarnFlowExitMethod
 import com.tonapps.extensions.lazyUnsafe
 import com.tonapps.tonkeeper.koin.walletViewModel
 import com.tonapps.tonkeeper.manager.earn.EarnUrlResolver
 import com.tonapps.tonkeeper.ui.component.TonConnectWebView
-import com.tonapps.webview.bridge.InAppBridgeContract.Effect
 import com.tonapps.tonkeeper.ui.screen.browser.dapp.inapp.InAppDAppScreen
 import com.tonapps.wallet.api.API
 import org.koin.android.ext.android.inject
@@ -30,8 +28,6 @@ internal class EarnDAppScreen(wallet: WalletEntity) : InAppDAppScreen(wallet) {
     override val originRules: Set<String> by lazyUnsafe {
         earnUrlResolver.originRules(startUri)
     }
-
-    private var exitMethod = EarnFlowExitMethod.Other
 
     override fun onWebViewCreated(webView: TonConnectWebView) {
         super.onWebViewCreated(webView)
@@ -60,30 +56,4 @@ internal class EarnDAppScreen(wallet: WalletEntity) : InAppDAppScreen(wallet) {
         }
     }
 
-    override fun onEffect(effect: Effect) {
-        if (effect is Effect.Close) {
-            exitMethod = EarnFlowExitMethod.Page
-        }
-        super.onEffect(effect)
-    }
-
-    override fun onCloseClick() {
-        exitMethod = EarnFlowExitMethod.CloseButton
-        super.onCloseClick()
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (!webView.canGoBack()) {
-            exitMethod = EarnFlowExitMethod.SystemBack
-        }
-        return super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        val duration = dappAnalytics.sinceClickMs()
-        if (isRemoving && duration != null) {
-            dappBridges.analytics.closed(exitMethod, duration)
-        }
-        super.onDestroy()
-    }
 }

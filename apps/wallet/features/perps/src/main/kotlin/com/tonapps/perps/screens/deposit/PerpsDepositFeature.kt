@@ -14,7 +14,6 @@ import com.tonapps.mvi.graph.GraphViewModel
 import com.tonapps.mvi.graph.KState
 import com.tonapps.mvi.graph.map
 import com.tonapps.network.NetworkMonitor
-import com.tonapps.perps.PerpsAnalytics
 import com.tonapps.perps.data.formatPlainDecimal
 import com.tonapps.perps.data.tokenInputDecimals
 import com.tonapps.perps.funding.PerpsDepositException
@@ -23,7 +22,6 @@ import com.tonapps.perps.funding.PerpsDepositQuote
 import com.tonapps.perps.funding.PerpsDepositQuoteError
 import com.tonapps.perps.funding.PerpsDepositService
 import com.tonapps.perps.funding.PerpsDepositSource
-import com.tonapps.perps.funding.PerpsDepositSources
 import com.tonapps.perps.funding.PerpsFundingAmount
 import com.tonapps.perps.funding.isRegionRestricted
 import com.tonapps.perps.funding.retryable
@@ -42,13 +40,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.runningFold
@@ -59,9 +55,6 @@ import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
-
-private const val KEY_DEPOSIT_STARTED_SENT = "deposit_started_sent"
-private const val KEY_ADDRESS_BLOCKED_SENT = "address_blocked_sent"
 
 private data class AmountInput(
     val text: String,
@@ -79,12 +72,6 @@ private data class QuoteTarget(
     val assetId: String,
     val units: BigInteger,
     val attempt: Int,
-)
-
-private class Refusal(
-    val assetId: String,
-    val units: BigInteger,
-    val error: PerpsDepositQuoteError,
 )
 
 private val PerpsDepositSource.key: SourceKey
@@ -347,27 +334,9 @@ class PerpsDepositFeature(
         .cacheState(initialValue = false)
 
     init {
-        mainScope.launch {
-            sendStarted(loadedListing.first { it is KState.Data }.state)
-        }
         // MAX is to find the network fees in the cache rather than wait for them.
         bgScope.launch {
             service.loadNetworkFees()
-        }
-        stateScope.launch {
-            if (loadedPaymentInFlight.first { it is KState.Data }.state == true) {
-                PerpsAnalytics.depositAmountInFlight()
-            }
-        }
-        stateScope.launch {
-            combine(summary, selectedSource, paymentInFlight, ::refusalOf)
-                .distinctUntilChangedBy { Triple(it?.assetId, it?.units, it?.error?.javaClass) }
-                .collectLatest { refused ->
-                    if (refused != null) {
-                        delay(QUOTE_DEBOUNCE_MS)
-                        PerpsAnalytics.depositAmountFailed(refused.error)
-                    }
-                }
         }
         stateScope.launch {
             walletId.collect {
@@ -394,9 +363,6 @@ class PerpsDepositFeature(
         }
         stateScope.launch {
             preview.collect { shown ->
-                if (shown is PerpsDepositQuotePreview.Failed && shown.error != PerpsDepositQuoteError.AddressBlocked) {
-                    PerpsAnalytics.depositAmountFailed(shown.error)
-                }
                 if (awaitingReview.value) {
                     when (shown) {
                         is PerpsDepositQuotePreview.Ready -> {
@@ -429,49 +395,9 @@ class PerpsDepositFeature(
         }
     }
 
-    override fun onCleared() {
-        sendStarted(null)
-        super.onCleared()
-    }
-
-    private fun sendStarted(listing: PerpsDepositSources?) {
-        if (savedStateHandle.get<Boolean>(KEY_DEPOSIT_STARTED_SENT) == true) {
-            return
-        }
-        savedStateHandle[KEY_DEPOSIT_STARTED_SENT] = true
-        PerpsAnalytics.depositStarted(listing)
-    }
-
-    private fun sendAddressBlockedInBackground() {
-        if (savedStateHandle.get<Boolean>(KEY_ADDRESS_BLOCKED_SENT) == true) {
-            return
-        }
-        savedStateHandle[KEY_ADDRESS_BLOCKED_SENT] = true
-        PerpsAnalytics.depositAddressBlockedInBackground()
-    }
-
-    private fun refusalOf(current: PerpsDepositSummary?, source: PerpsDepositSource?, inFlight: Boolean): Refusal? {
-        if (current == null || source == null || inFlight) {
-            return null
-        }
-        val error = when {
-            current.addressBlocked -> PerpsDepositQuoteError.AddressBlocked
-            current.insufficient -> PerpsDepositQuoteError.InsufficientBalance
-            current.belowMinimum -> PerpsDepositQuoteError.BelowMinimum(current.minimum?.usd)
-            else -> return null
-        }
-        return Refusal(assetId = source.assetId, units = current.amountUnits, error = error)
-    }
-
     private fun review() {
         if (awaitingReview.value) {
             return
-        }
-        val source = selectedSource.value
-        val current = summary.value
-        if (reviewEnabled.value && source != null && current != null) {
-            val typedFiat = input.value.takeIf { it.inFiat }?.text?.toBigDecimalOrNull()
-            PerpsAnalytics.depositContinueClicked(source, current.amount, typedFiat, loadedSources.value.state.orEmpty())
         }
         when (val shown = preview.value) {
             is PerpsDepositQuotePreview.Ready -> if (shown.request.isExpiring() || shown.request === reviewedRequest) {
@@ -622,7 +548,6 @@ class PerpsDepositFeature(
             L.e(e)
             if (source.key !in blockedSenders.value) {
                 blockedSenders.update { it + source.key }
-                sendAddressBlockedInBackground()
             }
             null
         } catch (e: Throwable) {

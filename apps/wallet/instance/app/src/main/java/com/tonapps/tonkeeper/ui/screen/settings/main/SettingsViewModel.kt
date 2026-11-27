@@ -10,7 +10,6 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.contract.BaseWalletContract
 import com.tonapps.blockchain.ton.contract.WalletVersion
 import com.tonapps.blockchain.ton.extensions.toAccountId
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.legacy.enteties.AssetsEntity
@@ -76,7 +75,6 @@ class SettingsViewModel(
     private val tokenRepository: TokenRepository,
     private val batteryRepository: BatteryRepository,
     private val pluginsRepository: PluginsRepository,
-    private val analytics: AnalyticsHelper,
     private val mcAccountRepository: McAccountRepository,
     private val unifiedAccountRepository: UnifiedAccountRepository,
     private val pushManager: PushManager,
@@ -252,7 +250,6 @@ class SettingsViewModel(
                 return@launch
             }
             onConfirmed()
-            analytics.simpleTrackEvent("delete_wallet")
             deleteWallet(wallet, onDeleted)
         }
     }

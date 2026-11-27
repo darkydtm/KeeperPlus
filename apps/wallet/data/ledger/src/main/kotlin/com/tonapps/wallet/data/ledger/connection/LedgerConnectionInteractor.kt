@@ -15,8 +15,6 @@ import com.tonapps.ledgerkit.transport.ble.LedgerBleReadiness
 import com.tonapps.ledgerkit.transport.ble.LedgerBleScanner
 import com.tonapps.ledgerkit.transport.usb.LedgerUsbEnvironment
 import com.tonapps.ledgerkit.transport.usb.LedgerUsbIds
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.reportingLedgerIssues
 import com.tonapps.wallet.data.ledger.lab.LedgerLab
 import com.tonapps.wallet.data.multichain.account.McAccountRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -115,7 +113,7 @@ internal class LedgerConnectionInteractorImpl(
         .filterNotNull()
         .distinctUntilChanged()
 
-    override suspend fun checkConnection(walletId: String): LedgerAppInfo = reportingLedgerIssues(LedgerIssueSite.Connection) {
+    override suspend fun checkConnection(walletId: String): LedgerAppInfo = run {
         val descriptor = accountRepository.getHardwareDescriptor(walletId)
             ?: throw LedgerFailureException(LedgerFailure.DeviceNotFound)
         val request = LedgerRequest(descriptor.deviceId, descriptor.deviceName, LedgerPurpose.Connect, walletId)

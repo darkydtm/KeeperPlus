@@ -8,12 +8,8 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.chainkit.core.chain.model.account.Asset
 import com.tonapps.chainkit.core.chain.model.account.CoinType
 import androidx.lifecycle.viewModelScope
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenButton
 import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenFrom
-import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenWalletMode
 import com.tonapps.core.flags.WalletFeature
-import com.tonapps.core.helper.EarnAnalytics
 import com.tonapps.extensions.AppLifecycleProvider
 import com.tonapps.log.L
 import com.tonapps.mvi.MviFeature
@@ -87,8 +83,6 @@ sealed interface AssetDetailsAction : MviAction {
     data object OpenTokenExplorer : AssetDetailsAction
     data object ToggleVisibility : AssetDetailsAction
     data object ToggleFavorite : AssetDetailsAction
-    data object Shown : AssetDetailsAction
-    data object Hidden : AssetDetailsAction
     data class SetResumed(val resumed: Boolean) : AssetDetailsAction
     data object PerpsChanged : AssetDetailsAction
 }
@@ -226,21 +220,7 @@ class AssetDetailsFeature(
     private val shownApyBadge: AssetApyBadge?
         get() = earnBadge.value ?: stakingBadge.value
 
-    private var apyViewPending = false
-
     init {
-        viewModelScope.launch {
-            val walletMode = if (isMultichainWallet(accountRepoLegacy.getSelectedWalletId())) {
-                AssetScreenWalletMode.Multi
-            } else {
-                AssetScreenWalletMode.Single
-            }
-            AnalyticsHelper.Default.events.assetScreen.assetView(
-                from = from,
-                asset = assetId,
-                walletMode = walletMode,
-            )
-        }
         collectFlow(
             accountRepoLegacy.selectedWalletFlow.flatMapLatest { wallet ->
                 transactionManager.eventsFlow(wallet)
@@ -278,13 +258,6 @@ class AssetDetailsFeature(
         }
     }
 
-    fun trackButtonClick(button: AssetScreenButton) {
-        AnalyticsHelper.Default.events.assetScreen.assetButtonClick(
-            button = button,
-            asset = assetId
-        )
-    }
-
     override fun createViewState(): AssetDetailsViewState {
         return buildViewState {
             AssetDetailsViewState(mviProperty { it })
@@ -303,7 +276,6 @@ class AssetDetailsFeature(
             AssetDetailsAction.LoadEarnOffer -> loadEarnBadge()
             AssetDetailsAction.ApyBadgeChanged -> {
                 setState<AssetDetailsState.Data> { copy(apyBadge = shownApyBadge) }
-                reportApyView()
             }
             AssetDetailsAction.PullToRefresh -> refresh()
             is AssetDetailsAction.SetChartPeriod -> {
@@ -321,11 +293,6 @@ class AssetDetailsFeature(
 
             AssetDetailsAction.ToggleVisibility -> toggleVisibility()
             AssetDetailsAction.ToggleFavorite -> toggleFavorite()
-            AssetDetailsAction.Shown -> {
-                apyViewPending = true
-                reportApyView()
-            }
-            AssetDetailsAction.Hidden -> apyViewPending = false
             is AssetDetailsAction.SetResumed -> {
                 resumed.value = action.resumed
                 if (action.resumed && perpsGate.value != null) {
@@ -335,15 +302,6 @@ class AssetDetailsFeature(
             AssetDetailsAction.PerpsChanged -> setState<AssetDetailsState.Data> {
                 copy(perps = perpsState.value)
             }
-        }
-    }
-
-    // Once per appearance of the page: a badge that loads after the page showed up still counts.
-    private fun reportApyView() {
-        val badge = obtainSpecificState<AssetDetailsState.Data>()?.apyBadge as? AssetApyBadge.Earn ?: return
-        if (apyViewPending) {
-            apyViewPending = false
-            EarnAnalytics.apyView(badge.assetId)
         }
     }
 
@@ -423,7 +381,6 @@ class AssetDetailsFeature(
                     isSwapUnavailable = isSwapUnavailable,
                 )
             }
-            reportApyView()
             sendAction(AssetDetailsAction.LoadEarnOffer)
             if (hasBalance) {
                 sendAction(AssetDetailsAction.ConfirmBalance)

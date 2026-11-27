@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.annotation.UiThread
 import com.tonapps.bus.core.contract.EventDelegate
 import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.extensions.hostOrNull
 import com.tonapps.extensions.toUriOrNull
 

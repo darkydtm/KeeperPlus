@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.widget.AppCompatTextView
 import com.airbnb.lottie.LottieAnimationView
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.tonkeeper.helper.BrowserHelper
 import com.tonapps.tonkeeper.koin.serverConfig
 import com.tonapps.tonkeeper.ui.screen.dev.DevScreen
@@ -30,7 +29,6 @@ class StartScreen : BaseFragment(R.layout.fragment_intro) {
         view.applyNavBottomPadding()
 
         if (savedInstanceState == null) {
-            AnalyticsHelper.Default.events.onboardingFlow.onboardingViewWelcome()
             feature.registerDevice()
         }
 

@@ -269,10 +269,6 @@ class BrowserMainScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
         }
     }
 
-    fun onScreenShown() {
-        viewModel.onScreenShown()
-    }
-
     private fun setConnectedList(items: List<ConnectedItem>) {
         if (items.isEmpty()) {
             connectedListView.visibility = View.GONE

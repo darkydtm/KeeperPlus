@@ -61,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.tonapps.bus.generated.Events.Scanner.ScannerInput
 import com.tonapps.qr.QRImageAnalyzer
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.localization.Localization
@@ -78,9 +77,9 @@ import java.util.concurrent.Executors
 // TODO refactor later
 @Composable
 fun ScannerScreen(
-    onResult: (value: String, input: ScannerInput) -> Unit,
+    onResult: (value: String) -> Unit,
     onClose: () -> Unit,
-    onNoCode: (ScannerInput) -> Unit = {},
+    onNoCode: () -> Unit = {},
     isFullScreen: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -136,9 +135,9 @@ fun ScannerScreen(
                 }
                 if (value == null) {
                     context.toastInvalidLink(toastColor)
-                    onNoCode(ScannerInput.Gallery)
+                    onNoCode()
                 } else {
-                    onResult(value, ScannerInput.Gallery)
+                    onResult(value)
                 }
             }
         }
@@ -149,7 +148,7 @@ fun ScannerScreen(
         qrAnalyzer.flow
             .collect { value ->
                 withContext(Dispatchers.Main) {
-                    onResult(value, ScannerInput.Camera)
+                    onResult(value)
                 }
             }
     }

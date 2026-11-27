@@ -7,7 +7,6 @@ import androidx.annotation.LayoutRes
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events
 import com.tonapps.core.deeplink.DeepLink
 import com.tonapps.core.deeplink.DeepLinkRoute
@@ -245,84 +244,24 @@ abstract class InjectedTonConnectScreen(@LayoutRes layoutId: Int, wallet: Wallet
                 ?: return JsonBuilder.responseError(id, BridgeError.badRequest("Failed to parse message params"))
             val operationId = generateUuid()
             val startedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opAttempt(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                operation = Events.RedOperations.RedOperationsOperation.ConfirmTransaction,
-                attemptSource = null,
-                startedAtMs = startedAtMs,
-                otherMetadata = null,
-            )
             return try {
                 val boc = SendTransactionScreen.run(
                     requireContext(), wallet, signRequest, PasscodeReason.DAPP_REQUEST,
                     sendNativeFrom = Events.SendNative.SendNativeFrom.TonconnectLocal
                 )
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                    operation = Events.RedOperations.RedOperationsOperation.ConfirmTransaction,
-                    outcome = Events.RedOperations.RedOperationsOutcome.Success,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    errorCode = null,
-                    errorMessage = null,
-                    errorType = null,
-                    stage = null,
-                    otherMetadata = null,
-                )
                 JsonBuilder.responseSendTransaction(id, boc)
             } catch (e: CancellationException) {
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                    operation = Events.RedOperations.RedOperationsOperation.ConfirmTransaction,
-                    outcome = Events.RedOperations.RedOperationsOutcome.Cancel,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    errorCode = null,
-                    errorMessage = null,
-                    errorType = null,
-                    stage = null,
-                    otherMetadata = null,
-                )
                 if (showLogout) {
                     context?.let { tonConnectManager.showLogoutAppBar(wallet, it, uri) }
                 }
                 JsonBuilder.responseError(id, BridgeError.userDeclinedTransaction())
             } catch (e: BridgeException) {
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                    operation = Events.RedOperations.RedOperationsOperation.ConfirmTransaction,
-                    outcome = Events.RedOperations.RedOperationsOutcome.Fail,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    errorCode = null,
-                    errorMessage = e.bestMessage,
-                    errorType = e.javaClass.simpleName,
-                    stage = null,
-                    otherMetadata = null,
-                )
                 JsonBuilder.responseError(id, BridgeError.badRequest(e.bestMessage))
             } catch (e: Throwable) {
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                    operation = Events.RedOperations.RedOperationsOperation.ConfirmTransaction,
-                    outcome = Events.RedOperations.RedOperationsOutcome.Fail,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    errorCode = null,
-                    errorMessage = e.bestMessage,
-                    errorType = e.javaClass.simpleName,
-                    stage = null,
-                    otherMetadata = null,
-                )
 // Crash reporting disabled
 
                 JsonBuilder.responseError(id, BridgeError.unknown(e.bestMessage))
