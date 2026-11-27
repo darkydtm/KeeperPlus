@@ -15,8 +15,6 @@ sealed class RootEvent {
     data class OpenTab(
         val link: Uri,
         val wallet: WalletEntity,
-        val from: String,
-        val utm: UtmParameters,
     ): RootEvent()
 
     data class Swap(

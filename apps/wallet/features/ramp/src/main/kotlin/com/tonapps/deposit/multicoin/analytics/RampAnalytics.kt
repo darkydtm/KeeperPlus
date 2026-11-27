@@ -5,12 +5,6 @@ import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.bus.generated.Events.SendNative.SendNativeFrom
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
 
-internal fun <T> Iterable<T>.toAnalyticsOptions(transform: ((T) -> CharSequence)? = null): String {
-    return map { (transform?.invoke(it) ?: it).toString() }
-        .sorted()
-        .joinToString(separator = ",")
-}
-
 fun depositFlowFromOrNull(key: String?): DepositFlowFrom? {
     return DepositFlowFrom.entries.firstOrNull { it.key == key }
 }

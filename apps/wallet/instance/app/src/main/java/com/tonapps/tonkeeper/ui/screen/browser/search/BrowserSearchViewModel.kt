@@ -7,10 +7,8 @@ import com.tonapps.core.deeplink.DeepLinkRoute
 import com.tonapps.extensions.MutableEffectFlow
 import com.tonapps.extensions.toUriOrNull
 import com.tonapps.network.get
-import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.client.safemode.SafeModeClient
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
-import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.browser.search.list.Item
 import com.tonapps.uikit.list.ListCell
 import com.tonapps.wallet.api.API
@@ -34,7 +32,6 @@ class BrowserSearchViewModel(
     private val unifiedAccountRepository: UnifiedAccountRepository,
     private val api: API,
     private val safeModeClient: SafeModeClient,
-    private val environment: Environment,
 ): BaseWalletVM(app) {
 
     private val _queryFlow = MutableEffectFlow<String>()
@@ -50,14 +47,6 @@ class BrowserSearchViewModel(
 
     fun query(value: String) {
         _queryFlow.tryEmit(value)
-    }
-
-    fun trackSearchOpen() {
-        DappBrowserAnalytics.searchOpen(environment.deviceCountry)
-    }
-
-    fun trackSearchClick(url: Uri) {
-        DappBrowserAnalytics.searchClick(url, environment.deviceCountry)
     }
 
     fun searchTarget(query: String): Uri {

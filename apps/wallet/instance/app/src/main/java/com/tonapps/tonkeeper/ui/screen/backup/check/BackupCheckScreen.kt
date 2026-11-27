@@ -42,7 +42,6 @@ class BackupCheckScreen : BaseWalletScreen<ScreenContext.None>(R.layout.fragment
                         onDone = { viewModel.saveBackup(args.backupId, args.source) { finish() } },
                         modifier = Modifier.systemBarsPadding(),
                         onBack = { finish() },
-                        onError = { viewModel.trackBackupError(args.source) },
                     )
                 }
             }

@@ -100,22 +100,12 @@ class BackupScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.None
 
         viewModel.getRecoveryPhrase(ctx) { words, error ->
             if (error != null) {
-                if (backup) {
-                    trackBackupError(error)
-                }
                 navigation?.toast(error.bestMessage)
             } else {
-                if (backup) {
-                    trackBackupStarted()
-                }
                 navigation?.add(PhraseScreen.newInstance(words, backup, backupId, source = source))
             }
         }
     }
-
-    private fun trackBackupStarted() = Unit
-
-    private fun trackBackupError(error: Throwable) = Unit
 
     companion object {
 

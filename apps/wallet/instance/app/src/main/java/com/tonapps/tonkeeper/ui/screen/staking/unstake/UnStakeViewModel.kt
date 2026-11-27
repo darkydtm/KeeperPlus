@@ -19,9 +19,6 @@ import com.tonapps.blockchain.ton.extensions.storeOpCode
 import com.tonapps.blockchain.ton.extensions.storeQueryId
 import com.tonapps.blockchain.ton.extensions.toUserFriendly
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events
-import com.tonapps.core.helper.TON_COIN_ASSET_ID
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.deposit.usecase.emulation.Emulated
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
 import com.tonapps.deposit.usecase.sign.SignUseCase
@@ -203,22 +200,6 @@ class UnStakeViewModel(
                 wallet.network
             ).pools.find { it.implementation == staked?.pool?.implementation }
         }
-    }
-
-    private fun trackUnstakeSuccess() {
-        val pool = _stakeFlow.value?.pool
-        TransactionSentAnalytics.transactionSent(
-            wallet = wallet,
-            category = Events.TransactionSent.TransactionSentCategory.Staking,
-            categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Unstake,
-            asset = TON_COIN_ASSET_ID,
-            amount = _amountFlow.value,
-            feeAsset = Events.TransactionSent.TransactionSentFeeAsset.Coin,
-            initiatedBy = Events.TransactionSent.TransactionSentInitiatedBy.User,
-            stakingProvider = pool?.address,
-            isLiquid = pool?.let { it.implementation == StakingPool.Implementation.LiquidTF },
-            utm = utm,
-        )
     }
 
     private fun startTicker(timestamp: Long) {
@@ -594,7 +575,6 @@ class UnStakeViewModel(
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, message, false, "", 0.0)
-            trackUnstakeSuccess()
             val finishedAtMs = currentTimeMillis()
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
@@ -615,7 +595,6 @@ class UnStakeViewModel(
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, boc, false, "", 0.0)
-            trackUnstakeSuccess()
             val finishedAtMs = currentTimeMillis()
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()

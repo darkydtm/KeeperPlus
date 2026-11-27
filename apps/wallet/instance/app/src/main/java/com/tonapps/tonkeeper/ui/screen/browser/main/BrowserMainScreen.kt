@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserType
 import com.tonapps.dapp.screens.sessions.DisconnectDappFragment
 import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.koin.walletViewModel
@@ -120,10 +119,10 @@ class BrowserMainScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
         headerView.background = headerDrawable
 
         exploreTabView = view.findViewById(R.id.explore_tab)
-        exploreTabView.setMoonOnClickListener { clickTab(it as AppCompatTextView, userInitiated = true) }
+        exploreTabView.setMoonOnClickListener { clickTab(it as AppCompatTextView) }
 
         connectedTabView = view.findViewById(R.id.connected_tab)
-        connectedTabView.setMoonOnClickListener { clickTab(it as AppCompatTextView, userInitiated = true) }
+        connectedTabView.setMoonOnClickListener { clickTab(it as AppCompatTextView) }
 
         slideView = view.findViewById(R.id.slide)
 
@@ -293,33 +292,21 @@ class BrowserMainScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
     private fun clickTab(
         view: AppCompatTextView,
         animated: Boolean = true,
-        userInitiated: Boolean = false
     ) {
         val isActive = view.background != null
         if (isActive) {
             return
         }
 
-        val type: DappBrowserType
         if (view.id == R.id.connected_tab) {
             slideView.next(animated)
             connectedTabView.setBackgroundResource(uikit.R.drawable.bg_button_secondary)
             exploreTabView.background = null
             playAppsLottieIfNeeded()
-            type = DappBrowserType.Connected
         } else if (view.id == R.id.explore_tab) {
             slideView.prev(animated)
             exploreTabView.setBackgroundResource(uikit.R.drawable.bg_button_secondary)
             connectedTabView.background = null
-            type = DappBrowserType.Explore
-        } else {
-            type = DappBrowserType.Explore
-        }
-
-        if (userInitiated) {
-            baseViewModel?.trackTabClick(type)
-        } else {
-            baseViewModel?.setActiveTab(type)
         }
 
         updateScrollHandler()

@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.lifecycleScope
-import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.tonkeeper.koin.walletViewModel
 import com.tonapps.tonkeeper.ui.base.WalletContextScreen
 import com.tonapps.tonkeeper.ui.screen.browser.main.BrowserMainScreen
@@ -96,10 +95,6 @@ class BrowserBaseScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
 
     fun openNetwork(network: String) {
         viewModel.setPendingChain(network)
-    }
-
-    fun trackBrowserOpen(from: String, utm: UtmParameters) {
-        viewModel.trackBrowserOpen(from, utm)
     }
 
     override fun onBackPressed(): Boolean {

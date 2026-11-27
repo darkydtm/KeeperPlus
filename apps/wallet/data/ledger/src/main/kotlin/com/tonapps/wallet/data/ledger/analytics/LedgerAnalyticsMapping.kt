@@ -16,7 +16,6 @@ import com.tonapps.ledgerkit.LedgerFailureException
 import com.tonapps.ledgerkit.controller.LedgerPurpose
 import com.tonapps.ledgerkit.transport.LedgerLinkKind
 import com.tonapps.ledgerkit.transport.LedgerModel
-import com.tonapps.wallet.data.ledger.LedgerChainApp
 import com.tonapps.wallet.data.ledger.signing.LedgerDismissedException
 import com.tonapps.wallet.data.multichain.account.McAccountRepository
 import kotlinx.coroutines.CancellationException
@@ -129,10 +128,6 @@ fun LedgerAppId.toLedgerFlowApp(): LedgerFlowLedgerApp = when (this) {
     LedgerAppId.Bitcoin -> LedgerFlowLedgerApp.Bitcoin
     LedgerAppId.Solana -> LedgerFlowLedgerApp.Solana
 }
-
-fun Iterable<LedgerChainApp>.toAnalyticsApps(): String = map { it.appId.toLedgerFlowApp().key }
-    .sorted()
-    .joinToString(separator = ",")
 
 fun LedgerAppSetting.toLedgerFlowSetting(): LedgerFlowLedgerSetting = when (this) {
     LedgerAppSetting.BlindSigning -> LedgerFlowLedgerSetting.BlindSigning

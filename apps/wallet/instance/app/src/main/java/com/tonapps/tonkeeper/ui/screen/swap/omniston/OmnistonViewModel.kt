@@ -16,10 +16,7 @@ import com.tonapps.blockchain.ton.extensions.cellFromHex
 import com.tonapps.blockchain.ton.extensions.equalsRawAddress
 import com.tonapps.blockchain.ton.extensions.toRawAddress
 import com.tonapps.bus.core.contract.RedAttemptSource
-import com.tonapps.bus.generated.Events
 import com.tonapps.core.helper.SendRedMetadata
-import com.tonapps.core.helper.TransactionSentAnalytics
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.deposit.screens.send.state.SendFee
 import com.tonapps.deposit.usecase.emulation.Emulated.Companion.buildFee
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
@@ -122,8 +119,6 @@ class OmnistonViewModel(
 
     private var initialFromCurrency: WalletCurrency = defaultFromCurrency
     private var initialToCurrency: WalletCurrency = defaultToCurrency
-
-    private val initiatedBy = TransactionSentAnalytics.initiatedBy(args.initiator)
 
     private val utm = args.utm
 
@@ -783,22 +778,6 @@ class OmnistonViewModel(
                         confirmationTime = confirmationTimeMillis / 1000.0
                     )
                 }
-
-                TransactionSentAnalytics.transactionSent(
-                    wallet = wallet,
-                    category = Events.TransactionSent.TransactionSentCategory.Swap,
-                    categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Onchain,
-                    asset = state.fromCurrency.analyticsAssetId(),
-                    amount = state.fromUnits.value.toDouble(),
-                    feeAsset = if (isBattery) {
-                        Events.TransactionSent.TransactionSentFeeAsset.BatteryCharges
-                    } else {
-                        Events.TransactionSent.TransactionSentFeeAsset.Coin
-                    },
-                    initiatedBy = initiatedBy,
-                    toAsset = state.toCurrency.analyticsAssetId(),
-                    utm = utm,
-                )
 
                 val finishedAtMs = currentTimeMillis()
                 withContext(Dispatchers.Main) {

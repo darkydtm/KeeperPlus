@@ -2,30 +2,18 @@ package com.tonapps.tonkeeper.ui.screen.browser.analytics
 
 import android.net.Uri
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.DappBrowser.DappAppClickFrom
 import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserAssetChain
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserOpenFrom
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserType
 import com.tonapps.wallet.data.browser.entities.BrowserAppEntity
 
 object DappBrowserAnalytics {
 
-    const val WALLET_TAB_SOURCE = "wallet"
     const val IN_DAPP_LINK_SOURCE = "dapp"
     const val SHORTCUT_DAPP_SOURCE = "shortcut"
     const val EXTERNAL_LINK_SOURCE = "external_link"
 
     private const val UNKNOWN_LOCATION = "ZZ"
     private const val UNKNOWN_DOMAIN = "unknown"
-
-    fun browserOpen(from: String, type: DappBrowserType, country: String?, utm: UtmParameters = UtmParameters.Empty) = Unit
-
-    fun tabClick(type: DappBrowserType, country: String?) = Unit
-
-    fun searchOpen(country: String?) = Unit
-
-    fun searchClick(url: Uri?, country: String?) = Unit
 
     fun catalogContext(
         source: String,
@@ -69,17 +57,6 @@ object DappBrowserAnalytics {
             location = location(country),
             utm = utm,
         )
-    }
-
-    private fun openFrom(source: String): DappBrowserOpenFrom {
-        return when (source.lowercase()) {
-            WALLET_TAB_SOURCE -> DappBrowserOpenFrom.Wallet
-            "story", "stories" -> DappBrowserOpenFrom.Story
-            "history", "activity" -> DappBrowserOpenFrom.History
-            "connected_apps" -> DappBrowserOpenFrom.ConnectedApps
-            EXTERNAL_LINK_SOURCE -> DappBrowserOpenFrom.DeepLink
-            else -> DappBrowserOpenFrom.Other
-        }
     }
 
     private fun appClickFrom(source: String): DappAppClickFrom {

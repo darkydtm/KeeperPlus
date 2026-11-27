@@ -10,14 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.extensions.query
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.extensions.removeAllFragments
 import com.tonapps.tonkeeper.koin.serverFlags
 import com.tonapps.tonkeeper.ui.base.BaseWalletScreen
 import com.tonapps.tonkeeper.ui.base.ScreenContext
-import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.browser.base.BrowserBaseScreen
 import com.tonapps.portfolio.PortfolioFragment
 import com.tonapps.tonkeeper.ui.screen.wallet.main.WalletScreen
@@ -171,7 +169,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
             } else {
                 null
             }
-            setFragment(itemId, it.wallet, it.from, extra, true, network, scrollUpOnReTap = true, browserOpenUtm = it.utm)
+            setFragment(itemId, it.wallet, extra, true, network, scrollUpOnReTap = true)
             parentClearState()
         }.launchIn(lifecycleScope)
 
@@ -192,7 +190,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         }
         collectFlow(viewModel.selectedWalletFlow.filterNotNull()) { wallet ->
             applyWallet(wallet)
-            setFragment(bottomTabsView.selectedItemId, wallet, null, null, false)
+            setFragment(bottomTabsView.selectedItemId, wallet, null, false)
         }
 
         bottomTabsView.toggleItem(R.id.trading, true)
@@ -231,7 +229,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         currentWalletId = wallet.id
 
         bottomTabsView.doOnClick = { itemId ->
-            setFragment(itemId, wallet, DappBrowserAnalytics.WALLET_TAB_SOURCE, null, false, scrollUpOnReTap = true)
+            setFragment(itemId, wallet, null, false, scrollUpOnReTap = true)
         }
     }
 
@@ -261,15 +259,13 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
     private fun setFragment(
         itemId: Int,
         wallet: WalletEntity,
-        browserOpenFrom: String?,
         extra: String?,
         forceScrollUp: Boolean,
         network: String? = null,
         scrollUpOnReTap: Boolean = false,
-        browserOpenUtm: UtmParameters = UtmParameters.Empty,
     ) {
         viewModel.setData(wallet, itemId)
-        setFragment(getFragment(itemId, wallet), forceScrollUp, scrollUpOnReTap, browserOpenFrom, browserOpenUtm, extra, 0, wallet, network)
+        setFragment(getFragment(itemId, wallet), forceScrollUp, scrollUpOnReTap, extra, 0, wallet, network)
         (activity as? NavigationActivity)?.updateBackCallbackState()
     }
 
@@ -277,8 +273,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         fragment: Fragment,
         forceScrollUp: Boolean,
         scrollUpOnReTap: Boolean,
-        browserOpenFrom: String?,
-        browserOpenUtm: UtmParameters,
         extra: String?,
         attempt: Int,
         wallet: WalletEntity,
@@ -316,7 +310,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         transaction.runOnCommit {
             checkBottomDivider(fragment)
             if (fragment is BrowserBaseScreen) {
-                browserOpenFrom?.let { fragment.trackBrowserOpen(it, browserOpenUtm) }
                 applyBrowserExtras(fragment, extra, network)
             } else if (fragment is ShelvesFragment) {
                 if (!extra.isNullOrBlank()) {
@@ -332,7 +325,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
 // Crash reporting disabled
 
             postDelayed(1000) {
-                setFragment(fragment, forceScrollUp, scrollUpOnReTap, browserOpenFrom, browserOpenUtm, extra, attempt + 1, wallet, network)
+                setFragment(fragment, forceScrollUp, scrollUpOnReTap, extra, attempt + 1, wallet, network)
             }
         }
     }

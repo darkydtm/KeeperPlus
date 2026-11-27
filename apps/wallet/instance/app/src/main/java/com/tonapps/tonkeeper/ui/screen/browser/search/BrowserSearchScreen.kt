@@ -78,7 +78,6 @@ class BrowserSearchScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.trackSearchOpen()
 
         headerView = view.findViewById(R.id.header)
 
@@ -139,7 +138,6 @@ class BrowserSearchScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fr
         app: BrowserAppEntity?
     ) {
         val uri = url.toUriOrNull() ?: return
-        viewModel.trackSearchClick(uri)
 
         val dappAnalytics = if (app == null) {
             DappBrowserAnalytics.directContext(
@@ -157,7 +155,6 @@ class BrowserSearchScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fr
         }
 
         if (uri.host?.endsWith("mercuryo.io") == true) {
-            dappAnalytics.click()
             BrowserHelper.open(requireContext(), url)
         } else {
             navigation?.add(dappScreenFactory.create(
@@ -175,7 +172,6 @@ class BrowserSearchScreen(wallet: WalletEntity): WalletContextScreen(R.layout.fr
     private fun inputDone() {
         val query = searchInput.text.toString()
         val uri = viewModel.searchTarget(query)
-        viewModel.trackSearchClick(uri)
 
         if (uri.scheme == "tonkeeper") {
             rootViewMode.processDeepLink(uri, false, Uri.EMPTY, false, requireContext().packageName)

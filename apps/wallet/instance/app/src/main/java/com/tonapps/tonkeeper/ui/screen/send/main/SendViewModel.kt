@@ -22,7 +22,6 @@ import com.tonapps.blockchain.tron.TronTransfer
 import com.tonapps.blockchain.tron.isValidTronAddress
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.core.helper.SendRedMetadata
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.core.helper.nftAnalyticsAssetId
 import com.tonapps.bus.generated.Events
@@ -1521,33 +1520,6 @@ class SendViewModel(
                     signTon()
                 }
                 val finishedAtMs = currentTimeMillis()
-                TransactionSentAnalytics.transactionSent(
-                    wallet = wallet,
-                    category = Events.TransactionSent.TransactionSentCategory.Transfer,
-                    categoryDetail = when {
-                        isNft -> Events.TransactionSent.TransactionSentCategoryDetail.Nft
-                        currentToken.isTon || currentToken.isTrx -> Events.TransactionSent.TransactionSentCategoryDetail.Coin
-                        else -> Events.TransactionSent.TransactionSentCategoryDetail.Token
-                    },
-                    asset = if (isNft) {
-                        nftAnalyticsAssetId(nftAddress)
-                    } else {
-                        currentToken.analyticsAssetId()
-                    },
-                    amount = if (isNft) {
-                        1.0
-                    } else {
-                        transferAmountFlow.value.value.value.toDouble()
-                    },
-                    feeAsset = TransactionSentAnalytics.feeAsset(currentFeeAsset),
-                    initiatedBy = TransactionSentAnalytics.initiatedBy(analyticsFrom),
-                    isMax = if (selectedTokenFlow.value.blockchain == Blockchain.TRON) {
-                        null
-                    } else {
-                        lastTransferEntity?.max
-                    },
-                    utm = analyticsUtm,
-                )
                 InAppReviewManager.onTransactionSent()
                 _uiEventFlow.tryEmit(SendEvent.Success)
             } catch (e: Throwable) {

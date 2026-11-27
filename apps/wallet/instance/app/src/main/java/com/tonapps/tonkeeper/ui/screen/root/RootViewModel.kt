@@ -103,7 +103,6 @@ import com.tonapps.portfolio.screens.raffle.ConfigStoriesAutoShow
 import com.tonapps.portfolio.screens.raffle.RaffleFragment
 import com.tonapps.portfolio.screens.raffle.RaffleStoryAutoShow
 import com.tonapps.portfolio.screens.raffle.StoryAutoShowSession
-import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.init.InitArgs
 import com.tonapps.tonkeeper.ui.screen.init.InitScreen
 import com.tonapps.tonkeeper.ui.screen.backup.main.BackupScreen
@@ -428,7 +427,6 @@ class RootViewModel(
         }
 
         selectedWalletFlow.collectFlow { wallet ->
-            applyAnalyticsKeys(wallet)
             initShortcuts(wallet)
         }
 
@@ -892,8 +890,6 @@ class RootViewModel(
         return list
     }
 
-    private fun applyAnalyticsKeys(wallet: WalletEntity) = Unit
-
     fun connectLedger(connectData: LedgerConnectData, accounts: List<AccountItem>) {
         _eventFlow.tryEmit(RootEvent.Ledger(connectData, accounts))
     }
@@ -1121,14 +1117,6 @@ class RootViewModel(
         }
     }
 
-    private fun DeepLink.tabOpenFrom(route: DeepLinkRoute.Tabs): String {
-        return if (fromExternal || fromQR) {
-            DappBrowserAnalytics.EXTERNAL_LINK_SOURCE
-        } else {
-            route.from
-        }
-    }
-
     private fun DeepLink.confirmInitiator(): ConfirmInitiator {
         return if (fromQR) {
             ConfirmInitiator.QrCode
@@ -1233,7 +1221,7 @@ class RootViewModel(
                 TradeEntryTracker.markDeepLink()
             }
             _eventFlow.tryEmit(
-                RootEvent.OpenTab(route.tabUri.toUri(), wallet, deeplink.tabOpenFrom(route), deeplink.utm),
+                RootEvent.OpenTab(route.tabUri.toUri(), wallet),
             )
         } else if (route is DeepLinkRoute.Send && !wallet.isWatchOnly) {
             openScreen(
@@ -1530,7 +1518,7 @@ class RootViewModel(
 
     private fun openMainTab(wallet: WalletEntity, deeplink: DeepLink) {
         val main = DeepLinkRoute.Tabs.Main(from = "deep-link")
-        _eventFlow.tryEmit(RootEvent.OpenTab(main.tabUri.toUri(), wallet, main.from, deeplink.utm))
+        _eventFlow.tryEmit(RootEvent.OpenTab(main.tabUri.toUri(), wallet))
     }
 
     private fun earnDApp(route: DeepLinkRoute.Earn): DeepLinkRoute.MultichainDApp? {

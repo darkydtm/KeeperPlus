@@ -14,9 +14,6 @@ import com.tonapps.blockchain.ton.extensions.storeCoins
 import com.tonapps.blockchain.ton.extensions.storeOpCode
 import com.tonapps.blockchain.ton.extensions.storeQueryId
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events
-import com.tonapps.core.helper.TON_COIN_ASSET_ID
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.deposit.usecase.emulation.Emulated
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
 import com.tonapps.deposit.usecase.sign.SignUseCase
@@ -246,22 +243,6 @@ class StakingViewModel(
                 _tokenFlow.value = loadTonToken(cacheFallback = true)
             }
         }
-    }
-
-    private fun trackStakeSuccess() {
-        val pool = _selectedPoolFlow.value
-        TransactionSentAnalytics.transactionSent(
-            wallet = wallet,
-            category = Events.TransactionSent.TransactionSentCategory.Staking,
-            categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Stake,
-            asset = TON_COIN_ASSET_ID,
-            amount = _amountFlow.value,
-            feeAsset = Events.TransactionSent.TransactionSentFeeAsset.Coin,
-            initiatedBy = Events.TransactionSent.TransactionSentInitiatedBy.User,
-            stakingProvider = pool?.address,
-            isLiquid = pool?.let { it.implementation == StakingPool.Implementation.LiquidTF },
-            utm = utm,
-        )
     }
 
     // Not the multichain backend: it can return the row of the wallet's other TON address, while the
@@ -516,7 +497,6 @@ class StakingViewModel(
             val message = signUseCase(context, wallet, seqno, transaction)
 
             transactionManager.send(wallet, message, false, "", 0.0)
-            trackStakeSuccess()
             val finishedAtMs = currentTimeMillis()
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
@@ -533,7 +513,6 @@ class StakingViewModel(
             val cell = message.createUnsignedBody(false)
             val boc = signUseCase(context, wallet, cell, message.seqNo, PasscodeReason.CONFIRM_ACTION)
             transactionManager.send(wallet, boc, false, "", 0.0)
-            trackStakeSuccess()
             val finishedAtMs = currentTimeMillis()
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()

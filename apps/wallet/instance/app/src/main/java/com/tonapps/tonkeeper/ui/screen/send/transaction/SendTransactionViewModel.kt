@@ -8,9 +8,6 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.icu.Coins
 import com.tonapps.ledger.ton.Transaction
 import com.tonapps.blockchain.model.legacy.Amount
-import com.tonapps.bus.generated.Events
-import com.tonapps.core.helper.TON_COIN_ASSET_ID
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.tonkeeper.core.history.HistoryHelper
 import com.tonapps.tonkeeper.extensions.getTransfers
 import com.tonapps.tonkeeper.extensions.method
@@ -31,11 +28,7 @@ import com.tonapps.deposit.usecase.sign.SignUseCase
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.api.APIException
 import com.tonapps.wallet.api.getDebugMessage
-import com.tonapps.wallet.api.extensions.toTokenEntity
 import com.tonapps.wallet.data.account.AccountRepository
-import com.tonapps.wallet.data.multichain.account.jettonAssetId
-import com.tonapps.wallet.data.multichain.account.nftAssetId
-import com.tonapps.wallet.data.multichain.account.tonCoinAssetId
 import com.tonapps.blockchain.model.legacy.MessageBodyEntity
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.wallet.data.battery.BatteryRepository
@@ -58,7 +51,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.ton.cell.Cell
 import org.ton.contract.wallet.WalletTransfer
-import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
@@ -101,29 +93,11 @@ class SendTransactionViewModel(
     private var tonDetails: SendTransactionState.Details? = null
     private var batteryDetails: SendTransactionState.Details? = null
 
-    private data class AnalyticsTransfer(
-        val asset: String,
-        val amount: Double,
-    )
-
-    @Volatile
-    private var tonAnalyticsTransfer: AnalyticsTransfer? = null
-
-    @Volatile
-    private var batteryAnalyticsTransfer: AnalyticsTransfer? = null
-
     val feeOptions: List<SendFee>
         get() = listOfNotNull(
             batteryDetails?.fee,
             tonDetails?.fee,
         )
-
-    private val currentFeeAsset: Events.SendNative.SendNativeFeeAsset
-        get() = if (isBattery.get()) {
-            Events.SendNative.SendNativeFeeAsset.BatteryCharges
-        } else {
-            Events.SendNative.SendNativeFeeAsset.Coin
-        }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -172,7 +146,6 @@ class SendTransactionViewModel(
                 val batteryEmulated = batteryDeferred.await()
 
                 batteryDetails = if (batteryEmulated != null && !batteryEmulated.failed) {
-                    batteryAnalyticsTransfer = batteryEmulated.analyticsTransfer()
                     createDetails(batteryEmulated)
                 } else {
                     null
@@ -200,7 +173,6 @@ class SendTransactionViewModel(
                 // recharge attaches the battery's transfer cost): paid from the wallet, it could run
                 // out of gas, so TON is not offered.
                 tonDetails = if (!tonEmulated.failed && !relayerForced) {
-                    tonAnalyticsTransfer = tonEmulated.analyticsTransfer()
                     createDetails(tonEmulated)
                 } else {
                     null
@@ -274,7 +246,6 @@ class SendTransactionViewModel(
                 _stateFlow.value = SendTransactionState.FailedEmulation
                 return@coroutineScope
             }
-            tonAnalyticsTransfer = emulated.analyticsTransfer()
             tonDetails = createDetails(emulated, includeFee = false, relayAddress = relayAddressDeferred.await())
             _stateFlow.value = tonDetails!!
         } catch (e: Throwable) {
@@ -456,127 +427,8 @@ class SendTransactionViewModel(
                 viaBattery = isBattery || broadcastVia == BroadcastVia.Battery,
             )
         }
-        val feePaid = when {
-            isBattery -> "battery"
-            else -> "ton"
-        }
-        val initiatedBy = analyticsContext.sendNativeFrom?.let(TransactionSentAnalytics::initiatedBy)
-            ?: if (request.appUri.host == "signRaw") {
-                Events.TransactionSent.TransactionSentInitiatedBy.DeepLink
-            } else {
-                Events.TransactionSent.TransactionSentInitiatedBy.User
-            }
-        val attachedNano = request.messages.sumOf { it.amount }
-        val dappHost = when (initiatedBy) {
-            Events.TransactionSent.TransactionSentInitiatedBy.TonconnectLocal,
-            Events.TransactionSent.TransactionSentInitiatedBy.TonconnectRemote -> request.appUri.host
-            else -> null
-        }
-        TransactionSentAnalytics.transactionSent(
-            wallet = wallet,
-            category = Events.TransactionSent.TransactionSentCategory.Call,
-            categoryDetail = analyticsContext.transactionSentDetail
-                ?: Events.TransactionSent.TransactionSentCategoryDetail.Unknown,
-            asset = TON_COIN_ASSET_ID,
-            amount = Coins.ofNano(attachedNano.toString()).value.toDouble(),
-            feeAsset = TransactionSentAnalytics.feeAsset(currentFeeAsset),
-            initiatedBy = initiatedBy,
-            appId = dappHost,
-            dappUrl = dappHost,
-            utm = analyticsContext.utm,
-        )
-        logSendSuccess(isBattery)
         emit(cells.map { it.base64() }.toTypedArray())
     }.flowOn(Dispatchers.IO)
-
-    private fun Emulated.analyticsTransfer(): AnalyticsTransfer? {
-        val actions = consequences?.event?.actions ?: return null
-
-        actions.mapNotNull { action ->
-            val swap = action.jettonSwap ?: return@mapNotNull null
-            if (!swap.userWallet.address.equalsAddress(wallet.address)) {
-                return@mapNotNull null
-            }
-            val jettonIn = swap.jettonMasterIn
-            if (jettonIn != null) {
-                AnalyticsTransfer(
-                    asset = jettonAssetId(jettonIn.address, wallet.testnet),
-                    amount = jettonIn.toTokenEntity().toUIAmount(
-                        Coins.ofNano(swap.amountIn, jettonIn.decimals)
-                    ).value.toDouble(),
-                )
-            } else {
-                val tonIn = swap.tonIn ?: swap.gramIn ?: return@mapNotNull null
-                AnalyticsTransfer(
-                    asset = tonCoinAssetId(wallet.testnet),
-                    amount = Coins.of(tonIn).value.toDouble(),
-                )
-            }
-        }.mergeSameAsset()?.let { return it }
-
-        actions.mapNotNull { action ->
-            val transfer = action.jettonTransfer ?: return@mapNotNull null
-            if (transfer.sender?.address?.equalsAddress(wallet.address) != true) {
-                return@mapNotNull null
-            }
-            val token = transfer.jetton.toTokenEntity()
-            AnalyticsTransfer(
-                asset = jettonAssetId(transfer.jetton.address, wallet.testnet),
-                amount = token.toUIAmount(
-                    Coins.ofNano(transfer.amount, transfer.jetton.decimals)
-                ).value.toDouble(),
-            )
-        }.mergeSameAsset()?.let { return it }
-
-        actions.mapNotNull { action ->
-            val transfer = action.nftItemTransfer ?: return@mapNotNull null
-            if (transfer.sender?.address?.equalsAddress(wallet.address) != true) {
-                return@mapNotNull null
-            }
-            AnalyticsTransfer(
-                asset = nftAssetId(transfer.nft, wallet.testnet),
-                amount = 1.0,
-            )
-        }.mergeSameAsset()?.let { return it }
-
-        return actions.mapNotNull { action ->
-            val transfer = action.tonTransfer ?: return@mapNotNull null
-            if (!transfer.sender.address.equalsAddress(wallet.address)) {
-                return@mapNotNull null
-            }
-            AnalyticsTransfer(
-                asset = tonCoinAssetId(wallet.testnet),
-                amount = Coins.of(transfer.amount).value.toDouble(),
-            )
-        }.mergeSameAsset()
-    }
-
-    private fun List<AnalyticsTransfer>.mergeSameAsset(): AnalyticsTransfer? {
-        val first = firstOrNull() ?: return null
-        return first.copy(
-            amount = filter { it.asset == first.asset }.sumOf { it.amount },
-        )
-    }
-
-    private fun nativeAnalyticsTransfer(): AnalyticsTransfer {
-        val amountNano = request.messages.fold(BigInteger.ZERO) { total, message ->
-            total + message.amount
-        }
-        return AnalyticsTransfer(
-            asset = tonCoinAssetId(wallet.testnet),
-            amount = Coins.ofNano(amountNano.toString()).value.toDouble(),
-        )
-    }
-
-    private fun logSendSuccess(isBattery: Boolean) {
-        val from = analyticsContext.sendNativeFrom ?: return
-        val emulatedTransfer = if (isBattery) {
-            batteryAnalyticsTransfer ?: tonAnalyticsTransfer
-        } else {
-            tonAnalyticsTransfer
-        }
-        val transfer = emulatedTransfer ?: nativeAnalyticsTransfer()
-    }
 
     private fun getConfirmationTimeMillis(): Long {
         return emulationReadyDate.get() - System.currentTimeMillis()
