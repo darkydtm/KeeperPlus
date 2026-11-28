@@ -80,6 +80,10 @@ class BrowserMainViewModel(
     val isDappsDisabled: Boolean
         get() = api.getConfig(wallet.network).flags.disableDApps
 
+	val recommendationsEnabledFlow = settings.recommendationsEnabledFlow
+	val recommendationsEnabled: Boolean
+		get() = settings.recommendationsEnabled
+
     private val _selectedChain = MutableStateFlow<Network.Type?>(null)
     val selectedChain: StateFlow<Network.Type?> = _selectedChain.asStateFlow()
 
@@ -162,7 +166,7 @@ class BrowserMainViewModel(
 		adsEnabled: Boolean,
     ): List<ExploreItem> {
         val items = mutableListOf<ExploreItem>()
-        if (data.apps.isNotEmpty()) {
+        if (adsEnabled && data.apps.isNotEmpty()) {
             items.add(
                 ExploreItem.Banners(
                     data.apps,
@@ -199,7 +203,7 @@ class BrowserMainViewModel(
             )
         }
 
-        if (nomadsIndex >= 0) {
+        if (adsEnabled && nomadsIndex >= 0) {
             appendResolvedCategory(
                 items = items,
                 category = categories[nomadsIndex],

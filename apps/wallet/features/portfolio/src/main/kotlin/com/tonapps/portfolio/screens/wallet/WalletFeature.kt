@@ -578,7 +578,7 @@ class WalletFeature(
         .cacheState(initialValue = emptyMap())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val battery: StateFlow<WalletBattery?> = merge(
+    private val loadedBattery: StateFlow<WalletBattery?> = merge(
         selectionLoads,
         refreshSignal.mapNotNull { accountRepoLegacy.getSelectedWalletId()?.let { it to LoadMode.Network } },
         selectedWalletId.distinctUntilChanged().flatMapLatest { walletId ->
@@ -587,6 +587,13 @@ class WalletFeature(
     )
         .mapLatest { (walletId, mode) -> loadBattery(walletId, mode) }
         .cacheState()
+
+	val battery: StateFlow<WalletBattery?> = combine(
+		loadedBattery,
+		settingsRepository.batteryFeeEnabledFlow,
+	) { battery, enabled ->
+		battery.takeIf { enabled }
+	}.cacheState()
 
     val batteryHint: StateFlow<Boolean> = combine(
         resumed,

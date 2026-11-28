@@ -46,24 +46,26 @@ class SlideBetweenView @JvmOverloads constructor(
         if (toIndex >= childCount) {
             return
         }
-        getFromToView(fromIndex, toIndex) { fromView, toView ->
-            if (animated) {
-                toView.visibility = VISIBLE
-                toView.translationX = measuredWidth.toFloat()
-
-                playAnimators(
-                    ObjectAnimator.ofFloat(fromView, "translationX", -measuredWidth.toFloat()),
-                    ObjectAnimator.ofFloat(toView, "translationX", 0f)
-                ) {
-                    currentIndex++
-                    fromView.visibility = GONE
-                }
-            } else {
-                fromView.visibility = GONE
-                toView.visibility = VISIBLE
-                currentIndex++
-            }
-        }
+		if (!animated) {
+			val fromView = getChildAt(fromIndex) ?: return
+			val toView = getChildAt(toIndex) ?: return
+			fromView.visibility = GONE
+			toView.translationX = 0f
+			toView.visibility = VISIBLE
+			currentIndex = toIndex
+			return
+		}
+		getFromToView(fromIndex, toIndex) { fromView, toView ->
+			toView.visibility = VISIBLE
+			toView.translationX = measuredWidth.toFloat()
+			playAnimators(
+				ObjectAnimator.ofFloat(fromView, "translationX", -measuredWidth.toFloat()),
+				ObjectAnimator.ofFloat(toView, "translationX", 0f)
+			) {
+				currentIndex++
+				fromView.visibility = GONE
+			}
+		}
     }
 
     fun prev(animated: Boolean = true) {
@@ -72,24 +74,26 @@ class SlideBetweenView @JvmOverloads constructor(
         if (toIndex < 0) {
             return
         }
-        getFromToView(fromIndex, toIndex) { fromView, toView ->
-            if (animated) {
-                toView.visibility = VISIBLE
-                toView.translationX = -measuredWidth.toFloat()
-
-                playAnimators(
-                    ObjectAnimator.ofFloat(fromView, "translationX", measuredWidth.toFloat()),
-                    ObjectAnimator.ofFloat(toView, "translationX", 0f)
-                ) {
-                    currentIndex--
-                    fromView.visibility = GONE
-                }
-            } else {
-                fromView.visibility = GONE
-                toView.visibility = VISIBLE
-                currentIndex--
-            }
-        }
+		if (!animated) {
+			val fromView = getChildAt(fromIndex) ?: return
+			val toView = getChildAt(toIndex) ?: return
+			fromView.visibility = GONE
+			toView.translationX = 0f
+			toView.visibility = VISIBLE
+			currentIndex = toIndex
+			return
+		}
+		getFromToView(fromIndex, toIndex) { fromView, toView ->
+			toView.visibility = VISIBLE
+			toView.translationX = -measuredWidth.toFloat()
+			playAnimators(
+				ObjectAnimator.ofFloat(fromView, "translationX", measuredWidth.toFloat()),
+				ObjectAnimator.ofFloat(toView, "translationX", 0f)
+			) {
+				currentIndex--
+				fromView.visibility = GONE
+			}
+		}
     }
 
     fun moveToIndex(index: Int, animated: Boolean = true) {

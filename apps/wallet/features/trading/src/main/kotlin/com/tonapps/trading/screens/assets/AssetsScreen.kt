@@ -127,7 +127,7 @@ private fun AssetsContent(
             .nestedScroll(rememberNestedScrollInteropConnection())
             .statusBarsPadding()
             .imePadding(),
-        title = stringResource(Localization.crypto),
+        title = stringResource(Localization.tokens),
         onBack = onBack,
     ) {
         MoonSearchCell(
