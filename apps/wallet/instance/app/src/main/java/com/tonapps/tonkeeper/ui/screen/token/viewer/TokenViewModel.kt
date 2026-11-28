@@ -125,7 +125,7 @@ class TokenViewModel(
             tokensFlow,
             chartFlow,
             settingsRepository.walletPrefsChangedFlow,
-            trc20TransferDefaultFeesFlow
+			combine(trc20TransferDefaultFeesFlow, settingsRepository.batteryFeeEnabledFlow) { fees, _ -> fees }
         ) { token, list, chart, _, trc20DefaultFees ->
             buildItems(
                 token,
@@ -295,7 +295,8 @@ class TokenViewModel(
 
         val headerFiat = rates.convert(token.address, headerBalance)
 
-        val totalAvailableTransfers = if (api.getConfig(wallet.network).flags.disableBattery) {
+		val batteryDisabled = api.getConfig(wallet.network).flags.disableBattery || !settingsRepository.isBatteryFeeEnabled
+        val totalAvailableTransfers = if (batteryDisabled) {
             trc20DefaultFees?.trxFee?.availableTransfers
         } else {
             trc20DefaultFees?.totalAvailableTransfers
@@ -375,7 +376,7 @@ class TokenViewModel(
             items.add(
                 Item.TronBanner(
                     wallet = wallet,
-                    onlyTrx = api.getConfig(wallet.network).flags.disableBattery,
+                    onlyTrx = batteryDisabled,
                     trxAmountFormat = CurrencyFormatter.format(
                         TokenEntity.TRX.symbol, trc20DefaultFees.trxFee.amount
                     ),

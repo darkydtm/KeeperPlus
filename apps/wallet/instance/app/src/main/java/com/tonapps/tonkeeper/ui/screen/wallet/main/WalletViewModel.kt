@@ -149,7 +149,9 @@ class WalletViewModel(
     init {
         viewModelScope.launch {
             val cached = screenCacheSource.getWalletScreen(wallet)
-            _uiItemsFlow.value = cached ?: listOf(Item.Skeleton(true))
+			_uiItemsFlow.value = cached?.map { item ->
+				if (item is Item.Balance && !settingsRepository.isBatteryFeeEnabled) item.copy(showBattery = false) else item
+			} ?: listOf(Item.Skeleton(true))
         }
 
         requestDnsExpiring()
@@ -291,8 +293,11 @@ class WalletViewModel(
         }.launchIn(viewModelScope)
 
         combine(
-            combine(stateMainFlow, settingsRepository.promotionsEnabledFlow) { state, enabled ->
-                if (enabled) state else state.copy(banners = emptyList())
+            combine(stateMainFlow, settingsRepository.promotionsEnabledFlow, settingsRepository.batteryFeeEnabledFlow) { state, enabled, batteryEnabled ->
+				state.copy(
+					banners = if (enabled) state.banners else emptyList(),
+					battery = state.battery.copy(disabled = state.battery.disabled || !batteryEnabled),
+				)
             },
             alertNotificationsFlow,
             _stateSettingsFlow,

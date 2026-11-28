@@ -127,7 +127,8 @@ class SettingsViewModel(
             settingsDataFlow,
             settingsRepository.walletPrefsChangedFlow,
 			languageRefreshFlow,
-        ) { wallet, settings, _, _ ->
+			settingsRepository.batteryFeeEnabledFlow,
+        ) { wallet, settings, _, _, _ ->
             val kind = withContext(Dispatchers.IO) {
                 refreshKind(wallet)
             }
@@ -481,7 +482,7 @@ class SettingsViewModel(
 
         if (
             wallet.hasPrivateKey &&
-            wallet.supportsBattery &&
+			settingsRepository.isBatteryFeeEnabled && wallet.supportsBattery &&
             (!config.flags.disableBattery || getBatteryCharges(wallet) > 0)
         ) {
             uiItems.add(Item.Battery(ListCell.Position.MIDDLE))
@@ -556,7 +557,7 @@ class SettingsViewModel(
         uiItems.add(Item.Currency(currency.code, cellPosition))
 
         val tonWallet = unifiedAccountRepository.getTonWalletById(mc.id)
-        if (tonWallet != null && (!config.flags.disableBattery || getBatteryCharges(tonWallet) > 0)) {
+        if (settingsRepository.isBatteryFeeEnabled && tonWallet != null && (!config.flags.disableBattery || getBatteryCharges(tonWallet) > 0)) {
             uiItems.add(Item.Battery(ListCell.Position.MIDDLE))
         }
 

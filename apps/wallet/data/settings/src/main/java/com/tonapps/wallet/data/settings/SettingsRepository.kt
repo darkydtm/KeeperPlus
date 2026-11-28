@@ -115,9 +115,14 @@ class SettingsRepository(
             id
         }
 
+	private val _batteryFeeEnabledFlow = MutableStateFlow(prefs.getBoolean("battery_fee_enabled", true))
+	val batteryFeeEnabledFlow = _batteryFeeEnabledFlow.asStateFlow()
 	var isBatteryFeeEnabled: Boolean
-		get() = prefs.getBoolean("battery_fee_enabled", true)
-		set(value) = prefs.putBoolean("battery_fee_enabled", value)
+		get() = _batteryFeeEnabledFlow.value
+		set(value) {
+			prefs.putBoolean("battery_fee_enabled", value)
+			_batteryFeeEnabledFlow.value = value
+		}
 
 	private val legacyPromotionsEnabled = prefs.getBoolean("promotions_enabled", true)
 	private val _rewardsEnabledFlow = MutableStateFlow(prefs.getBoolean("rewards_enabled", legacyPromotionsEnabled))

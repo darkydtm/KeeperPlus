@@ -668,7 +668,7 @@ class RootViewModel(
     suspend fun loadBatteryOnboarding(wallet: WalletEntity): StoryEntity.Stories? {
         val balance = batteryRepository.getCachedBalance(wallet)?.balance
         val storyViewed = settingsRepository.isStoriesViewed(BATTERY_ONBOARDING_STORY_ID)
-        if (!isBatteryOnboardingOffered(balance, storyViewed)) {
+        if (!settingsRepository.isBatteryFeeEnabled || !isBatteryOnboardingOffered(balance, storyViewed)) {
             return null
         }
         val load = viewModelScope.async { loadStories(BATTERY_ONBOARDING_STORY_ID) }
