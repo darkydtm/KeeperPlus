@@ -167,6 +167,13 @@ jobs:
           name: site-debug-apk
           path: apps/wallet/instance/main/build/outputs/apk/site/debug/*.apk
           if-no-files-found: error
+      - name: Upload feature-branch debug APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/android-ci-workflows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: site-debug-apk-feat-android-ci-workflows
+          path: apps/wallet/instance/main/build/outputs/apk/site/debug/*.apk
+          if-no-files-found: error
       - name: Remove credentials
         if: always()
         run: rm -f local.properties "$RUNNER_TEMP/debug-signing-key"
