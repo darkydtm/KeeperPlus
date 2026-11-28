@@ -72,6 +72,7 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 
 private class SwitchHolder(val item: ItemSwitchView) : RecyclerView.ViewHolder(item) {
 	init {
+		item.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 		item.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
 		for (index in 0 until item.childCount) {
 			item.getChildAt(index).importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -101,6 +102,7 @@ class HapticsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.Non
 			override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 				if (viewType == 0) return SwitchHolder(ItemSwitchView(parent.context))
 				val layout = LinearLayout(parent.context).apply {
+					layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 					orientation = LinearLayout.VERTICAL
 					setPadding(16.dp, 16.dp, 16.dp, 16.dp)
 					background = ListCell.Position.LAST.drawable(context)
@@ -144,7 +146,6 @@ class HapticsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.Non
 					val supportsStrength = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
 						vibrator != null && vibrator.hasVibrator() && vibrator.hasAmplitudeControl()
 					slider.isEnabled = supportsStrength && ClickHaptics.getEnabled(requireContext())
-					slider.visibility = if (supportsStrength) View.VISIBLE else View.GONE
 					holder.explanation.visibility = if (supportsStrength) View.GONE else View.VISIBLE
 					slider.contentDescription = getString(R.string.settings_click_haptics_strength)
 					fun updateLevel(progress: Int) {

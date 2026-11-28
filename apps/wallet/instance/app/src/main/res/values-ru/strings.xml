@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="settings_promotions">Акции, награды и рекомендации</string>
+	<string name="settings_promotions">Контент</string>
     <string name="settings_click_haptics">Вибрация при нажатии</string>
     <string name="settings_click_haptics_strength">Сила вибрации</string>
     <string name="settings_enabled">Вкл.</string>

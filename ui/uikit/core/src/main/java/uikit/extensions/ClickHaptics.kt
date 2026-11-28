@@ -39,11 +39,7 @@ object ClickHaptics {
 		else -> 130
 	}
 
-	internal fun clickHapticDuration(strength: Int): Long = when (strength.coerceIn(1, 3)) {
-		1 -> 8L
-		3 -> 24L
-		else -> 16L
-	}
+	internal const val CLICK_HAPTIC_DURATION_MS = 20L
 
     fun perform(view: View) {
         val context = view.context
@@ -59,7 +55,7 @@ object ClickHaptics {
             vibrator.hasVibrator() && vibrator.hasAmplitudeControl()
         ) {
 			val strength = getStrength(context)
-			val effect = VibrationEffect.createOneShot(clickHapticDuration(strength), clickHapticAmplitude(strength))
+			val effect = VibrationEffect.createOneShot(CLICK_HAPTIC_DURATION_MS, clickHapticAmplitude(strength))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 vibrator.vibrate(effect, VibrationAttributes.Builder().setUsage(VibrationAttributes.USAGE_TOUCH).build())
             } else {

@@ -2,7 +2,7 @@
 <resources>
     <string name="default_push_channel_id" translatable="false">default</string>
 
-	<string name="settings_promotions">Promotions, rewards and recommendations</string>
+	<string name="settings_promotions">Content</string>
     <string name="settings_click_haptics">Click vibration</string>
     <string name="settings_click_haptics_strength">Click vibration strength</string>
     <string name="settings_enabled">On</string>
