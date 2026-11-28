@@ -539,7 +539,7 @@ open class BaseFragment(
         private val screenAnimationOffset = 60f.dp
         private val screenAnimationInterpolator = PathInterpolator(.42f, 0f, .58f, 1f)
 
-        private const val PREDICTIVE_BACK_PEEK = 0.30f
+        private const val PREDICTIVE_BACK_PEEK = 1f
         private const val PREDICTIVE_BACK_ALPHA = 0.15f
         private const val PREDICTIVE_BACK_CANCEL_DURATION = 180L
         private const val PREDICTIVE_BACK_COMMIT_DURATION = 220L
