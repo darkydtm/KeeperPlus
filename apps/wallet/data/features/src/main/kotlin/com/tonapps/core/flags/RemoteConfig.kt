@@ -20,7 +20,7 @@ class RemoteConfig : RemoteConfigProvider {
         WalletFeatureKey.IS_SWAP_V3_ENABLED.featureKey to true,
         WalletFeatureKey.IS_SWAP_REDESIGN_ENABLED.featureKey to false,
         WalletFeatureKey.IS_LIQUID_GLASS_ENABLED.featureKey to BuildConfig.DEBUG,
-        WalletFeatureKey.IS_PERPS_ENABLED.featureKey to false,
+		WalletFeatureKey.IS_PERPS_ENABLED.featureKey to true,
         WalletFeatureKey.IS_PERPS_BATTERY_FEE_ENABLED.featureKey to false,
         WalletFeatureKey.IS_EARN_ENABLED.featureKey to false,
         WalletFeatureKey.LOG_DEFAULT_ON.featureKey to false,
