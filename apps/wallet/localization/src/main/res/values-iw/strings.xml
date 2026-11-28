@@ -1686,7 +1686,6 @@
     <string name="tokenized_etfs">נכס זה הוא קרן סל מטוקנת (ETF)</string>
     <string name="tokenized_stocks">נכס זה הוא מניה מטוקנת</string>
     <string name="tokens">טוקנים</string>
-    <string name="wallet_assets_tokens">טוקנים</string>
     <string name="ton_assets">נכסי GRAM</string>
     <string name="ton_connect_description">%1$s מבקש גישה לכתובת הארנק שלך %2$s</string>
     <string name="ton_connect_subtitle">הקפד לבדוק את כתובת השירות לפני חיבור הארנק.</string>
@@ -1788,6 +1787,7 @@
     <string name="wallet">ארנק</string>
     <string name="wallet_address">כתובת ארנק</string>
     <string name="wallet_already_imported">הארנק הזה כבר קיים אצלך</string>
+    <string name="wallet_assets_tokens">טוקנים</string>
     <string name="wallet_attention_description">אנו ממליצים בחום לרשום את ביטוי השחזור מכיוון שזו הדרך היחידה לגשת ולשחזר את הארנק שלך במקרה שתאבד את המכשיר. אל תשלח אותו לעצמך בדוא’’ל ואל תצלם מסך. בטוח יותר לשמור אותו במצב לא מקוון.</string>
     <string name="wallet_attention_title">קח עט ופיסת נייר</string>
     <string name="wallet_balance">יתרת הארנק</string>

@@ -1666,7 +1666,6 @@
     <string name="tokenized_etfs">Този актив е токенизиран ETF</string>
     <string name="tokenized_stocks">Този актив е токенизирана акция</string>
     <string name="tokens">Токени</string>
-    <string name="wallet_assets_tokens">Токени</string>
     <string name="ton_assets">Активи на GRAM</string>
     <string name="ton_connect_description">%1$s иска достъп до адреса на вашия портфейл %2$s</string>
     <string name="ton_connect_subtitle">Уверете се, че сте проверили адреса на услугата преди да свържете портфейла.</string>
@@ -1768,6 +1767,7 @@
     <string name="wallet">Портфейл</string>
     <string name="wallet_address">Адрес на портфейла</string>
     <string name="wallet_already_imported">Вече имате този портфейл</string>
+    <string name="wallet_assets_tokens">Токени</string>
     <string name="wallet_attention_description">Силно препоръчваме да запишете възстановителната фраза, тъй като това е единственият начин да имате достъп и да възстановите портфейла си в случай на загуба на устройството. Не изпращайте на себе си по имейл или правете екранни снимки. По-сигурно е, когато се съхранява офлайн.</string>
     <string name="wallet_attention_title">Вземете химикал и лист хартия</string>
     <string name="wallet_balance">Баланс на портфейла</string>

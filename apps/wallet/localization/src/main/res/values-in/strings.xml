@@ -1647,7 +1647,6 @@
     <string name="tokenized_etfs">Aset ini adalah ETF yang Ditokenisasi</string>
     <string name="tokenized_stocks">Aset ini adalah Saham yang Ditokenisasi</string>
     <string name="tokens">Token</string>
-    <string name="wallet_assets_tokens">Token</string>
     <string name="ton_assets">Aset GRAM</string>
     <string name="ton_connect_description">%1$s meminta akses ke alamat dompet Anda %2$s</string>
     <string name="ton_connect_subtitle">Pastikan untuk memeriksa alamat layanan sebelum menghubungkan dompet.</string>
@@ -1749,6 +1748,7 @@
     <string name="wallet">Dompet</string>
     <string name="wallet_address">Alamat Dompet</string>
     <string name="wallet_already_imported">Anda sudah memiliki dompet ini</string>
+    <string name="wallet_assets_tokens">Token</string>
     <string name="wallet_attention_description">Kami sangat menyarankan Anda menulis frasa pemulihan karena itu satu-satunya cara untuk mengakses dan memulihkan dompet Anda jika Anda kehilangan perangkat Anda. Jangan kirimkan kepada diri sendiri melalui email atau mengambil tangkapan layar. Lebih aman jika disimpan secara offline.</string>
     <string name="wallet_attention_title">Ambil pena dan selembar kertas</string>
     <string name="wallet_balance">Saldo dompet</string>

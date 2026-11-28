@@ -1660,7 +1660,6 @@
     <string name="tokenized_etfs">Bu varlık Tokenleştirilmiş bir ETF\'dir</string>
     <string name="tokenized_stocks">Bu varlık Tokenleştirilmiş bir Hissedir</string>
     <string name="tokens">Tokenlar</string>
-    <string name="wallet_assets_tokens">Tokenlar</string>
     <string name="ton_assets">GRAM varlıkları</string>
     <string name="ton_connect_description">%1$s, %2$s cüzdan adresinize erişim talep ediyor</string>
     <string name="ton_connect_subtitle">Cüzdanı bağlamadan önce hizmet adresini kontrol ettiğinizden emin olun.</string>
@@ -1762,6 +1761,7 @@
     <string name="wallet">Cüzdan</string>
     <string name="wallet_address">Cüzdan Adresi</string>
     <string name="wallet_already_imported">Bu cüzdana zaten sahipsiniz</string>
+    <string name="wallet_assets_tokens">Tokenlar</string>
     <string name="wallet_attention_description">Cihazınızı kaybetmeniz durumunda cüzdanınıza erişmenin ve cüzdanınızı kurtarmanın tek yolu olduğu için kurtarma ifadesini yazmanızı şiddetle tavsiye ederiz. Kendinize e-posta ile göndermeyin veya ekran görüntüsü almayın. Çevrimdışı tutulduğunda daha güvenlidir.</string>
     <string name="wallet_attention_title">Bir kalem ve bir parça kağıt alın</string>
     <string name="wallet_balance">Cüzdan bakiyesi</string>

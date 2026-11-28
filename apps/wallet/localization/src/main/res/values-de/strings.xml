@@ -1661,7 +1661,6 @@
     <string name="tokenized_etfs">Dieses Asset ist ein tokenisierter ETF</string>
     <string name="tokenized_stocks">Dieses Asset ist eine tokenisierte Aktie</string>
     <string name="tokens">Token</string>
-    <string name="wallet_assets_tokens">Token</string>
     <string name="ton_assets">GRAM-Assets</string>
     <string name="ton_connect_description">%1$s fordert Zugriff auf Ihre Wallet-Adresse %2$s an</string>
     <string name="ton_connect_subtitle">Prüfen Sie unbedingt die Adresse des Dienstes, bevor Sie die Wallet verbinden.</string>
@@ -1759,6 +1758,7 @@
     <string name="wallet">Wallet</string>
     <string name="wallet_address">Wallet-Adresse</string>
     <string name="wallet_already_imported">Sie haben diese Wallet bereits</string>
+    <string name="wallet_assets_tokens">Token</string>
     <string name="wallet_attention_description">Wir empfehlen dringend, die Wiederherstellungsphrase aufzuschreiben, denn sie ist der einzige Weg, auf Ihre Wallet zuzugreifen und sie wiederherzustellen, falls Sie Ihr Gerät verlieren. Senden Sie sie sich nicht per E-Mail und machen Sie keinen Screenshot. Offline aufbewahrt ist sie sicherer.</string>
     <string name="wallet_attention_title">Nehmen Sie Stift und Papier</string>
     <string name="wallet_balance">Wallet-Guthaben</string>

@@ -1686,7 +1686,6 @@
     <string name="tokenized_etfs">Токенизированные ETF</string>
     <string name="tokenized_stocks">Токенизированные акции</string>
     <string name="tokens">Токены</string>
-    <string name="wallet_assets_tokens">Токены</string>
     <string name="ton_assets">Активы GRAM</string>
     <string name="ton_connect_description">%1$s запрашивает доступ к адресу вашего кошелька %2$s</string>
     <string name="ton_connect_subtitle">Обязательно проверьте адрес сервиса перед подключением кошелька.</string>
@@ -1788,6 +1787,7 @@
     <string name="wallet">Кошелёк</string>
     <string name="wallet_address">Адрес кошелька</string>
     <string name="wallet_already_imported">У вас уже есть этот кошелёк</string>
+    <string name="wallet_assets_tokens">Токены</string>
     <string name="wallet_attention_description">Мы настоятельно рекомендуем вам записать секретный ключ. Это единственный способ вернуть доступ к кошельку, если потеряете устройство. Не отправляйте ключ себе по почте и не делайте скриншот. Безопаснее всего вообще не хранить ключ на устройстве.</string>
     <string name="wallet_attention_title">Возьмите ручку и лист бумаги</string>
     <string name="wallet_balance">Баланс кошелька</string>

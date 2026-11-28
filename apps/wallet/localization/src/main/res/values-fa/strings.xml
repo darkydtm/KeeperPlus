@@ -1660,7 +1660,6 @@
     <string name="tokenized_etfs">این دارایی یک ETF توکنیزه‌شده است</string>
     <string name="tokenized_stocks">این دارایی یک سهم توکنیزه‌شده است</string>
     <string name="tokens">توکن‌ها</string>
-    <string name="wallet_assets_tokens">توکن‌ها</string>
     <string name="ton_assets">دارایی‌های GRAM</string>
     <string name="ton_connect_description">%1$s درخواست دسترسی به آدرس کیف پول شما %2$s را دارد</string>
     <string name="ton_connect_subtitle">پیش از اتصال کیف پول، حتماً آدرس سرویس را بررسی کنید.</string>
@@ -1758,6 +1757,7 @@
     <string name="wallet">کیف پول</string>
     <string name="wallet_address">آدرس کیف پول</string>
     <string name="wallet_already_imported">این کیف پول را قبلاً اضافه کرده‌اید</string>
+    <string name="wallet_assets_tokens">توکن‌ها</string>
     <string name="wallet_attention_description">اکیداً توصیه می‌کنیم عبارت بازیابی را یادداشت کنید، چون این تنها راه دسترسی و بازیابی کیف پول در صورت گم شدن دستگاه است. آن را برای خودتان ایمیل نکنید و از آن اسکرین‌شات نگیرید. نگهداری آفلاین آن امن‌تر است.</string>
     <string name="wallet_attention_title">یک خودکار و کاغذ بردارید</string>
     <string name="wallet_balance">موجودی کیف پول</string>

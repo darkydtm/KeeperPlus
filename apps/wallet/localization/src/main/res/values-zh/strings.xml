@@ -1647,7 +1647,6 @@
     <string name="tokenized_etfs">此资产为代币化 ETF</string>
     <string name="tokenized_stocks">此资产为代币化股票</string>
     <string name="tokens">代币</string>
-    <string name="wallet_assets_tokens">代币</string>
     <string name="ton_assets">GRAM 资产</string>
     <string name="ton_connect_description">%1$s 正在请求访问您的钱包地址 %2$s</string>
     <string name="ton_connect_subtitle">在连接钱包之前，请务必检查服务地址。</string>
@@ -1749,6 +1748,7 @@
     <string name="wallet">钱包</string>
     <string name="wallet_address">钱包地址</string>
     <string name="wallet_already_imported">您已拥有此钱包</string>
+    <string name="wallet_assets_tokens">代币</string>
     <string name="wallet_attention_description">我们强烈建议您写下恢复短语，因为这是您访问和恢复钱包的唯一方式，以防您丢失设备。不要通过电子邮件发送给自己或截屏保存。离线保存更安全。</string>
     <string name="wallet_attention_title">拿起一支笔和一张纸</string>
     <string name="wallet_balance">钱包余额</string>

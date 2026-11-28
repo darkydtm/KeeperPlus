@@ -1686,7 +1686,6 @@
     <string name="tokenized_etfs">Цей актив — токенізований ETF</string>
     <string name="tokenized_stocks">Цей актив — токенізована акція</string>
     <string name="tokens">Токени</string>
-    <string name="wallet_assets_tokens">Токени</string>
     <string name="ton_assets">Активи GRAM</string>
     <string name="ton_connect_description">%1$s запитує доступ до вашої адреси гаманця %2$s</string>
     <string name="ton_connect_subtitle">Обов\'язково перевірте адресу сервісу перед підключенням гаманця.</string>
@@ -1788,6 +1787,7 @@
     <string name="wallet">Гаманець</string>
     <string name="wallet_address">Адреса гаманця</string>
     <string name="wallet_already_imported">У вас уже є цей гаманець</string>
+    <string name="wallet_assets_tokens">Токени</string>
     <string name="wallet_attention_description">Ми наполегливо рекомендуємо записати фразу відновлення, оскільки це єдиний спосіб отримати доступ до вашого гаманця та відновити його у разі втрати пристрою. Не надсилайте її собі електронною поштою та не робіть скріншот. Безпечніше зберігати її офлайн.</string>
     <string name="wallet_attention_title">Візьміть ручку та аркуш паперу</string>
     <string name="wallet_balance">Баланс гаманця</string>

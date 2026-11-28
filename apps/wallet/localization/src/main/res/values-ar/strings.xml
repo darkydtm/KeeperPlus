@@ -1717,7 +1717,6 @@
     <string name="tokenized_etfs">هذا الأصل صندوق ETF مرمّز</string>
     <string name="tokenized_stocks">هذا الأصل سهم مرمّز</string>
     <string name="tokens">التوكنات</string>
-    <string name="wallet_assets_tokens">التوكنات</string>
     <string name="ton_assets">أصول GRAM</string>
     <string name="ton_connect_description">يطلب %1$s الوصول إلى عنوان محفظتك %2$s</string>
     <string name="ton_connect_subtitle">تأكد من التحقق من عنوان الخدمة قبل ربط المحفظة.</string>
@@ -1823,6 +1822,7 @@
     <string name="wallet">المحفظة</string>
     <string name="wallet_address">عنوان المحفظة</string>
     <string name="wallet_already_imported">هذه المحفظة مضافة لديك بالفعل</string>
+    <string name="wallet_assets_tokens">التوكنات</string>
     <string name="wallet_attention_description">ننصحك بشدة بتدوين عبارة الاسترداد لأنها الطريقة الوحيدة للوصول إلى محفظتك واستعادتها في حال فقدت جهازك. لا ترسلها إلى نفسك عبر البريد الإلكتروني ولا تلتقط لقطة شاشة لها. الاحتفاظ بها دون اتصال أكثر أمانًا.</string>
     <string name="wallet_attention_title">أحضر قلمًا وورقة</string>
     <string name="wallet_balance">رصيد المحفظة</string>

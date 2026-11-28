@@ -1662,7 +1662,6 @@
     <string name="tokenized_etfs">Este activo es un ETF tokenizado</string>
     <string name="tokenized_stocks">Este activo es una acción tokenizada</string>
     <string name="tokens">Tokens</string>
-    <string name="wallet_assets_tokens">Tokens</string>
     <string name="ton_assets">Activos de GRAM</string>
     <string name="ton_connect_description">%1$s está solicitando acceso a tu dirección de billetera %2$s</string>
     <string name="ton_connect_subtitle">Asegúrate de verificar la dirección del servicio antes de conectar la billetera.</string>
@@ -1764,6 +1763,7 @@
     <string name="wallet">Billetera</string>
     <string name="wallet_address">Dirección de la billetera</string>
     <string name="wallet_already_imported">Ya tienes esta billetera</string>
+    <string name="wallet_assets_tokens">Tokens</string>
     <string name="wallet_attention_description">Te recomendamos encarecidamente que anotes la frase de recuperación porque es la única forma de tener acceso y recuperar tu billetera en caso de que pierdas tu dispositivo. No te la envíes por correo electrónico ni hagas una captura de pantalla. Es más seguro cuando se mantiene fuera de línea.</string>
     <string name="wallet_attention_title">Coge un bolígrafo y un trozo de papel</string>
     <string name="wallet_balance">Saldo de la billetera</string>
