@@ -120,7 +120,6 @@ open class BaseFragment(
     internal var startScreenAnimation = false
 
     private var predictiveBackActive = false
-    private var predictiveBackDir = 1f
 
     open val secure: Boolean = false
 
@@ -360,11 +359,6 @@ open class BaseFragment(
             return
         }
         predictiveBackActive = true
-        predictiveBackDir = if (backEvent.swipeEdge == BackEventCompat.EDGE_LEFT) {
-            1f
-        } else {
-            -1f
-        }
         when (val view = view) {
             is BottomSheetLayout -> view.onPredictiveStart()
             is ModalView -> view.onPredictiveStart()
@@ -382,7 +376,7 @@ open class BaseFragment(
             is BottomSheetLayout -> view.onPredictiveProgress(progress)
             is ModalView -> view.onPredictiveProgress(progress)
             else -> {
-                view.translationX = predictiveBackDir * progress * view.width * PREDICTIVE_BACK_PEEK
+                view.translationX = progress * view.width * PREDICTIVE_BACK_PEEK
                 view.alpha = 1f - progress * PREDICTIVE_BACK_ALPHA
             }
         }
@@ -435,7 +429,7 @@ open class BaseFragment(
 
     private fun finishWithPredictiveBack(view: View) {
         view.animate()
-            .translationX(predictiveBackDir * view.width.toFloat())
+            .translationX(view.width.toFloat())
             .alpha(0f)
             .setDuration(PREDICTIVE_BACK_COMMIT_DURATION)
             .setInterpolator(predictiveBackInterpolator)

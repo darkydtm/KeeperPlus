@@ -9,10 +9,6 @@ import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.screenrender.ScreenRenderErrors
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderStage
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.deposit.DepositFragment
 import com.tonapps.deposit.DepositRoutes
 import com.tonapps.deposit.screens.method.RampAsset
@@ -270,19 +266,7 @@ class TxEventsViewModel(
         accountRepository = accountRepository,
         eventsRepository = eventsRepository,
         txEventUiMapper = txEventUiMapper,
-        onInitialRequestStarted = { ScreenRenderTracker.shared.requestStarted(ScreenRenderId.History, this) },
-        onInitialRequestFinished = { error -> reportInitialLoad(error) },
     )
-
-    private fun reportInitialLoad(error: Throwable?) {
-        val tracker = ScreenRenderTracker.shared
-        tracker.requestFinished(ScreenRenderId.History, this)
-        if (error == null) {
-            tracker.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.History, this)
-        } else {
-            tracker.failed(ScreenRenderId.History, ScreenRenderErrors.kind(error), this)
-        }
-    }
 
     private companion object {
         private val monthYearFormatter = SimpleDateFormat("MMMM_yyyy", Locale.US)

@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,12 +42,20 @@ class BrowserMoreViewModel(
 
     private val isChainDependent = id !in BrowserCategoryEntity.CHAIN_INDEPENDENT_IDS
 
-    private val dataFlow = browserRepository.dataFlow(
-        country = settingsRepository.country,
-        network = wallet.network,
-        locale = settingsRepository.getLocale(),
-        walletId = wallet.multichainWalletId,
-    ).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    private val dataFlow = settingsRepository.promotionsEnabledFlow
+        .flatMapLatest { enabled ->
+            if (enabled) {
+                browserRepository.dataFlow(
+                    country = settingsRepository.country,
+                    network = wallet.network,
+                    locale = settingsRepository.getLocale(),
+                    walletId = wallet.multichainWalletId,
+                )
+            } else {
+                flowOf(null)
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val titleFlow = dataFlow.filterNotNull()
         .map { data -> data.categories.firstOrNull { it.id == id } }

@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.async.Async
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.extensions.loading
@@ -117,7 +116,8 @@ abstract class BaseWalletVM(
         try {
             navigation?.add(screen)
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 }

@@ -3,7 +3,6 @@ package com.tonapps.tonkeeper.ui.screen.stories.w5
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.tonkeeper.extensions.getUriForResourceId
 import com.tonapps.tonkeeper.ui.screen.settings.main.SettingsScreen
 import com.tonapps.tonkeeper.ui.screen.wallet.picker.PickerMode
@@ -50,7 +49,8 @@ class W5StoriesScreen: BaseStoriesScreen() {
 
     private fun addWallet() {
         viewModel.addWallet(requireContext()).catch {
-            FirebaseCrashlytics.getInstance().recordException(it)
+// Crash reporting disabled
+
         }.onEach { walletId ->
             navigation?.add(PickerScreen.newInstance(PickerMode.Focus(walletId)))
             navigation?.removeByClass({

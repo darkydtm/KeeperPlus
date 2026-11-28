@@ -17,8 +17,6 @@ import com.tonapps.ledgerkit.controller.LedgerScope
 import com.tonapps.wallet.data.ledger.LedgerAddresses
 import com.tonapps.wallet.data.ledger.LedgerChainApp
 import com.tonapps.wallet.data.ledger.LedgerDerivation
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.reportingLedgerIssues
 import com.tonapps.wallet.data.ledger.signing.TonKeyReader
 import com.tonapps.wallet.data.ledger.signing.toHexString
 import com.tonapps.wallet.data.multichain.hardware.HardwareAccountDraft
@@ -33,7 +31,7 @@ internal class LedgerDiscoveryInteractorImpl(private val controller: LedgerContr
         walletId: String?,
         expectedTonAddress: String?,
         onAppState: (LedgerChainApp, LedgerAppDiscoveryState) -> Unit,
-    ): LedgerDiscoveryResult = reportingLedgerIssues(LedgerIssueSite.Discovery) {
+    ): LedgerDiscoveryResult = run {
         require(indices.all { it in 0..LedgerDerivation.MAX_ACCOUNT_INDEX }) { "Unsupported Ledger account index" }
         val collected = linkedMapOf<LedgerChainApp, AppKeys>()
         val states = linkedMapOf<LedgerChainApp, LedgerAppDiscoveryState>()

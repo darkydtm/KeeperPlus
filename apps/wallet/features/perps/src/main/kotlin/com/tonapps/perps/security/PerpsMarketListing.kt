@@ -1,14 +1,11 @@
 package com.tonapps.perps.security
 
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.log.L
 import com.tonapps.perps.data.PerpsPosition
-import kotlinx.coroutines.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 
 class PerpsMarketListing(
     private val securityConfig: PerpsSecurityConfigRepository,
-    private val report: (Throwable, Map<String, String>) -> Unit = IssueHelper::recordException,
 ) {
 
     private val reportedMarkets = ConcurrentHashMap.newKeySet<Int>()
@@ -30,18 +27,7 @@ class PerpsMarketListing(
         positions
             .filter { it.marketIndex !in config.markets && reportedMarkets.add(it.marketIndex) }
             .forEach { position ->
-                val keys = mapOf(
-                    MARKET_INDEX_KEY to position.marketIndex.toString(),
-                    SYMBOL_KEY to position.symbol,
-                    CONFIG_VERSION_KEY to config.version.toString(),
-                )
-                try {
-                    report(PerpsUnlistedPositionException(position.marketIndex), keys)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    L.e(e)
-                }
+                L.e(PerpsUnlistedPositionException(position.marketIndex))
             }
     }
 
@@ -49,11 +35,6 @@ class PerpsMarketListing(
         return securityConfig.verifiedWithoutWaiting()?.takeIf { it.markets.isNotEmpty() }
     }
 
-    private companion object {
-        const val MARKET_INDEX_KEY = "perps_market_index"
-        const val SYMBOL_KEY = "perps_symbol"
-        const val CONFIG_VERSION_KEY = "perps_security_version"
-    }
 }
 
 class PerpsUnlistedPositionException(marketIndex: Int) :

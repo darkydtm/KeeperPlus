@@ -50,7 +50,6 @@ object BrowserHelper {
             } else if (useTG) {
                 openTG(context, url)
             }
-            dappAnalytics.click()
         } else {
             Navigation.from(context)?.add(
                 context.dappScreenFactory.create(

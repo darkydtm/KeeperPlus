@@ -16,7 +16,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.extensions.workManager
 import com.tonapps.tonkeeper.helper.NotificationsHelper
@@ -124,7 +123,8 @@ class ApkDownloadWorker(
             val notification = builder.build()
             notificationManager.notify(NOTIFICATION_ID, notification)
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         }
     }
 

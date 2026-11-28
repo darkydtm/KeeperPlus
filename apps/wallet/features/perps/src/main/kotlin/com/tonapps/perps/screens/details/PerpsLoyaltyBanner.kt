@@ -16,7 +16,6 @@ internal fun PerpsLoyaltyBanner(
     val banners = remember(banner) { listOf(banner) }
     BannersViewer(
         banners = banners,
-        analytics = null,
         onHide = { onHide() },
         onClick = { button -> onClick(button.payload) },
     )

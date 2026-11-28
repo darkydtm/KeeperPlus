@@ -6,9 +6,6 @@ import com.tonapps.blockchain.model.CommonTransactionData
 import com.tonapps.blockchain.model.ConfirmOperations
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.chainkit.core.chain.api.models.ChainError
 import com.tonapps.chainkit.core.chain.api.models.ChainRes
 import com.tonapps.chainkit.core.chain.api.models.NodeError
@@ -368,7 +365,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aSendTheNodeRefusesForFundsEndsTheRedSendAtValidation() {
-        val events = recordAnalytics()
         try {
             chain.error = NodeError.InsufficientFunds("insufficient funds for gas * price + value")
             val feature = depositFeature(depositRequest(operation(), preview = false, assetId = TestAssets.eth.id), mockk())
@@ -378,17 +374,7 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             scheduler.runCurrent()
 
             assertEquals(ConfirmationError.InsufficientNetworkFee(ETH_SYMBOL), feature.confirmationError.value)
-            val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "send" }.second
-            assertEquals("fail", terminal["outcome"])
-            assertEquals("validation", terminal["stage"])
-            assertEquals("insufficient_network_fee", terminal["error_type"])
-            assertEquals("insufficient funds for gas * price + value", terminal["error_message"])
-            // The terminal repeats the attempt's send metadata.
-            val attempt = events.single { (event, props) -> event == "op_attempt" && props["operation"] == "send" }.second
-            assertEquals(attempt["other_metadata"], terminal["other_metadata"])
-            JSONObject(terminal["other_metadata"] as String).getString("fee_paid_in")
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
@@ -735,7 +721,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aChangedQuoteGivesUpTheRedSendForTheNewQuoteAndTheNextSendFailsOnItsOwn() {
-        val events = recordAnalytics()
         try {
             val changed = depositRequest(ConfirmOperations.build(listOf(call(index = 2), call(index = 3))), preview = false)
             val authorizer = mockk<PerpetualDepositAuthorizer>()
@@ -749,19 +734,12 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             feature.sendAction(OperationConfirmAction.Confirm)
             scheduler.runCurrent()
 
-            val terminals = events.filter { (event, props) -> event == "op_terminal" && props["operation"] == "send" }.map { it.second }
-            assertEquals(listOf("cancel", "fail"), terminals.map { it["outcome"] })
-            assertEquals(listOf("send", "validation"), terminals.map { it["stage"] })
-            assertEquals(listOf("quote_changed", "insufficient_balance"), terminals.map { it["error_type"] })
-            assertEquals("quote changed: output.min_amount", terminals.first()["error_message"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
     @Test
     fun aChangedQuoteThatCannotBePricedFailsTheRedSendWithWhy() {
-        val events = recordAnalytics()
         try {
             val changed = depositRequest(ConfirmOperations.build(listOf(call(index = 2))), preview = false)
             val authorizer = mockk<PerpetualDepositAuthorizer>()
@@ -780,19 +758,12 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             scheduler.runCurrent()
 
             assertEquals(ConfirmationError.BadResponse, feature.confirmationError.value)
-            val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "send" }.second
-            assertEquals("fail", terminal["outcome"])
-            assertEquals("send", terminal["stage"])
-            assertEquals("bad_response", terminal["error_type"])
-            assertEquals("node down", terminal["error_message"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
     @Test
     fun aFirstDepositRefusedAsTooLowSaysItsMinimumAndSendsNothing() {
-        val events = recordAnalytics()
         try {
             val authorizer = mockk<PerpetualDepositAuthorizer>()
             coEvery { authorizer.authorize(any(), any()) } throws BelowMinimumRefusal(JavaBigDecimal("3.51"))
@@ -806,12 +777,7 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             assertEquals(SendingState.None, feature.sendingState.value)
             assertTrue(signedWith.isEmpty())
             assertTrue(chain.broadcast.isEmpty())
-            val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "send" }.second
-            assertEquals("fail", terminal["outcome"])
-            assertEquals("validation", terminal["stage"])
-            assertEquals("below_minimum", terminal["error_type"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
@@ -917,7 +883,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aRetryReportsItsRequoteAsAQuoteOperation() {
-        val events = recordAnalytics()
         try {
             val requoted = depositRequest(ConfirmOperations.build(listOf(call(index = 2))), preview = true)
             val authorizer = mockk<PerpetualDepositAuthorizer>()
@@ -933,18 +898,12 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             feature.sendAction(OperationConfirmAction.Retry)
             scheduler.runCurrent()
 
-            val quotes = events.filter { (event, props) -> event == "op_terminal" && props["operation"] == "quote" }.map { it.second }
-            assertEquals(listOf("fail", "success"), quotes.map { it["outcome"] })
-            assertEquals("below_minimum", quotes.first()["error_type"])
-            assertEquals("validation", quotes.first()["stage"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
     @Test
     fun aRequoteThatCannotReachTheBackendEndsAtTheQuoteStage() {
-        val events = recordAnalytics()
         try {
             val authorizer = mockk<PerpetualDepositAuthorizer>()
             coEvery { authorizer.authorize(any(), any()) } throws IllegalStateException("quote refused")
@@ -957,11 +916,7 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             feature.sendAction(OperationConfirmAction.Retry)
             scheduler.runCurrent()
 
-            val quote = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "quote" }.second
-            assertEquals("fail", quote["outcome"])
-            assertEquals("quote", quote["stage"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
@@ -983,19 +938,13 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aCoinShortOfItsFeeReportsWhatTheNodeSaidUnderTheWrap() {
-        val events = recordAnalytics()
         try {
             coEvery { provider.estimateFee(any<Payload>(), any(), any()) } returns ChainRes.err(ChainError.InsufficientFunds("no gas"))
             val feature = depositFeature(depositRequest(operation(), preview = false, assetId = TestAssets.eth.id), mockk())
             scheduler.runCurrent()
 
             assertEquals(ConfirmationError.InsufficientNetworkFee(ETH_SYMBOL), feature.confirmationError.value)
-            val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "emulate" }.second
-            assertEquals("validation", terminal["stage"])
-            assertEquals("insufficient_network_fee", terminal["error_type"])
-            assertEquals("no gas", terminal["error_message"])
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
@@ -1012,22 +961,16 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
         feature.sendAction(OperationConfirmAction.Confirm)
         scheduler.runCurrent()
 
-        assertTrue(tracker.errors.isEmpty())
-        assertEquals(0, tracker.quoteChanges)
 
         coEvery { walletUnlocker.unlockWallet(any(), any()) } returns cryptoWallet
         feature.sendAction(OperationConfirmAction.Confirm)
         scheduler.runCurrent()
 
-        assertEquals(1, tracker.quoteChanges)
-        assertTrue(tracker.errors.isEmpty())
 
         chain.error = NodeError.InsufficientFunds("insufficient funds for gas * price + value")
         feature.sendAction(OperationConfirmAction.Confirm)
         scheduler.runCurrent()
 
-        assertEquals(listOf<ConfirmationError>(ConfirmationError.InsufficientBalance), tracker.errors)
-        assertEquals(1, tracker.quoteChanges)
     }
 
     @Test
@@ -1173,7 +1116,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
     @Test
     fun aRelayerRejectionThatSentNothingKeepsItsReasonForAnalyticsAndCanBeAskedAgain() {
-        val events = recordAnalytics()
         try {
             var reject = true
             val methods = FakeFeeMethods(batteryCharges = BATTERY_BALANCE) {
@@ -1190,9 +1132,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
 
             // The screen says only that the send failed: the reason is for analytics and the logs.
             assertEquals(ConfirmationError.RelayerRejected("not enough charges"), feature.confirmationError.value)
-            val terminal = events.single { (event, props) -> event == "op_terminal" && props["operation"] == "send" }.second
-            assertEquals("relayer_rejected", terminal["error_type"])
-            assertEquals("not enough charges", terminal["error_message"])
 
             reject = false
             feature.sendAction(OperationConfirmAction.Retry)
@@ -1203,7 +1142,6 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
             assertEquals(2, methods.relayed.size)
             assertEquals(SendingState.Done, feature.sendingState.value)
         } finally {
-            unmockkObject(AnalyticsHelper.Companion)
         }
     }
 
@@ -1486,21 +1424,7 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
         return TestFeature(request, provider, accountRepo, walletUnlocker, refreshSchedule, serverTime, feeMethods, tracker)
     }
 
-    private fun recordAnalytics(): List<Pair<String, Map<String, Any>>> {
-        val tracked = CopyOnWriteArrayList<Pair<String, Map<String, Any>>>()
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-            every { events } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-        return tracked
-    }
+
 
     private fun depositQuote() = ConfirmType.PerpetualDeposit.Quote(
         id = "quote-1",
@@ -1586,19 +1510,7 @@ class OperationConfirmFeatureTest : BaseUnitTest() {
         }
     }
 
-    private class RecordingDepositTracker : PerpetualDepositTracker {
-
-        val errors = mutableListOf<ConfirmationError>()
-        var quoteChanges = 0
-
-        override fun onError(error: ConfirmationError) {
-            errors += error
-        }
-
-        override fun onQuoteChanged() {
-            quoteChanges += 1
-        }
-    }
+    private class RecordingDepositTracker : PerpetualDepositTracker
 
     private class Broadcast(val account: Account, val transaction: String)
 

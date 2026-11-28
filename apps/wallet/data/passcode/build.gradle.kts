@@ -17,7 +17,6 @@ dependencies {
     implementation(projects.apps.wallet.data.features)
     implementation(projects.lib.extensions)
     implementation(projects.lib.security)
-    implementation(projects.lib.bus)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

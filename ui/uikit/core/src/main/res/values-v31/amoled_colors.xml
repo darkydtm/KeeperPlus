@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="amoledAccent">@android:color/system_accent1_200</color>
+    <color name="amoledAccentDisabled">@android:color/system_accent1_400</color>
+    <color name="amoledAccentHighlighted">@android:color/system_accent1_100</color>
+</resources>

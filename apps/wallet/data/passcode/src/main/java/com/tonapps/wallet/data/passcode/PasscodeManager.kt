@@ -1,9 +1,6 @@
 package com.tonapps.wallet.data.passcode
 
 import android.content.Context
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.tracer.AnalyticException
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.extensions.logError
@@ -124,7 +121,8 @@ class PasscodeManager(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             }
         }
     }
@@ -132,7 +130,6 @@ class PasscodeManager(
     // Reporting must never be what breaks the lock screen.
     private fun reportMigrationFailure(e: Throwable) {
         runCatching { L.e(e) }
-        runCatching { FirebaseCrashlytics.getInstance().recordException(e) }
     }
 
     private suspend fun migratableLegacyWalletsOrEmpty(): List<String> {
@@ -175,7 +172,8 @@ class PasscodeManager(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             emptyList()
         }
     }
@@ -202,7 +200,8 @@ class PasscodeManager(
                 throw e
             } catch (e: Throwable) {
                 // syncWallets throws after registering what it could; the diff below tells what landed.
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             } finally {
                 pin.fill('\u0000')
             }
@@ -322,10 +321,8 @@ class PasscodeManager(
                         .use { }
                 }
             }
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault bootstrap failed", e)
-            )
+        } catch (_: Throwable) {
+            // The vault remains unavailable until the next attempt.
         }
     }
 
@@ -337,10 +334,8 @@ class PasscodeManager(
                         multichainVault.restoreSession()
                     }
                 }
-            } catch (e: Throwable) {
-                AnalyticsHelper.Default.captureException(
-                    AnalyticException.Vault("session restore on foreground failed", e)
-                )
+            } catch (_: Throwable) {
+                // The session stays locked if it cannot be restored.
             }
         }
     }
@@ -372,10 +367,8 @@ class PasscodeManager(
             }
             startNewChains(missingChains, code)
             lockscreen.biometric()
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Passcode("biometric unlock failed", e)
-            )
+        } catch (_: Throwable) {
+            // The wallet remains locked if biometric unlock fails.
         }
     }
 
@@ -410,10 +403,7 @@ class PasscodeManager(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault session restore failed", e)
-            )
+        } catch (_: Throwable) {
             false
         }
 
@@ -433,7 +423,8 @@ class PasscodeManager(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             true
         }
     }
@@ -476,7 +467,8 @@ class PasscodeManager(
         try {
             hasPinCodeStrict()
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             false
         }
     }
@@ -529,7 +521,8 @@ class PasscodeManager(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }
@@ -580,7 +573,8 @@ class PasscodeManager(
             try {
                 migration(context, code)
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 context.logError(e)
                 false
             }
@@ -623,12 +617,9 @@ class PasscodeManager(
             }
 
             syncWalletBindings(code)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // The legacy PIN store accepted a code the vault can't open (stores desynced, e.g. by
             // a PIN change that predates the vault re-seal fix); the session simply stays locked.
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault session unlock failed", e)
-            )
         } finally {
             pin.fill('\u0000')
         }
@@ -641,10 +632,8 @@ class PasscodeManager(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("hardware app key restore failed", e)
-            )
+        } catch (_: Throwable) {
+            // Restoring hardware app keys is best-effort.
         }
     }
 
@@ -712,7 +701,8 @@ class PasscodeManager(
         } catch (e: Throwable) {
             // The vault and the legacy store — the sources of truth — are already re-sealed, so
             // the change did happen; the RN copy is best-effort.
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             context.logError(e)
         }
         true
@@ -727,7 +717,8 @@ class PasscodeManager(
             }
             true
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             false
         } finally {
             oldPin.fill('\u0000')
@@ -771,10 +762,7 @@ class PasscodeManager(
             true
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault first pin seal failed", e)
-            )
+        } catch (_: Throwable) {
             false
         } finally {
             pin.fill('\u0000')
@@ -798,10 +786,8 @@ class PasscodeManager(
                 multichainVault.deleteAll()
                 multichainVault.setPin(DEFAULT_PIN.toCharArray()).use { }
             }
-        } catch (e: Throwable) {
-            AnalyticsHelper.Default.captureException(
-                AnalyticException.Vault("vault reset failed", e)
-            )
+        } catch (_: Throwable) {
+            // Reset is best-effort, as before.
         }
     }
 
@@ -830,7 +816,8 @@ class PasscodeManager(
                 showBiometricPrompt(context, reason)
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             false
         }
     }
@@ -879,7 +866,8 @@ class PasscodeManager(
         try {
             return rnLegacy.exportPasscodeWithBiometry()
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return null
         }
     }
@@ -895,7 +883,8 @@ class PasscodeManager(
                 null
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
 
@@ -906,7 +895,8 @@ class PasscodeManager(
                 null
             }
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
         try {
@@ -916,7 +906,8 @@ class PasscodeManager(
             }
             migration(context, passcode)
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             context.logError(e)
             false
         }

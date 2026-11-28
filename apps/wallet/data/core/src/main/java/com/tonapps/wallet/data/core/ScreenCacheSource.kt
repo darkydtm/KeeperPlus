@@ -3,7 +3,6 @@ package com.tonapps.wallet.data.core
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.extensions.cacheFolder
 import com.tonapps.extensions.file
 import com.tonapps.extensions.folder
@@ -50,7 +49,8 @@ class ScreenCacheSource(
             }
             return file.readBytes()
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             return byteArrayOf()
         }
     }
@@ -70,7 +70,8 @@ class ScreenCacheSource(
             try {
                 file.writeBytes(bytes)
             } catch (e: IOException) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             }
         }
     }

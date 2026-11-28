@@ -5,15 +5,14 @@ import android.app.Application
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
+import com.tonapps.tonkeeper.billing.BillingProduct
+import com.tonapps.tonkeeper.billing.BillingPurchase
+import com.tonapps.tonkeeper.billing.BillingResponseCode
 import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.extensions.equalsAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeSize
@@ -25,8 +24,6 @@ import com.tonapps.log.L
 import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.billing.BillingManager
 import com.tonapps.tonkeeper.billing.PurchasesUpdated
-import com.tonapps.tonkeeper.billing.isSuccess
-import com.tonapps.tonkeeper.billing.priceFormatted
 import com.tonapps.tonkeeper.koin.dappScreenFactory
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.tonkeeper.ui.screen.battery.recharge.BatteryRechargeScreen
@@ -95,7 +92,7 @@ private enum class IapAvailability {
 private data class StorePack(
     val productId: String,
     val charges: Int,
-    val product: ProductDetails?,
+    val product: BillingProduct?,
 )
 
 private data class PackRow(
@@ -131,7 +128,6 @@ class BatteryRefillViewModel(
     private val settingsRepository: SettingsRepository,
     private val billingManager: BillingManager,
     private val environment: Environment,
-    private val analytics: AnalyticsHelper,
     savedStateHandle: SavedStateHandle,
     private val tonRecharge: BatteryTonRecharge,
 ) : BaseWalletVM(app) {
@@ -167,7 +163,7 @@ class BatteryRefillViewModel(
 
     private val purchasesMutex = Mutex()
 
-    private val activePurchaseHandlers = AtomicInteger(0)
+    private val activeBillingPurchaseHandlers = AtomicInteger(0)
 
     private val paymentInFlight: Boolean
         get() = signingFlow.value ||
@@ -267,7 +263,7 @@ class BatteryRefillViewModel(
 
     private suspend fun buildState(
         promoState: PromoState,
-        products: List<ProductDetails>?,
+        products: List<BillingProduct>?,
         busy: Boolean,
         iapAvailability: IapAvailability,
         rechargeMethods: List<RechargeMethodEntity>?,
@@ -552,23 +548,9 @@ class BatteryRefillViewModel(
                 val tonWallet = resolveWallet()
                 val token = getTokens(tonWallet).firstOrNull { it.address == tokenAddress } ?: return@launch
                 val promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo
-                analytics.eventsTaggedWith(utm).batteryNative.batterySelect(
-                    from = from,
-                    type = BatteryNativeType.Crypto,
-                    size = packType.batterySize(),
-                    promo = promo,
-                    jetton = token.symbol,
-                )
                 when (val event = tonRecharge.request(tonWallet, token, packType, customAmount = null, recipient = null)) {
                     is BatteryRechargeEvent.Sign -> {
                         tonRecharge.sign(context, tonWallet, event.request, event.forceRelayer, utm, isGift = false)
-                        analytics.eventsTaggedWith(utm).batteryNative.batterySuccess(
-                            from = from,
-                            type = BatteryNativeType.Crypto,
-                            size = packType.batterySize(),
-                            promo = promo,
-                            jetton = token.symbol,
-                        )
                         toast(Localization.battery_please_wait)
                         withContext(Dispatchers.Main) {
                             navigation?.openURL("tonkeeper://activity?from=battery")
@@ -749,7 +731,7 @@ class BatteryRefillViewModel(
         tonPriceInUsd: Coins,
         batteryBalance: BatteryBalanceEntity,
         config: ConfigEntity,
-        products: List<ProductDetails>,
+        products: List<BillingProduct>,
         batteryConfig: BatteryConfigEntity,
     ): List<StorePack> {
         val isBatteryEmpty = batteryBalance.reservedBalance.isZero && batteryBalance.balance.isZero
@@ -922,27 +904,27 @@ class BatteryRefillViewModel(
             return
         }
         val wasLaunching = purchaseLaunchFlow.compareAndSet(expect = true, update = false)
-        val isFailure = !update.result.isSuccess && responseCode != BillingClient.BillingResponseCode.USER_CANCELED
+        val isFailure = !update.result.isSuccess && responseCode != BillingResponseCode.USER_CANCELED
         if (wasLaunching && isFailure) {
             failureToast(Localization.error)
         }
     }
 
-    private suspend fun handlePurchases(purchases: List<Purchase>) {
-        activePurchaseHandlers.incrementAndGet()
+    private suspend fun handlePurchases(purchases: List<BillingPurchase>) {
+        activeBillingPurchaseHandlers.incrementAndGet()
         purchaseInProgress.value = true
         try {
             purchasesMutex.withLock {
                 verifyPurchases(purchases)
             }
         } finally {
-            if (activePurchaseHandlers.decrementAndGet() == 0) {
+            if (activeBillingPurchaseHandlers.decrementAndGet() == 0) {
                 purchaseInProgress.value = false
             }
         }
     }
 
-    private suspend fun verifyPurchases(purchases: List<Purchase>) = withContext(Dispatchers.IO) {
+    private suspend fun verifyPurchases(purchases: List<BillingPurchase>) = withContext(Dispatchers.IO) {
         try {
             val tonWallet = resolveWallet()
             for (purchase in purchases) {
@@ -970,13 +952,6 @@ class BatteryRefillViewModel(
                         ignoreCache = true,
                     )
                     withContext(Dispatchers.Main) {
-                        analytics.eventsTaggedWith(utm).batteryNative.batterySuccess(
-                            from = from,
-                            type = BatteryNativeType.Fiat,
-                            size = batterySize(purchase.products.first()),
-                            promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo,
-                            jetton = null
-                        )
                     }
                     toast(Localization.battery_topped_up)
                     try {
@@ -1013,13 +988,6 @@ class BatteryRefillViewModel(
             purchaseLaunchFlow.value = false
             return
         }
-        analytics.eventsTaggedWith(utm).batteryNative.batterySelect(
-            from = from,
-            type = BatteryNativeType.Fiat,
-            size = batterySize(productId),
-            promo = (_promoStateFlow.value as? PromoState.Applied)?.appliedPromo,
-            jetton = null
-        )
 
         viewModelScope.launch {
             var launched = false
@@ -1050,12 +1018,12 @@ class BatteryRefillViewModel(
         }
         viewModelScope.launch {
             try {
-                val pendingPurchases = withTimeoutOrNull(PURCHASE_LAUNCH_TIMEOUT_MILLIS) {
+                val pendingBillingPurchases = withTimeoutOrNull(PURCHASE_LAUNCH_TIMEOUT_MILLIS) {
                     billingManager.restorePurchases()
                 }
                 when {
-                    pendingPurchases == null -> failureToast(Localization.error)
-                    pendingPurchases.isNotEmpty() -> handlePurchases(pendingPurchases)
+                    pendingBillingPurchases == null -> failureToast(Localization.error)
+                    pendingBillingPurchases.isNotEmpty() -> handlePurchases(pendingBillingPurchases)
                     else -> toast(Localization.nothing_to_restore)
                 }
             } catch (e: CancellationException) {

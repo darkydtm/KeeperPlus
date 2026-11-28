@@ -16,6 +16,8 @@ android {
 }
 
 dependencies {
+    testImplementation(libs.junit)
+
     api(projects.ui.uikit.color)
     api(projects.ui.uikit.icon)
     api(projects.ui.uikit.list)

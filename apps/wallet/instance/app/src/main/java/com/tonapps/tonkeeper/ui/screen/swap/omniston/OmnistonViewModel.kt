@@ -15,13 +15,8 @@ import com.tonapps.blockchain.ton.extensions.base64
 import com.tonapps.blockchain.ton.extensions.cellFromHex
 import com.tonapps.blockchain.ton.extensions.equalsRawAddress
 import com.tonapps.blockchain.ton.extensions.toRawAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.RedAttemptSource
-import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.core.helper.SendRedMetadata
-import com.tonapps.core.helper.TransactionSentAnalytics
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.deposit.screens.send.state.SendFee
 import com.tonapps.deposit.usecase.emulation.Emulated.Companion.buildFee
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
@@ -124,8 +119,6 @@ class OmnistonViewModel(
 
     private var initialFromCurrency: WalletCurrency = defaultFromCurrency
     private var initialToCurrency: WalletCurrency = defaultToCurrency
-
-    private val initiatedBy = TransactionSentAnalytics.initiatedBy(args.initiator)
 
     private val utm = args.utm
 
@@ -743,20 +736,6 @@ class OmnistonViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val operationId = generateUuid()
             val startedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opAttempt(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Swap,
-                operation = Events.RedOperations.RedOperationsOperation.Send,
-                attemptSource = RedAttemptSource.NATIVE_UI,
-                startedAtMs = startedAtMs,
-                otherMetadata = SendRedMetadata.swap(
-                    from = state.fromCurrency,
-                    to = state.toCurrency,
-                    fromAmount = state.fromUnits.value.toDouble(),
-                    toAmount = state.toUnits.value.toDouble(),
-                    isBattery = state.isPreferredFeeMethodBattery,
-                ),
-            )
             try {
                 val isBattery = state.isPreferredFeeMethodBattery
                 val transfers = transfers(signRequest, withBattery = isBattery)
@@ -800,49 +779,12 @@ class OmnistonViewModel(
                     )
                 }
 
-                TransactionSentAnalytics.transactionSent(
-                    wallet = wallet,
-                    category = Events.TransactionSent.TransactionSentCategory.Swap,
-                    categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Onchain,
-                    asset = state.fromCurrency.analyticsAssetId(),
-                    amount = state.fromUnits.value.toDouble(),
-                    feeAsset = if (isBattery) {
-                        Events.TransactionSent.TransactionSentFeeAsset.BatteryCharges
-                    } else {
-                        Events.TransactionSent.TransactionSentFeeAsset.Coin
-                    },
-                    initiatedBy = initiatedBy,
-                    toAsset = state.toCurrency.analyticsAssetId(),
-                    utm = utm,
-                )
-
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Swap,
-                    operation = Events.RedOperations.RedOperationsOperation.Send,
-                    outcome = Events.RedOperations.RedOperationsOutcome.Success,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    errorCode = null,
-                    errorMessage = null,
-                    errorType = null,
-                    stage = null,
-                    otherMetadata = null,
-                )
                 withContext(Dispatchers.Main) {
                     onSuccess()
                 }
             } catch (e: Throwable) {
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Swap,
-                    operation = Events.RedOperations.RedOperationsOperation.Send,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = e,
-                )
                 withContext(Dispatchers.Main) {
                     onError(e)
                 }
@@ -996,14 +938,6 @@ class OmnistonViewModel(
         setButtonState(UiButtonState.Loading)
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Swap,
-            operation = Events.RedOperations.RedOperationsOperation.Quote,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         var quoteReceived = false
         swapStreamJob = api.swapStream(
             from = request.fromParam,
@@ -1013,14 +947,6 @@ class OmnistonViewModel(
             if (!quoteReceived) {
                 quoteReceived = true
                 val finishedAtMs = currentTimeMillis()
-                AnalyticsHelper.Default.events.redOperations.opTerminal(
-                    operationId = operationId,
-                    flow = Events.RedOperations.RedOperationsFlow.Swap,
-                    operation = Events.RedOperations.RedOperationsOperation.Quote,
-                    durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                    finishedAtMs = finishedAtMs,
-                    error = null,
-                )
             }
             setMessages(messages)
         }.launch()

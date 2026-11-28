@@ -33,7 +33,7 @@ dependencies {
     implementation(projects.kmp.mvi)
     implementation(projects.kmp.async)
 
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
 
     implementation(projects.apps.wallet.localization)
     implementation(projects.apps.wallet.api)
@@ -50,7 +50,6 @@ dependencies {
     implementation(projects.apps.wallet.data.raffle)
     implementation(projects.apps.wallet.data.loyalty)
     implementation(projects.apps.wallet.data.earn)
-    implementation(projects.apps.wallet.data.attribution)
     implementation(projects.apps.wallet.data.backup)
     implementation(projects.apps.wallet.data.rn)
     implementation(projects.apps.wallet.data.passcode)
@@ -104,13 +103,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.flexbox)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.config)
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.messaging)
-    implementation(libs.firebase.performance)
-
     implementation(projects.tonapi.legacy)
     implementation(projects.tonapi.wallet)
     implementation(projects.ui.blur)
@@ -124,7 +116,6 @@ dependencies {
     implementation(projects.lib.emoji)
     implementation(projects.lib.security)
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.extensions)
     implementation(projects.lib.ledger)
     implementation(projects.lib.ledgerkit)
     implementation(projects.lib.ur)
@@ -136,11 +127,6 @@ dependencies {
     implementation(libs.camerax.core)
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
-
-    implementation(libs.google.play.review)
-    implementation(libs.google.play.billing)
-    implementation(libs.google.play.update)
-    implementation(libs.google.play.installreferrer)
 
     implementation(libs.okhttp)
     implementation(libs.okhttp.sse)

@@ -40,7 +40,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.security)
     implementation(projects.lib.extensions)
-    implementation(projects.lib.bus)
     compileOnly(fileTree("libs") {
         include("*.aar")
     })

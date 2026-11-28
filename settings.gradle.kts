@@ -131,7 +131,6 @@ include(
     ":lib:ledgerkit",
     ":lib:ur",
     ":lib:base64",
-    ":lib:bus",
     ":lib:wallet",
     ":lib:wc",
     ":lib:webview-bridge",
@@ -169,7 +168,6 @@ include(
     ":apps:wallet:data:plugins",
     ":apps:wallet:data:features",
     ":apps:wallet:data:cache",
-    ":apps:wallet:data:attribution",
 
     ":apps:wallet:data:multichain:wallet",
     ":apps:wallet:data:multichain:exchange",

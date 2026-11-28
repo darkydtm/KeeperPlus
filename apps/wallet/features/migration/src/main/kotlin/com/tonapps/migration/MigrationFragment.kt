@@ -5,11 +5,9 @@ import android.view.View
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.core.ComposableFragment
 import com.tonapps.core.navigation.NavigationDelegate
 import com.tonapps.deposit.DepositFragment
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.migration.data.MigrationFeeShortage
 import com.tonapps.migration.screens.confirm.MigrationFeeOptionIcon
 import uikit.base.BaseFragment
@@ -20,21 +18,11 @@ class MigrationFragment : ComposableFragment(), BaseFragment.BottomSheet {
 
     override val fragmentName: String = "MigrationFragment"
 
-    private val from: MigrationFrom by lazy {
-        MigrationFrom.entries.firstOrNull { it.name == arguments?.getString(ARG_FROM) }
-            ?: MigrationFrom.Deeplink
-    }
-
     private val onboarding: Boolean by lazy {
         arguments?.getBoolean(ARG_ONBOARDING) == true
     }
 
     private var openHistoryOnFinish = false
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        MigrationAnalytics.start(from)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -100,15 +88,12 @@ class MigrationFragment : ComposableFragment(), BaseFragment.BottomSheet {
 
     companion object {
 
-        private const val ARG_FROM = "from"
         private const val ARG_ONBOARDING = "onboarding"
 
         fun newInstance(
-            from: MigrationFrom,
             onboarding: Boolean = false,
         ): MigrationFragment {
             val fragment = MigrationFragment()
-            fragment.putStringArg(ARG_FROM, from.name)
             fragment.putBooleanArg(ARG_ONBOARDING, onboarding)
             return fragment
         }

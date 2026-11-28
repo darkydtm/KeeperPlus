@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletMode
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.tonkeeper.Wallet
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.wallet.data.account.AccountRepository
@@ -56,29 +54,10 @@ class BackupCheckViewModel(
             } else {
                 backupRepository.addBackup(walletId, BackupEntity.Source.LOCAL)
             }
-            AnalyticsHelper.Default.events.walletFlow.walletBackupSuccess(
-                walletMode = walletMode(kind),
-                source = source,
-            )
             withContext(Dispatchers.Main) {
                 callback()
             }
         }
-    }
-
-    fun trackBackupError(source: WalletFlowSource) {
-        AnalyticsHelper.Default.events.walletFlow.walletBackupError(
-            walletMode = walletMode(walletFlow.value ?: return),
-            source = source,
-            errorType = "backup_check_mismatch",
-            errorCode = null,
-            errorMessage = null,
-        )
-    }
-
-    private fun walletMode(wallet: Wallet): WalletFlowWalletMode = when (wallet) {
-        is Wallet.Legacy -> WalletFlowWalletMode.Single
-        is Wallet.Multichain -> WalletFlowWalletMode.Multi
     }
 
     private suspend fun resolveWallet(selected: WalletEntity): Wallet? {

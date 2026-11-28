@@ -3,8 +3,6 @@ package com.tonapps.portfolio.screens.wallet
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import kotlinx.coroutines.CancellationException
 import com.tonapps.wallet.data.ledger.LedgerWalletInteractor
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -14,11 +12,6 @@ import androidx.paging.filter
 import androidx.paging.map as mapPaging
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.screenrender.ScreenRenderErrorKind
-import com.tonapps.bus.screenrender.ScreenRenderErrors
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderStage
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.chainkit.core.chain.model.num.CoinValue
 import com.tonapps.chainkit.core.chain.model.num.Decimal
 import com.tonapps.chainkit.core.chain.model.num.DisplayUnit
@@ -28,7 +21,6 @@ import com.tonapps.core.flags.Features
 import com.tonapps.core.flags.WalletFeature.Earn
 import com.tonapps.core.flags.WalletFeature.MoonPayRamp
 import com.tonapps.core.flags.WalletFeature.Perps
-import com.tonapps.core.helper.EarnAnalytics
 import com.tonapps.core.loyalty.LOYALTY_BANNER_ID
 import com.tonapps.extensions.AppLifecycleProvider
 import com.tonapps.extensions.fiatSymbol
@@ -216,11 +208,6 @@ class WalletFeature(
         .cacheState(initialValue = settingsRepository.hiddenBalances)
 
     private val assetsTotal = MutableStateFlow<WalletTotal?>(null)
-    private val screenRender = ScreenRenderTracker.shared
-
-    @Volatile
-    private var assetsErrorKind: ScreenRenderErrorKind? = null
-    private var hasAppeared = false
     private var totalsRefresh: Job? = null
 
     val isTotalStale: StateFlow<Boolean> field = MutableStateFlow(true)
@@ -382,18 +369,8 @@ class WalletFeature(
                         },
                         onNetworkConfirmed = {
                             confirmTotal(walletId, currencyCode)
-                            assetsErrorKind = null
-                            screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.Portfolio)
                         },
                         onLoadError = { error -> handleRefreshError(error) },
-                        onRefreshError = { error ->
-                            val kind = ScreenRenderErrors.kind(error)
-                            assetsErrorKind = kind
-                            screenRender.failed(ScreenRenderId.Portfolio, kind)
-                        },
-                        onCachedLoaded = { screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Portfolio) },
-                        onRequestStarted = { screenRender.requestStarted(ScreenRenderId.Portfolio) },
-                        onRequestFinished = { screenRender.requestFinished(ScreenRenderId.Portfolio) },
                     )
                 },
             ).flow.map { pagingData ->
@@ -440,14 +417,17 @@ class WalletFeature(
         .cacheState()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = combine(
-        perpsSnapshot.map { it != null && !it.loading && it.displayPortfolio()?.positions?.isEmpty() == true }
-            .distinctUntilChanged(),
-        refreshSignal.onStart { emit(Unit) },
-    ) { needed, _ -> needed }
-        .filter { it }
-        .mapLatest { perpsRepository.getShelfMarkets() }
-        .runningFold(emptyList<PerpMarket>()) { previous, loaded -> loaded.ifEmpty { previous } }
+    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = settingsRepository.promotionsEnabledFlow
+        .flatMapLatest { enabled ->
+            if (!enabled) flowOf(emptyList()) else combine(
+                perpsSnapshot.map { it != null && !it.loading && it.displayPortfolio()?.positions?.isEmpty() == true }
+                    .distinctUntilChanged(),
+                refreshSignal.onStart { emit(Unit) },
+            ) { needed, _ -> needed }
+                .filter { it }
+                .mapLatest { perpsRepository.getShelfMarkets() }
+                .runningFold(emptyList<PerpMarket>()) { previous, loaded -> loaded.ifEmpty { previous } }
+        }
         .cacheState(initialValue = emptyList())
 
     private val perps: StateFlow<WalletSection.Perps?> = combine(
@@ -500,8 +480,9 @@ class WalletFeature(
         .cacheState(initialValue = null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val earnVaults: StateFlow<List<EarnVaultUi>?> = multichainWalletId(Earn)
-        .map { it != null }
+    private val earnVaults: StateFlow<List<EarnVaultUi>?> = combine(
+        multichainWalletId(Earn), settingsRepository.promotionsEnabledFlow,
+    ) { walletId, enabled -> walletId != null && enabled }
         .distinctUntilChanged()
         .flatMapLatest { enabled ->
             if (enabled) {
@@ -784,7 +765,7 @@ class WalletFeature(
             if (ledgerChains.isNotEmpty()) {
                 add(FinishSetupLine.LedgerNetworks(status = FinishSetupLineStatus.Pending, chains = ledgerChains))
             }
-            if (migratableWallets > 0) {
+            if (migratableWallets > 0 && !settingsRepository.isMigrationEmpty(mc.id)) {
                 add(
                     FinishSetupLine.Migration(
                         status = FinishSetupLineStatus.Pending,
@@ -811,7 +792,6 @@ class WalletFeature(
         throw e
     } catch (e: Exception) {
         L.e(e, "Failed to read the networks missing from the Ledger wallet")
-        LedgerNonFatals.recordIssue(e, LedgerIssueSite.Wallet)
         emptyList()
     }
 
@@ -922,18 +902,6 @@ class WalletFeature(
         sectionLimits.setLimit(WalletLimitedSection.Earn, limit)
     }
 
-    fun onEarnPositionsShown() {
-        val walletId = wallet.value?.id ?: return
-        val state = earnPortfolio.value?.takeIf { it.first == walletId }?.second as? EarnPortfolioState.Loaded ?: return
-        val portfolio = state.portfolio
-        EarnAnalytics.yourVaultsView(portfolio.positions.size, portfolio.totalUsd.toDouble())
-    }
-
-    fun onEarnVaultsShown() {
-        val vaults = earnVaults.value ?: return
-        EarnAnalytics.featuredView(vaults.size)
-    }
-
     override fun onCleared() {
         perpsLive.close()
         super.onCleared()
@@ -985,30 +953,6 @@ class WalletFeature(
             null
         } else {
             WalletSection.Earn.Vaults(vaults)
-        }
-    }
-
-    /**
-     * The tab is shown again. Assets are not reloaded on that, so the visit ends with what is on screen,
-     * or with the last load's failure.
-     */
-    fun onScreenShown() {
-        if (!hasAppeared) {
-            hasAppeared = true
-            return
-        }
-        val errorKind = assetsErrorKind
-        if (assetsTotal.value == null && errorKind == null) {
-            // Still loading: the session ends with that load.
-            return
-        }
-        if (assetsTotal.value != null) {
-            screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Portfolio)
-        }
-        if (errorKind != null) {
-            screenRender.failed(ScreenRenderId.Portfolio, errorKind)
-        } else {
-            screenRender.finish(ScreenRenderId.Portfolio)
         }
     }
 

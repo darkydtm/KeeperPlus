@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.tonkeeper.Wallet
-import com.tonapps.tonkeeper.core.FirebaseHelper
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.tonkeeper.worker.WidgetUpdaterWorker
 import com.tonapps.wallet.data.account.AccountRepository
@@ -85,7 +84,6 @@ class EditNameViewModel(
 
     fun save(name: String, emoji: CharSequence, color: Int) {
         if (_labelFlow.value == null) return
-        FirebaseHelper.setTitleEmoji(emoji.toString())
         viewModelScope.launch {
             when (val kind = walletFlow.value ?: return@launch) {
                 is Wallet.Legacy -> {

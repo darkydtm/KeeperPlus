@@ -326,7 +326,6 @@ internal abstract class InAppDAppScreen(wallet: WalletEntity) : DAppScreen(walle
         loadTimeoutJob = viewLifecycleOwner.lifecycleScope.launch {
             delay(INITIAL_LOAD_TIMEOUT_MS)
             refreshView.isRefreshing = false
-            reportLoadTimeout()
             showLoadFailure()
             webView.stopLoading()
         }

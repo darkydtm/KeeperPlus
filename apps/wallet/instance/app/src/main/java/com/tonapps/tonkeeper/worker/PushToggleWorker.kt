@@ -5,7 +5,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.Operation
 import androidx.work.WorkerParameters
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.tonkeeper.extensions.workManager
 import com.tonapps.tonkeeper.manager.push.PushManager
 import com.tonapps.blockchain.model.legacy.WalletEntity
@@ -31,10 +30,7 @@ class PushToggleWorker(
         if (state == PushManager.State.Enable && requestedIds.isNotEmpty() && wallets.isEmpty()) {
             return@withContext if (runAttemptCount < MAX_RETRY_ATTEMPTS) {
                 Result.retry()
-            } else {
-                FirebaseCrashlytics.getInstance().recordException(
-                    IllegalStateException("Failed to resolve wallets for push enable")
-                )
+            } else {                // Crash reporting disabled
                 Result.failure()
             }
         }
@@ -47,7 +43,8 @@ class PushToggleWorker(
             if (runAttemptCount < MAX_RETRY_ATTEMPTS) {
                 Result.retry()
             } else {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 Result.failure()
             }
         }

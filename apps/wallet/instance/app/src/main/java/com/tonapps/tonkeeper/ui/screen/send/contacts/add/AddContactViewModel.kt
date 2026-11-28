@@ -2,7 +2,7 @@ package com.tonapps.tonkeeper.ui.screen.send.contacts.add
 
 import android.app.Application
 import androidx.lifecycle.viewModelScope
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.blockchain.tron.isValidTronAddress
 import com.tonapps.extensions.bestMessage
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM

@@ -12,7 +12,6 @@ import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.tonkeeper.core.history.list.HistoryAdapter
 import com.tonapps.tonkeeper.extensions.getTitle
@@ -205,9 +204,8 @@ class RemoveExtensionScreen(
             setResult(Bundle().apply {
                 putParcelable(ERROR, error)
             })
-        } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance()
-                .recordException(Throwable("Error: $error", e))
+        } catch (_: Throwable) {
+            // Error reporting is intentionally disabled.
         }
     }
 

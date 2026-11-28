@@ -34,7 +34,6 @@ dependencies {
     implementation(projects.lib.icu)
     implementation(projects.lib.wallet)
     implementation(projects.lib.security)
-    implementation(projects.lib.bus)
     implementation(projects.kmp.async)
     implementation(projects.kmp.mvi)
 

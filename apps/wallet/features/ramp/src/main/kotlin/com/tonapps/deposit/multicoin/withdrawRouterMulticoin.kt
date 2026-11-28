@@ -2,7 +2,6 @@ package com.tonapps.deposit.multicoin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -14,14 +13,12 @@ import androidx.navigation3.runtime.NavKey
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
-import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowWithdrawOption
 import com.tonapps.blockchain.utils.isWeb3DomainName
 import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.core.navigation.LocalResultStore
 import com.tonapps.core.navigation.rememberResultStore
 import com.tonapps.blockchain.model.ConfirmRequest
-import com.tonapps.deposit.multicoin.analytics.WithdrawAnalytics
 import com.tonapps.deposit.multicoin.screens.confirm.ConfirmScreen
 import com.tonapps.deposit.multicoin.screens.picker.AssetPickerFeature
 import com.tonapps.deposit.multicoin.screens.picker.AssetPickerScreen
@@ -80,13 +77,6 @@ fun WithdrawMulticoinRouter(
     val resultStore = rememberResultStore()
     var confirmRequest by remember { mutableStateOf<ConfirmRequest?>(null) }
     var confirmTxInfo by remember { mutableStateOf<SendTxInfo?>(null) }
-    val analytics = remember(analyticsFrom, utm) { WithdrawAnalytics(analyticsFrom, utm = utm) }
-
-    LaunchedEffect(analytics) {
-        analytics.started(listOf(WithdrawFlowWithdrawOption.SendTokens))
-        analytics.optionClick()
-    }
-
     CompositionLocalProvider(LocalResultStore provides resultStore) {
         MoonNav(
             backStack = backStack,
@@ -110,7 +100,6 @@ fun WithdrawMulticoinRouter(
                         group = group,
                         onClose = onBack,
                         onAssetSelected = { account ->
-                            analytics.clickAsset(account.asset.id)
                             backStack.add(
                                 WithdrawMulticoinRoutes.Send(
                                     assetId = account.asset.id,
@@ -164,23 +153,12 @@ fun WithdrawMulticoinRouter(
                         backStack.safeRemoveLastOrNull(key)
                         return@NavEntry
                     }
-                    val txInfo = confirmTxInfo
-
                     ConfirmScreen(
                         request = request,
                         onClose = onBack,
-                        onSendSuccess = {
-                            txInfo?.let {
-                                analytics.sendSuccess(it.assetId, it.symbol, it.amount)
-                            }
-                            onSendSuccess()
-                        },
+                        onSendSuccess = onSendSuccess,
                         onBack = { backStack.safeRemoveLastOrNull(key) },
-                        onConfirm = {
-                            txInfo?.let {
-                                analytics.sendConfirm(it.assetId, it.symbol, it.amount)
-                            }
-                        },
+                        onConfirm = {},
                         onTopUp = onTopUp,
                         onOpenBattery = onOpenBattery,
                     )
@@ -188,7 +166,7 @@ fun WithdrawMulticoinRouter(
 
                 is WithdrawMulticoinRoutes.Scanner -> NavEntry(key) {
                     ScannerScreen(
-                        onResult = { value, _ ->
+                        onResult = { value ->
                             resultStore.setResult(KEY_SCANNER_RESULT, value)
                             backStack.safeRemoveLastOrNull(key)
                         },

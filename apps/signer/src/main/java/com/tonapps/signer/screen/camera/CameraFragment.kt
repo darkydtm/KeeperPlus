@@ -12,7 +12,6 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.mlkit.vision.barcode.common.Barcode
 import com.tonapps.signer.Key
 import com.tonapps.signer.R
 import com.tonapps.signer.extensions.openAppSettings
@@ -97,11 +96,10 @@ class CameraFragment: BaseFragment(R.layout.fragment_camera), BaseFragment.Botto
         permissionContainer.visibility = View.VISIBLE
     }
 
-    private fun handleBarcode(barcode: Barcode) {
+    private fun handleBarcode(data: String) {
         if (isReady) {
             return
         }
-        val data = barcode.rawValue ?: return
 
         if (data.startsWith("${Key.SCHEME}://")) {
             if (chunks.size > 0) {

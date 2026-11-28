@@ -22,8 +22,6 @@ internal class TxPagingSource(
     private val accountRepository: AccountRepository,
     private val eventsRepository: EventsRepository,
     private val txEventUiMapper: TxEventUiMapper,
-    private val onInitialRequestStarted: () -> Unit = {},
-    private val onInitialRequestFinished: (error: Throwable?) -> Unit = {},
 ): PagingSource<Timestamp, UiEvent.Item>() {
 
     private val tronParamsProvider = TxTronParamsProvider(
@@ -40,8 +38,7 @@ internal class TxPagingSource(
         val isInitialLoad = params is LoadParams.Refresh && beforeTimestamp == null
         try {
             val data = if (isInitialLoad) {
-                onInitialRequestStarted()
-                initialLoad(params.loadSize).also { onInitialRequestFinished(null) }
+                initialLoad(params.loadSize)
             } else {
                 nextLoad(beforeTimestamp ?: Timestamp.now, params.loadSize)
             }
@@ -62,9 +59,6 @@ internal class TxPagingSource(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            if (isInitialLoad) {
-                onInitialRequestFinished(e)
-            }
             LoadResult.Error(e)
         }
     }

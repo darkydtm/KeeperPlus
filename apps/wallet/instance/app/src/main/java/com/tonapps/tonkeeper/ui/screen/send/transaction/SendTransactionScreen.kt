@@ -14,7 +14,6 @@ import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
@@ -289,9 +288,8 @@ class SendTransactionScreen(wallet: WalletEntity) :
             setResult(Bundle().apply {
                 putParcelable(ERROR, error)
             })
-        } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance()
-                .recordException(Throwable("Error: $error\nAppUrl: ${args.request.appUri}", e))
+        } catch (_: Throwable) {
+            // Error reporting is intentionally disabled.
         }
     }
 

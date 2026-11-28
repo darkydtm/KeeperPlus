@@ -4,6 +4,9 @@ plugins {
 
 dependencies {
     implementation(libs.koin.core)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     implementation(projects.apps.wallet.api)
     implementation(projects.apps.wallet.data.core)

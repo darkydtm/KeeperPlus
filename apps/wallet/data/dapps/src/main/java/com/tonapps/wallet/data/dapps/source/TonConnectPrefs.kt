@@ -3,7 +3,6 @@ package com.tonapps.wallet.data.dapps.source
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.edit
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.extensions.prefs
 import com.tonapps.extensions.putLong
@@ -115,7 +114,8 @@ internal class TonConnectPrefs(context: Context) {
             bytes.toParcel<CryptoBox.KeyPair>() ?: return null
             bytes
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

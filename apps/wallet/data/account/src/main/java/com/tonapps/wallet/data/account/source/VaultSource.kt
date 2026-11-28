@@ -5,7 +5,6 @@ import com.tonapps.blockchain.MnemonicHelper
 import com.tonapps.blockchain.ton.MnemonicType
 import com.tonapps.blockchain.ton.extensions.decodePrivateKey
 import com.tonapps.blockchain.ton.extensions.hex
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.extensions.putByteArray
 import com.tonapps.security.KeyHelperException
 import com.tonapps.security.Security
@@ -49,9 +48,7 @@ internal class VaultSource(context: Context) {
             }
 
             if (!success) {
-                throw KeyHelperException.AddMnemonic().also {
-                    IssueHelper.recordException(it)
-                }
+                throw KeyHelperException.AddMnemonic()
             }
         } finally {
             seed.clear()
@@ -66,20 +63,14 @@ internal class VaultSource(context: Context) {
 
         if (privateKey == null) {
             val fromMnemonic = getPrivateKeyFromMnemonic(publicKey)
-                ?: run {
-                    throw KeyHelperException.GetPkFromMnemonic().also {
-                        IssueHelper.recordException(it)
-                    }
-                }
+                ?: throw KeyHelperException.GetPkFromMnemonic()
 
             val success = prefs.transaction {
                 putByteArray(pkKey(publicKey), fromMnemonic.key.toByteArray())
             }
 
             if (!success) {
-                throw KeyHelperException.GetMnemonic().also {
-                    IssueHelper.recordException(it)
-                }
+                throw KeyHelperException.GetMnemonic()
             }
 
             fromMnemonic

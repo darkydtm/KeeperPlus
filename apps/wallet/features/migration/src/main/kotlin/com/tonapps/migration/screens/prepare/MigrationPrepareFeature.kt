@@ -1,7 +1,6 @@
 package com.tonapps.migration.screens.prepare
 
 import com.tonapps.log.L
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.migration.data.MigratableWallet
 import com.tonapps.migration.data.MigrationRepository
 import com.tonapps.mvi.AsyncViewModel
@@ -73,9 +72,6 @@ class MigrationPrepareFeature(
                     if (selectedWalletId.value == null) {
                         selectedWalletId.tryEmit(loaded.firstOrNull()?.wallet?.id)
                     }
-                    if (loaded.isNotEmpty()) {
-                        MigrationAnalytics.walletSelectionView()
-                    }
                 } else {
                     isFailed.tryEmit(true)
                     selectedWalletId.tryEmit(null)
@@ -91,7 +87,6 @@ class MigrationPrepareFeature(
     }
 
     fun continueClicked() {
-        MigrationAnalytics.walletSelectionClick()
         continueToConfirm()
     }
 

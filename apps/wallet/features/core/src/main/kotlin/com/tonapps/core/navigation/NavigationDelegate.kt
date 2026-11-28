@@ -2,7 +2,6 @@ package com.tonapps.core.navigation
 
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.chainkit.core.chain.model.account.Network
 import com.tonapps.wallet.data.collectibles.entities.NftEntity
 
@@ -54,7 +53,7 @@ interface NavigationDelegate {
     fun onOpenSettings()
 
     /** [trigger] is what opened it, for screen render analytics; by default the app opened it after an action. */
-    fun onOpenHistory(trigger: ScreenRenderTrigger = ScreenRenderTrigger.Auto)
+    fun onOpenHistory()
 
     fun onOpenPerpsHistory(awaitsFundingActivity: Boolean = false)
 

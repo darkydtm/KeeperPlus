@@ -5,8 +5,6 @@ plugins {
 }
 
 dependencies {
-    api(platform(libs.firebase.bom))
-    api(libs.firebase.crashlytics)
     api(libs.androidx.core)
 
     api(libs.ton.tvm)
@@ -29,7 +27,6 @@ dependencies {
     implementation(projects.apps.wallet.localization) // TODO
     implementation(projects.lib.extensions)
     implementation(projects.lib.base64)
-    implementation(projects.lib.bus)
     implementation(projects.lib.icu)
     implementation(projects.lib.security)
     implementation(projects.ui.uikit.flag)

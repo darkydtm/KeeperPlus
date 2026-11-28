@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    testImplementation(libs.junit)
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.debugTooling)
@@ -48,7 +49,6 @@ dependencies {
     implementation(projects.ui.uikit.core)
 
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.bus)
     implementation(projects.lib.extensions)
     implementation(projects.lib.icu)
     implementation(projects.lib.log)

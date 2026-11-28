@@ -6,7 +6,6 @@ import androidx.core.net.toUri
 import com.tonapps.blockchain.ton.extensions.base64
 import com.tonapps.blockchain.tron.TronTransactionRequest
 import com.tonapps.blockchain.tron.TronTransaction
-import com.tonapps.blockchain.tron.TronTransactionMismatchException
 import com.tonapps.blockchain.tron.TronTransfer
 import com.tonapps.blockchain.tron.encodeTronAddress
 import com.tonapps.blockchain.tron.toEvmHex
@@ -20,7 +19,6 @@ import com.tonapps.network.get
 import com.tonapps.network.postJSON
 import com.tonapps.network.backoff.ExponentialBackoff
 import com.tonapps.blockchain.model.legacy.BalanceEntity
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.wallet.api.entity.Authorization
 import com.tonapps.wallet.api.entity.ConfigEntity
 import com.tonapps.blockchain.model.legacy.TokenEntity
@@ -181,14 +179,24 @@ class TronApi(
         }
         return buildMap {
             addresses.chunked(JSON_RPC_BALANCE_CHUNK).forEach { chunk ->
-                putAll(fetchTronAccountBalancesJsonRpc(chunk))
+                putAll(fetchTronAccountBalancesJsonRpc(chunk).orEmpty())
             }
         }
     }
 
+    /** Returns null unless both balances were successfully returned for every address. */
+    fun getTronAccountBalancesBatchOrNull(addresses: List<String>): Map<String, TronAccountBalances>? {
+        val balances = mutableMapOf<String, TronAccountBalances>()
+        for (chunk in addresses.chunked(JSON_RPC_BALANCE_CHUNK)) {
+            balances.putAll(fetchTronAccountBalancesJsonRpc(chunk, strict = true) ?: return null)
+        }
+        return balances
+    }
+
     private fun fetchTronAccountBalancesJsonRpc(
         addresses: List<String>,
-    ): Map<String, TronAccountBalances> {
+        strict: Boolean = false,
+    ): Map<String, TronAccountBalances>? {
         return try {
             val usdtContract = "0x${TokenEntity.TRC20_USDT.toEvmHex()}"
             val requests = JSONArray()
@@ -228,7 +236,8 @@ class TronApi(
             for (i in 0 until responses.length()) {
                 val item = responses.optJSONObject(i) ?: continue
                 val id = item.optInt("id", -1)
-                if (id < 0 || item.has("error")) {
+                if (id < 0 || item.has("error") || (strict && byId.containsKey(id))) {
+                    if (strict) return null
                     continue
                 }
                 val result = item.optString("result")
@@ -238,6 +247,9 @@ class TronApi(
                 byId[id] = result
             }
 
+            if (strict && !hasCompleteTronBalanceResults(byId, addresses.size)) {
+                return null
+            }
             addresses.mapIndexed { index, address ->
                 address to tronAccountBalances(
                     tronAddress = address,
@@ -246,7 +258,7 @@ class TronApi(
                 )
             }.toMap()
         } catch (_: Throwable) {
-            addresses.associateWith(::emptyTronAccountBalances)
+            if (strict) null else addresses.associateWith(::emptyTronAccountBalances)
         }
     }
 
@@ -621,9 +633,7 @@ class TronApi(
             throw Exception(message)
         }
 
-        return reportMismatch {
-            TronTransaction.fromNodeResponse(json = json, request = request)
-        }
+        return TronTransaction.fromNodeResponse(json = json, request = request)
     }
 
     fun getTransactionInfo(txId: String): JSONObject? {
@@ -781,21 +791,10 @@ class TronApi(
         val body = response.readBody()
         val json = JSONObject(body)
 
-        return reportMismatch {
-            TronTransaction.fromNodeResponse(
-                json = json.getJSONObject("transaction"),
-                request = request,
-            )
-        }
-    }
-
-    private fun <R> reportMismatch(block: () -> R): R {
-        try {
-            return block()
-        } catch (e: TronTransactionMismatchException) {
-            IssueHelper.recordException(e)
-            throw e
-        }
+        return TronTransaction.fromNodeResponse(
+            json = json.getJSONObject("transaction"),
+            request = request,
+        )
     }
 
     private fun <R> tronRetry(retryBlock: () -> R) = withRetry(
@@ -813,3 +812,10 @@ class TronApi(
         private const val JSON_RPC_BALANCE_CHUNK = 25
     }
 }
+
+internal fun hasCompleteTronBalanceResults(results: Map<Int, String>, addressCount: Int): Boolean =
+    (0 until addressCount * 2).all { id ->
+        val value = results[id]
+        value != null && value.startsWith("0x") && value.length > 2 &&
+            value.substring(2).all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }
+    }

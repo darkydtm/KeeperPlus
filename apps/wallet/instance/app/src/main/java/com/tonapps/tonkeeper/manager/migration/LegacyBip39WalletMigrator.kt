@@ -8,8 +8,6 @@ import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.chainkit.core.secure.mnemonic.Mnemonic
 import com.tonapps.core.flags.WalletFeature
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.tracer.AnalyticException
 import com.tonapps.log.L
 import com.tonapps.migration.data.MigrationRepository
 import com.tonapps.security.multichain.MnemonicCoder
@@ -217,10 +215,8 @@ class LegacyBip39WalletMigrator(
         }
     }
 
-    // Logged and sent to the crash reports, neither of which the JVM tests have.
     private fun report(message: String, e: Throwable) {
-        runCatching { L.e(e) }
-        runCatching { AnalyticsHelper.Default.captureException(AnalyticException.Passcode(message, e)) }
+        L.e(e, message)
     }
 
     private suspend fun holdsAddress(walletId: String, legacy: WalletEntity): Boolean {

@@ -5,9 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletMode
 import com.tonapps.extensions.bestMessage
 import com.tonapps.extensions.getEnum
 import com.tonapps.extensions.putEnum
@@ -102,40 +100,11 @@ class BackupScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.None
 
         viewModel.getRecoveryPhrase(ctx) { words, error ->
             if (error != null) {
-                if (backup) {
-                    trackBackupError(error)
-                }
                 navigation?.toast(error.bestMessage)
             } else {
-                if (backup) {
-                    trackBackupStarted()
-                }
                 navigation?.add(PhraseScreen.newInstance(words, backup, backupId, source = source))
             }
         }
-    }
-
-    private fun trackBackupStarted() {
-        AnalyticsHelper.Default.events.walletFlow.walletBackupStarted(
-            walletMode = walletMode() ?: return,
-            source = source,
-        )
-    }
-
-    private fun trackBackupError(error: Throwable) {
-        AnalyticsHelper.Default.events.walletFlow.walletBackupError(
-            walletMode = walletMode() ?: return,
-            source = source,
-            errorType = error.javaClass.simpleName,
-            errorCode = null,
-            errorMessage = error.message,
-        )
-    }
-
-    private fun walletMode(): WalletFlowWalletMode? = when (viewModel.walletFlow.value) {
-        is Wallet.Legacy -> WalletFlowWalletMode.Single
-        is Wallet.Multichain -> WalletFlowWalletMode.Multi
-        null -> null
     }
 
     companion object {

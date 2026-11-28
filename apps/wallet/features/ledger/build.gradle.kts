@@ -29,10 +29,9 @@ dependencies {
     implementation(projects.ui.uikit.icon)
     implementation(projects.ui.uikit.color)
 
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
     implementation(projects.lib.ledgerkit)
     implementation(projects.lib.log)
-    implementation(projects.lib.extensions)
 
     testImplementation(libs.junit)
     testImplementation(testFixtures(projects.apps.wallet.testing))

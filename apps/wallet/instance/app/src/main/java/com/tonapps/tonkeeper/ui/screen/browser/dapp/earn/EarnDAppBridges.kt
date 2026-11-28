@@ -1,7 +1,6 @@
 package com.tonapps.tonkeeper.ui.screen.browser.dapp.earn
 
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.DappBrowser.DappAppClickFrom
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.tonkeeper.manager.earn.EarnUrlResolver
@@ -26,7 +25,6 @@ internal class EarnDAppBridges(
     private val accountRepository: McAccountRepository,
     private val providerRepository: EvmProviderRepository,
     private val evmProtocol: EvmProviderProtocol,
-    private val analytics: AnalyticsHelper,
     private val settingsRepository: SettingsRepository,
     private val earnUrlResolver: EarnUrlResolver,
     private val confirmSheetQueue: ConfirmSheetQueue,
@@ -34,9 +32,7 @@ internal class EarnDAppBridges(
     openedFrom: DappAppClickFrom,
 ) : BaseBridges() {
 
-    val earnAnalytics = EarnDAppAnalytics(openedFrom)
-
-    private val nativeMethods = EarnNativeMethods(analytics::simpleTrackEvent, ::currentTheme)
+    private val nativeMethods = EarnNativeMethods(::currentTheme)
 
     override fun createBridges(scope: CoroutineScope): List<InAppBridge<*, *>> {
         return listOf(nativeBridge(), evmBridge(scope))
@@ -58,9 +54,12 @@ internal class EarnDAppBridges(
             dappName = DAPP_NAME,
             providerRepository = providerRepository,
             confirmSheetQueue = confirmSheetQueue,
-            signListener = object : EvmSignListener by earnAnalytics {
+            signListener = object : EvmSignListener {
+                override fun onRequested(request: Request, chain: Chain.Evm) = Unit
+                override fun onRejected(request: Request, chain: Chain.Evm) = Unit
+                override fun onFailed(request: Request, chain: Chain.Evm, code: Int, message: String) = Unit
+
                 override fun onSigned(request: Request, chain: Chain.Evm) {
-                    earnAnalytics.onSigned(request, chain)
                     if (request.method == EvmProviderProtocol.METHOD_SEND_TRANSACTION) {
                         portfolioDirtyFlags.markDirty(wallet.id)
                     }

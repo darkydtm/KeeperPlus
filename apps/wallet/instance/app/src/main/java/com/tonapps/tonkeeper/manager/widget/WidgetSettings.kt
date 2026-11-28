@@ -3,7 +3,6 @@ package com.tonapps.tonkeeper.manager.widget
 import android.content.Context
 import android.content.SharedPreferences
 import com.tonapps.log.L
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.extensions.constructor
 import com.tonapps.extensions.string
 
@@ -32,7 +31,8 @@ internal class WidgetSettings(context: Context) {
             val constructor = T::class.constructor(String::class, SharedPreferences::class)
             constructor.newInstance(keyParamsPrefix(widgetId), prefs)
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

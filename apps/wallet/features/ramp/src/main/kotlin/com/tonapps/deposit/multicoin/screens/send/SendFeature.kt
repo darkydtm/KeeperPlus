@@ -5,7 +5,7 @@ import com.tonapps.blockchain.model.ConfirmInitiator
 import com.tonapps.blockchain.model.ConfirmOperations
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
 import com.tonapps.blockchain.ton.TonNetwork
@@ -25,7 +25,6 @@ import com.tonapps.core.components.AmountToggle
 import com.tonapps.core.components.withLocaleDecimalSeparator
 import com.tonapps.core.deeplink.DeepLinkBuilder
 import com.tonapps.core.deeplink.DeepLinkRoute
-import com.tonapps.deposit.multicoin.analytics.WithdrawAnalytics
 import com.tonapps.extensions.toUriOrNull
 import com.tonapps.mvi.AsyncViewModel
 import com.tonapps.mvi.MviRelay
@@ -276,8 +275,6 @@ class SendFeature(
 
     private val utm = data.utm
 
-    private val analytics = WithdrawAnalytics(data.analyticsFrom, utm = utm)
-
     private val confirmInitiator = when (data.analyticsFrom) {
         WithdrawFlowFrom.DeepLink -> ConfirmInitiator.DeepLink
         WithdrawFlowFrom.QrCode -> ConfirmInitiator.QrCode
@@ -301,8 +298,6 @@ class SendFeature(
             }
             selectedWallet.emit(wallet)
             selectedAccount.emit(account)
-            analytics.viewInsertAmount(sellAsset = account.asset.id, symbol = account.asset.symbol)
-
             val rawAmount = presetAmount ?: return@launch
             setAmountFromBaseUnits(account, rawAmount)
         }
@@ -545,12 +540,6 @@ class SendFeature(
                 symbol = account.asset.symbol,
                 amount = amt.toDisplayUnit().fmt().toDoubleOrNull() ?: 0.0,
             )
-            analytics.clickInsertAmountContinue(
-                sellAsset = txInfo.assetId,
-                symbol = txInfo.symbol,
-                amount = txInfo.amount,
-            )
-
             relay.emit(SendEvent.Continue(request, txInfo))
         }
     }

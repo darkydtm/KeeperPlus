@@ -9,7 +9,6 @@ import com.tonapps.chainkit.core.chain.model.transaction.Transaction
 import com.tonapps.chainkit.core.op.Intent
 import com.tonapps.chainkit.core.op.PayloadMeta
 import com.tonapps.core.flags.WalletFeature
-import com.tonapps.deposit.multicoin.screens.confirm.ConfirmAnalytics
 import com.tonapps.deposit.multicoin.screens.confirm.ConfirmResultListener
 import com.tonapps.deposit.multicoin.screens.confirm.base.SendingState
 import com.tonapps.deposit.multicoin.screens.confirm.base.SignatureGate
@@ -72,22 +71,11 @@ class DappTxConfirmFeature(
 
     val isCall: Boolean = request.type is ConfirmType.Call
 
-    private val analytics = ConfirmAnalytics(request)
-
     /** What the operation does for the account it leaves: a transfer, or a contract call. */
     val transaction: StateFlow<Transaction?> = account
         .map { position -> position?.let { request.transaction(it.value) } }
         .cacheState(initialValue = null)
 
-    init {
-        // Only a broadcast transaction is reported as sent; a signature the dapp sends itself is not.
-        if (!request.action.isSignOnly) {
-            bgScope.launch {
-                sendingState.first { it == SendingState.Done }
-                transaction.value?.let { analytics.transactionSent(it, fee = null, quote = null, isHardware = false, ledgerModel = null) }
-            }
-        }
-    }
 }
 
 // A dapp's request is listed no amounts: what the screen shows is read off the request itself, which

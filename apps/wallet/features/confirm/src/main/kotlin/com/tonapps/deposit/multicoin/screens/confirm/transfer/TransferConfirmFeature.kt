@@ -17,7 +17,6 @@ import com.tonapps.chainkit.core.op.PayloadMeta
 import com.tonapps.chainkit.transaction.GasReservePolicy
 import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.core.flags.WalletFeature
-import com.tonapps.deposit.multicoin.screens.confirm.ConfirmAnalytics
 import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationError
 import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationErrorCause
 import com.tonapps.deposit.multicoin.screens.confirm.base.SendingState
@@ -85,8 +84,6 @@ class TransferConfirmFeature(
 
     val transfer = request.type as ConfirmType.Transfer
 
-    private val analytics = ConfirmAnalytics(request)
-
     /** The send as the user asked for it; null until the sender's position is read. */
     val asked: StateFlow<Transaction.Transfer?> = account
         .map { position -> position?.let { request.asked(it.value) } }
@@ -119,7 +116,6 @@ class TransferConfirmFeature(
                 amount = amount.value ?: return,
                 isMax = transfer.isMax == true,
             )
-            analytics.transactionSent(sent, method, quote = null, isHardware = false, ledgerModel = null)
             InAppReviewManager.onTransactionSent()
         } catch (e: Exception) {
             L.e(e)

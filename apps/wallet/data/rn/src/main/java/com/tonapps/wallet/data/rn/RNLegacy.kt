@@ -3,7 +3,6 @@ package com.tonapps.wallet.data.rn
 import android.content.Context
 import com.tonapps.log.L
 import androidx.fragment.app.FragmentActivity
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.extensions.bestMessage
 import com.tonapps.extensions.map
 import com.tonapps.wallet.data.rn.data.RNDecryptedData
@@ -152,7 +151,8 @@ class RNLegacy(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

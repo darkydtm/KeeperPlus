@@ -1,11 +1,7 @@
 package com.tonapps.deposit.multicoin.screens.qr
 
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
-import com.tonapps.deposit.multicoin.analytics.DepositAnalytics
 import com.tonapps.deposit.multicoin.domain.ReceiveAccountsInteractor
-import com.tonapps.deposit.screens.ramp.RampType
 import com.tonapps.ledgerkit.LedgerFailureException
 import com.tonapps.log.L
 import com.tonapps.mvi.AsyncViewModel
@@ -43,17 +39,10 @@ class ReceiveQrFeature(
 
     val state: StateFlow<State> field = MutableStateFlow<State>(State.Loading)
 
-    private val analytics = DepositAnalytics(
-        RampType.RampOn, data.analyticsFrom, DepositFlowWalletMode.Multi, screen = DepositFlowDepositScreen.AddFunds,
-    )
-
     init {
         bgScope.launch {
             try {
                 val account = receiveAccounts.findAccountForAsset(data.walletId, data.assetId)
-                account?.let { entity ->
-                    DepositAnalytics.networkOrNull(entity.network)?.let(analytics::viewReceiveTokens)
-                }
                 state.emit(account?.let { State.Qr(it, canVerifyOnLedger = isHardware(it.walletId)) } ?: State.AccountNotFound)
             } catch (e: CancellationException) {
                 // Not a `finally`: on ViewModel teardown AccountNotFound must not slip out and

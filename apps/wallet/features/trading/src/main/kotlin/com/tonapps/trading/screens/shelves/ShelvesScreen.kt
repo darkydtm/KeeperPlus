@@ -114,7 +114,6 @@ import ui.components.moon.container.MoonScaffold
 import ui.components.moon.screen.MoonEmptyScreen
 import ui.components.popup.ActionMenuHorizontalAlignment
 import ui.painterResource
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
 import com.tonapps.core.components.BannersViewer
 import com.tonapps.core.deeplink.DeepLinkBuilder
@@ -154,13 +153,6 @@ fun ShelvesScreen(
     val loyalty by feature.loyalty.collectAsStateWorkaround()
     val hiddenBalances by feature.hiddenBalances.collectAsStateWorkaround()
 
-    val raffleEvents = AnalyticsHelper.Default.events.mysteryRaffle
-    LaunchedEffect(banners.isNotEmpty()) {
-        if (banners.isNotEmpty()) {
-            raffleEvents.raffleBannerView(MysteryRaffleSource.Trade)
-        }
-    }
-
     ShelvesContent(
         isLoading = shelfGroups == null,
         isRefreshing = isRefreshing,
@@ -178,18 +170,15 @@ fun ShelvesScreen(
         onOpenLoyalty = { onOpenLink(LOYALTY_DEEPLINK) },
         banners = banners,
         onBannerClick = { payload ->
-            raffleEvents.raffleBannerClick(MysteryRaffleSource.Trade)
             onOpenLink(payload.withRaffleSource(MysteryRaffleSource.Trade.key))
         },
         onHideBanner = { banner ->
-            raffleEvents.raffleBannerDismiss(MysteryRaffleSource.Trade)
             feature.hideBanner(banner)
         },
         onRefresh = feature::refresh,
         onOpenSearch = onOpenSearch,
         onOpenSeeAll = onOpenSeeAll,
         onOpenAssetDetails = {
-            feature.trackAssetClick(it)
             onOpenAssetDetails(it)
         },
         onOpenPerps = onOpenPerps,
@@ -454,7 +443,6 @@ private fun ShelvesContent(
 
                         ShelvesHeader.Banners -> BannersViewer(
                             banners = banners,
-                            analytics = null,
                             onClick = { button -> onBannerClick(button.payload) },
                             onHide = onHideBanner,
                             modifier = Modifier.padding(top = 8.dp),

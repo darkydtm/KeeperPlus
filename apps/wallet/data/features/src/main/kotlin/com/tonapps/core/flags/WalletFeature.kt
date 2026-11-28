@@ -34,22 +34,6 @@ enum class WalletFeatureKey(
         // reported as on.
         val switchable: List<WalletFeatureKey>
             get() = entries.filter { !it.debugOnly || BuildConfig.DEBUG }
-
-        fun asAnalyticsProps(): Map<String, Any> {
-            val props = mutableMapOf<String, Any>()
-            // Not every entry: a key the build ignores is not a feature that is on.
-            switchable.forEach { key ->
-                val isEnabled = when (key) {
-                    IS_PERPS_ENABLED -> WalletFeature.Perps.isEnabled
-                    IS_LIQUID_GLASS_ENABLED -> WalletFeature.LiquidGlass.value
-                    else -> FeatureManager.isEnabled(key)
-                }
-                if (isEnabled) {
-                    props["ff_${key.featureKey}"] = true
-                }
-            }
-            return props
-        }
     }
 }
 

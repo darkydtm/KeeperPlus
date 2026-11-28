@@ -56,6 +56,18 @@ sealed class Item(type: Int, val name: String): BaseListItem(type) {
         name: String
     ): Item(TYPE_TEXT, name)
 
+    data class Promotions(val enabled: Boolean, override val position: ListCell.Position) : Text(
+        R.string.settings_promotions, "", position, "promotions"
+    )
+
+    data class ClickHaptics(val enabled: Boolean, override val position: ListCell.Position) : Text(
+        R.string.settings_click_haptics, "", position, "click_haptics"
+    )
+
+    data class ClickHapticsStrength(val strength: Int, override val position: ListCell.Position) : Text(
+        R.string.settings_click_haptics_strength, strength.toString(), position, "click_haptics_strength"
+    )
+
     class Currency(
         code: String,
         position: ListCell.Position

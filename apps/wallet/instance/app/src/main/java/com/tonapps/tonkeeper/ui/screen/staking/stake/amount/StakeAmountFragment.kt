@@ -194,7 +194,6 @@ class StakeAmountFragment :
     }
 
     private fun openConfirm() {
-        primaryViewModel.onConfirm()
         setFragment(StakeConfirmFragment.newInstance())
     }
 

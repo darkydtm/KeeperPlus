@@ -44,11 +44,9 @@ fun AssetDetailsScreen(
     LifecycleResumeEffect(feature, isTopFragment) {
         if (isTopFragment) {
             feature.sendAction(AssetDetailsAction.SetResumed(true))
-            feature.sendAction(AssetDetailsAction.Shown)
         }
         onPauseOrDispose {
             feature.sendAction(AssetDetailsAction.SetResumed(false))
-            feature.sendAction(AssetDetailsAction.Hidden)
         }
     }
 
@@ -73,7 +71,6 @@ fun AssetDetailsScreen(
             onSeeAllActivities = onSeeAllActivities,
             onToggleVisibility = { feature.sendAction(AssetDetailsAction.ToggleVisibility) },
             onToggleFavorite = { feature.sendAction(AssetDetailsAction.ToggleFavorite) },
-            onTrackButtonClick = { feature.trackButtonClick(it) },
             onRefresh = { feature.sendAction(AssetDetailsAction.PullToRefresh) },
             onOpenPerpMarket = onOpenPerpMarket,
             onBack = onBack,
@@ -100,7 +97,6 @@ fun AssetDetailsScreen(
             onSeeAllActivities = onSeeAllActivities,
             onToggleVisibility = { feature.sendAction(AssetDetailsAction.ToggleVisibility) },
             onToggleFavorite = { feature.sendAction(AssetDetailsAction.ToggleFavorite) },
-            onTrackButtonClick = { feature.trackButtonClick(it) },
             onRefresh = { feature.sendAction(AssetDetailsAction.PullToRefresh) },
             onOpenPerpMarket = onOpenPerpMarket,
             onBack = onBack,

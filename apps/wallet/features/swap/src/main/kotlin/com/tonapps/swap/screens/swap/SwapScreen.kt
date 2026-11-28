@@ -41,7 +41,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,11 +66,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.tonapps.blockchain.model.ConfirmRequest
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
-import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeType
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeWalletMode
 import com.tonapps.chainkit.core.chain.model.account.CoinType
 import com.tonapps.chainkit.core.chain.model.num.BaseUnit
 import com.tonapps.chainkit.core.chain.model.num.Formatter
@@ -171,26 +166,6 @@ fun SwapScreen(
     val sendPhase = send?.phase
     val frozen = sendPhase == SwapSendPhase.Working || sendPhase == SwapSendPhase.Done
     val inputInFiat = amountInput.inFiat
-    val raffleEvents = AnalyticsHelper.Default.events.mysteryRaffle
-    LaunchedEffect(zeroFeeRaffleId != null) {
-        if (zeroFeeRaffleId != null) {
-            raffleEvents.raffleBannerView(MysteryRaffleSource.SwapPromo)
-        }
-    }
-
-    val swapEvents = remember(feature) { AnalyticsHelper.Default.eventsTaggedWith(feature.utm).swapsNative }
-    // Saved, so coming back from the asset picker (which disposes this entry) does not re-fire.
-    var openTracked by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        if (!openTracked) {
-            openTracked = true
-            swapEvents.swapOpen(
-                type = SwapsNativeType.Native,
-                walletMode = SwapsNativeWalletMode.Multi,
-            )
-        }
-    }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isTopFragment = LocalIsTopFragment.current
@@ -286,7 +261,6 @@ fun SwapScreen(
                     },
                     onTitleClick = zeroFeeRaffleId?.let { raffleId ->
                         {
-                            raffleEvents.raffleBannerClick(MysteryRaffleSource.SwapPromo)
                             onOpenRaffle(raffleId)
                         }
                     },

@@ -7,15 +7,17 @@ import com.tonapps.log.L
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.api.entity.LoyaltyProfileEntity
 import com.tonapps.wallet.data.core.BlobDataSource
+import com.tonapps.wallet.data.settings.SettingsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
 class LoyaltyRepository(
     private val context: Context,
     private val api: API,
+    private val settingsRepository: SettingsRepository,
 ) {
 
     private val profileCache = BlobDataSource.simpleJSON<LoyaltyProfileEntity>(context, PROFILE_CACHE_PATH)
@@ -40,15 +43,14 @@ class LoyaltyRepository(
 
     private val referralCodeLock = Any()
 
-    fun entryFlow(walletId: String): Flow<LoyaltyEntry> = flow {
-        if (!WalletFeature.Loyalty.isEnabled) {
-            emit(LoyaltyEntry.Hidden)
-            return@flow
+    fun entryFlow(walletId: String): Flow<LoyaltyEntry> = settingsRepository.promotionsEnabledFlow.flatMapLatest { enabled ->
+        if (!enabled || !WalletFeature.Loyalty.isEnabled) {
+            flowOf(LoyaltyEntry.Hidden)
+        } else {
+            combine(profileFlow(walletId), bannerHiddenWallets) { profile, hiddenWallets ->
+                LoyaltyEntry.of(profile, isBannerHidden = walletId in hiddenWallets)
+            }
         }
-        val entries = combine(profileFlow(walletId), bannerHiddenWallets) { profile, hiddenWallets ->
-            LoyaltyEntry.of(profile, isBannerHidden = walletId in hiddenWallets)
-        }
-        emitAll(entries)
     }.distinctUntilChanged().flowOn(Dispatchers.IO)
 
     fun hideBanner(walletId: String) {
@@ -59,7 +61,7 @@ class LoyaltyRepository(
     }
 
     suspend fun showsSection(walletId: String): Boolean = withContext(Dispatchers.IO) {
-        if (!WalletFeature.Loyalty.isEnabled) {
+        if (!settingsRepository.promotionsEnabled || !WalletFeature.Loyalty.isEnabled) {
             return@withContext false
         }
         val profile = cachedProfile(walletId) ?: loadProfile(walletId)
@@ -113,6 +115,7 @@ class LoyaltyRepository(
     }
 
     private fun loadProfile(walletId: String): LoyaltyProfileEntity? {
+        if (!settingsRepository.promotionsEnabled) return null
         return try {
             api.loyalty.getProfile(walletId).also { profile ->
                 profiles[walletId] = profile

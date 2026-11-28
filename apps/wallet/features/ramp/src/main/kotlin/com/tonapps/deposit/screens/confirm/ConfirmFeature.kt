@@ -16,13 +16,7 @@ import com.tonapps.blockchain.ton.contract.WalletFeature
 import com.tonapps.blockchain.ton.extensions.EmptyPrivateKeyEd25519
 import com.tonapps.blockchain.ton.extensions.base64
 import com.tonapps.blockchain.tron.TronTransfer
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
-import com.tonapps.core.helper.SendRedMetadata
-import com.tonapps.core.helper.TransactionSentAnalytics
-import com.tonapps.core.helper.analyticsAssetId
-import com.tonapps.core.helper.nftAnalyticsAssetId
 import com.tonapps.deposit.screens.send.SendException
 import com.tonapps.deposit.screens.send.SendParams
 import com.tonapps.deposit.screens.send.state.SendDestination
@@ -242,42 +236,14 @@ class ConfirmFeature(
         wallet = accountRepository.getWalletById(params.walletId)
             ?: return // TODO hide
 
-        val operationId = generateUuid()
-        val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Transfer,
-            operation = Events.RedOperations.RedOperationsOperation.Emulate,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             if (params.selectedToken.blockchain == Blockchain.TRON) {
                 initTron()
             } else {
                 initTon()
             }
-            val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
         } catch (e: Throwable) {
             L.e("ConfirmFeature", "Init error", e)
-            val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             setState { ConfirmState.Error(e.message ?: "Unknown error") }
         }
     }
@@ -547,49 +513,6 @@ class ConfirmFeature(
     private suspend fun handleSign(context: Context) {
         setState<ConfirmState.Ready> { copy(signingState = SigningState.Loading) }
 
-        val analyticsFrom = params.analyticsFrom
-        val analyticsEvents = AnalyticsHelper.Default.eventsTaggedWith(params.utm)
-        val token = params.selectedToken.balance.token
-        val amount = params.tokenAmount.value.toDouble()
-        val readyState = obtainSpecificState<ConfirmState.Ready>()
-        val feeAsset = getFeeAsset(readyState?.selectedFee)
-        val assetId = token.analyticsAssetId()
-
-        analyticsEvents.sendNative.sendConfirm(
-            from = analyticsFrom,
-            asset = assetId,
-            amount = amount,
-            feeAsset = feeAsset,
-            appId = null,
-        )
-
-        if (params.exchangeData != null) {
-            analyticsEvents.withdrawFlow.withdrawSendConfirm(
-                from = params.withdrawFlowFrom,
-                withdrawOption = Events.WithdrawFlow.WithdrawFlowWithdrawOption.GetUsdtOtherNetworks,
-                sellAsset = assetId,
-                stablecoinSymbol = token.symbol,
-                buyAsset = assetId,
-                amount = amount,
-                feeAsset = getWithdrawFeeAsset(readyState?.selectedFee),
-            )
-        }
-
-        val operationId = generateUuid()
-        val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Transfer,
-            operation = Events.RedOperations.RedOperationsOperation.Send,
-            attemptSource = SendRedMetadata.attemptSource(analyticsFrom),
-            startedAtMs = startedAtMs,
-            otherMetadata = if (isNft) {
-                SendRedMetadata.nftTransfer(analyticsFrom, nftAnalyticsAssetId(params.nftAddress), feeAsset)
-            } else {
-                SendRedMetadata.transfer(analyticsFrom, assetId, amount, feeAsset, token.symbol)
-            },
-        )
-
         try {
             val state = obtainSpecificState<ConfirmState.Ready>()
 
@@ -604,85 +527,13 @@ class ConfirmFeature(
                 signTon(context)
             }
 
-            val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Send,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
-
-            analyticsEvents.sendNative.sendSuccess(
-                from = analyticsFrom,
-                asset = assetId,
-                amount = amount,
-                feeAsset = feeAsset,
-                appId = null,
-            )
-
-            TransactionSentAnalytics.transactionSent(
-                wallet = wallet,
-                category = Events.TransactionSent.TransactionSentCategory.Transfer,
-                categoryDetail = when {
-                    isNft -> Events.TransactionSent.TransactionSentCategoryDetail.Nft
-                    token.isTon || token.isTrx -> Events.TransactionSent.TransactionSentCategoryDetail.Coin
-                    else -> Events.TransactionSent.TransactionSentCategoryDetail.Token
-                },
-                asset = if (isNft) {
-                    nftAnalyticsAssetId(params.nftAddress)
-                } else {
-                    assetId
-                },
-                amount = if (isNft) {
-                    1.0
-                } else {
-                    amount
-                },
-                feeAsset = TransactionSentAnalytics.feeAsset(feeAsset),
-                initiatedBy = TransactionSentAnalytics.initiatedBy(analyticsFrom),
-                isMax = params.isMaxAmount,
-                utm = params.utm,
-            )
-
-            if (params.exchangeData != null) {
-                analyticsEvents.withdrawFlow.withdrawSendSuccess(
-                    from = params.withdrawFlowFrom,
-                    withdrawOption = Events.WithdrawFlow.WithdrawFlowWithdrawOption.GetUsdtOtherNetworks,
-                    sellAsset = assetId,
-                    stablecoinSymbol = token.symbol,
-                    buyAsset = assetId,
-                    amount = amount,
-                    feeAsset = getWithdrawFeeAsset(readyState?.selectedFee),
-                )
-            }
 
             setState<ConfirmState.Ready> { copy(signingState = SigningState.Success) }
         } catch (e: Throwable) {
             L.e("ConfirmFeature", "Sign error", e)
-            val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Transfer,
-                operation = Events.RedOperations.RedOperationsOperation.Send,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             if (e is CancellationException) {
                 setState<ConfirmState.Ready> { copy(signingState = SigningState.Idle) }
             } else {
-                analyticsEvents.sendNative.sendFailed(
-                    from = analyticsFrom,
-                    asset = assetId,
-                    amount = amount,
-                    feeAsset = feeAsset,
-                    errorCode = 0,
-                    errorMessage = e.message ?: "unknown",
-                    appId = null,
-                )
-
                 val error = when (e) {
                     is SendException.InsufficientBalance -> ConfirmationError.InsufficientBalance
                     is SignatureDisabledException -> ConfirmationError.Message(e.getMessage(context))

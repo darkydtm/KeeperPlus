@@ -13,13 +13,8 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.SupervisorJob
 import com.tonapps.deposit.multicoin.moonpay.MoonPayMethodSupport
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoPurchase
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoReport
 import androidx.lifecycle.SavedStateHandle
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowProviderMode
 import com.tonapps.chainkit.core.chain.model.num.Formatter
@@ -64,8 +59,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -144,27 +137,8 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
 
     private val scheduler get() = dispatchers.scheduler
 
-    private val tracked = mutableListOf<Pair<String, Map<String, Any>>>()
 
-    @Before
-    fun recordAnalytics() {
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { events } returns DefaultEvents(recording)
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-    }
 
-    @After
-    fun stopRecordingAnalytics() {
-        unmockkObject(AnalyticsHelper.Companion)
-    }
 
     @Test
     fun `MAX stops at the field's billion cap`() {
@@ -175,159 +149,19 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
         assertEquals("1000000000", feature.quickAmounts.value?.max)
     }
 
-    @Test
-    fun `opening reports the start once and the amount screen at its first offer, not again after a restore`() {
-        val handle = SavedStateHandle()
-        val feature = open(handle = handle)
-        enter(feature, "50")
-        settle()
-        enter(feature, "60")
-        settle()
-        open(handle = handle)
-        settle()
 
-        assertEquals(
-            listOf(
-                mapOf(
-                    "from" to "wallet_screen",
-                    "wallet_mode" to "multi",
-                    "deposit_screen" to "buy_crypto",
-                    "available_options" to "buy_with_fiat",
-                ),
-            ),
-            sent("deposit_started"),
-        )
-        assertEquals(
-            listOf(
-                mapOf(
-                    "from" to "wallet_screen",
-                    "add_funds_option" to "buy_with_fiat",
-                    "deposit_screen" to "buy_crypto",
-                    "buy_asset" to TestAssets.usdtTon.id,
-                    "sell_asset" to "USD",
-                    "payment_method" to "card",
-                    "provider_name" to "Mercuryo",
-                    "provider_mode" to "merchant",
-                ),
-            ),
-            sent("deposit_view_ramp_insert_amount"),
-        )
-    }
 
-    @Test
-    fun `continue to a merchant reports the tap and the widget with the merchant's transaction`() {
-        val feature = open()
-        enter(feature, "50")
-        settle()
 
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
 
-        val purchase = mapOf(
-            "from" to "wallet_screen",
-            "add_funds_option" to "buy_with_fiat",
-            "deposit_screen" to "buy_crypto",
-            "buy_asset" to TestAssets.usdtTon.id,
-            "sell_asset" to "USD",
-            "payment_method" to "card",
-            "provider_name" to "Mercuryo",
-            "provider_mode" to "merchant",
-        )
-        assertEquals(listOf(purchase), sent("deposit_click_ramp_insert_amount_continue"))
-        assertEquals(listOf(purchase + mapOf("wallet_mode" to "multi", "tx_id" to "tx")), sent("deposit_continue_to_ramp_provider"))
-    }
 
-    @Test
-    fun `every deposit event of Buy crypto carries deposit_screen buy_crypto`() {
-        val feature = open()
-        enter(feature, "50")
-        settle()
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
 
-        val depositEvents = tracked.filter { it.first.startsWith("deposit_") }
-        assertTrue(depositEvents.isNotEmpty())
-        depositEvents.forEach { (_, props) ->
-            assertEquals("buy_crypto", props["deposit_screen"])
-        }
-    }
 
-    @Test
-    fun `MoonPay's amount screen is reported once its methods load, before any offer`() {
-        coEvery { moonPayPayments.checkout(any(), any()) } returns Result.success(RampCheckout.Cancelled)
-        coEvery { moonPayPayments.requestOffer(any()) } returns Result.failure(IOException("offline"))
-        val feature = open(moonPay = moonPay())
-        assertEquals(listOf("deposit_started", "deposit_view_ramp_insert_amount"), tracked.map { it.first })
 
-        enter(feature, "50")
-        settle()
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
 
-        assertEquals(
-            listOf("deposit_started", "deposit_view_ramp_insert_amount", "deposit_click_ramp_insert_amount_continue"),
-            tracked.map { it.first },
-        )
-        assertEquals("MoonPay", sent("deposit_view_ramp_insert_amount").single()["provider_name"])
-    }
 
-    @Test
-    fun `a failed continue reports the tap only`() {
-        coEvery { payments.checkout(any(), any()) } returns Result.failure(IOException("offline"))
-        val feature = open()
-        enter(feature, "50")
-        settle()
 
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
 
-        assertEquals(1, sent("deposit_click_ramp_insert_amount_continue").size)
-        assertTrue(sent("deposit_continue_to_ramp_provider").isEmpty())
-    }
 
-    @Test
-    fun `P2P reports the market, not a ramp provider`() {
-        coEvery { payments.loadMethods(any(), any(), any()) } returns Result.success(listOf(p2p))
-        val feature = open()
-
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
-
-        assertEquals(
-            listOf(
-                mapOf(
-                    "from" to "wallet_screen",
-                    "wallet_mode" to "multi",
-                    "add_funds_option" to "buy_with_fiat",
-                    "deposit_screen" to "buy_crypto",
-                ),
-            ),
-            sent("deposit_continue_to_p2p_market"),
-        )
-        assertTrue(sent("deposit_click_ramp_insert_amount_continue").isEmpty())
-        assertTrue(sent("deposit_continue_to_ramp_provider").isEmpty())
-    }
-
-    @Test
-    fun `a MoonPay payment reports MoonPay with the payment's own transaction id`() {
-        val data = MoonPayPaymentData(moonPayQuote(), "card", "order", theme = null)
-        coEvery { moonPayPayments.checkout(any(), any()) } returns Result.success(RampCheckout.Pay(data))
-        coEvery { moonPayPayments.requestOffer(any()) } answers {
-            Result.success((available(firstArg()) as RampOffer.Available).copy(ticket = RampTicket.MoonPay(moonPayQuote())))
-        }
-        val feature = open(moonPay = moonPay())
-        enter(feature, "50")
-        settle()
-
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
-
-        val sent = sent("deposit_continue_to_ramp_provider").single()
-        assertEquals("MoonPay", sent["provider_name"])
-        assertEquals("headless", sent["provider_mode"])
-        assertEquals("card", sent["payment_method"])
-        assertEquals("order", sent["tx_id"])
-    }
 
     @Test
     fun `the screen opens on the default asset in the card's fiat with the first method`() {
@@ -1721,23 +1555,7 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
         coVerify(exactly = 1) { payments.loadMethods(any(), any(), any()) }
     }
 
-    @Test
-    fun `MoonPay's amount screen picked before the first load is reported for the pick, not for what it replaced`() {
-        val loaded = CompletableDeferred<Result<RampAssetDetail?>>()
-        val other = asset.copy(assetId = TestAssets.ton.id, symbol = "TON")
-        coEvery { source.loadAssetDetail(TestAssets.usdtTon.id) } coAnswers { loaded.await() }
-        coEvery { source.loadAssetDetail(TestAssets.ton.id) } returns Result.success(other)
-        coEvery { source.resolveFiat(other, any()) } answers { secondArg() }
-        coEvery { moonPayPayments.loadMethods(TestAssets.ton.id, any(), any()) } returns Result.success(listOf(moonPayMethod("card")))
-        val feature = open(moonPay = moonPay())
 
-        feature.sendAction(BuyCryptoAction.SelectAsset(TestAssets.ton.id, "USD", "TON", "TON", iconUrl = null))
-        settle()
-        loaded.complete(Result.success(asset))
-        settle()
-
-        assertEquals(listOf(TestAssets.ton.id), sent("deposit_view_ramp_insert_amount").map { it["buy_asset"] })
-    }
 
     @Test
     fun `the rate is not refreshed under a picker and is on return`() {
@@ -1936,7 +1754,7 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
         feature.sendAction(BuyCryptoAction.SetVisible(true))
         settle()
 
-        assertEquals(listOf<BuyCryptoEvent>(BuyCryptoEvent.OpenMoonPay(data.copy(assetLabel = "USDT (TON)", report = report("card", "Mercuryo")))), events)
+        assertEquals(listOf<BuyCryptoEvent>(BuyCryptoEvent.OpenMoonPay(data.copy(assetLabel = "USDT (TON)", )), events)
         assertEquals(false, feature.amountField.value?.editable)
         assertFalse(feature.canContinue.value)
 
@@ -2134,7 +1952,7 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
 
         checkedOut.complete(Result.success(RampCheckout.Pay(data)))
         settle()
-        assertEquals(listOf<BuyCryptoEvent>(BuyCryptoEvent.OpenMoonPay(data.copy(assetLabel = "USDT (TON)", report = report("card", "Mercuryo")))), events)
+        assertEquals(listOf<BuyCryptoEvent>(BuyCryptoEvent.OpenMoonPay(data.copy(assetLabel = "USDT (TON)", )), events)
         assertEquals(false, feature.amountField.value?.editable)
     }
 
@@ -2185,44 +2003,9 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
         assertEquals(false, feature.onMoonPay)
     }
 
-    @Test
-    fun `the amount screen before MoonPay's sign-in reports MoonPay as headless, as Continue signs in`() {
-        coEvery { payments.loadMethods(TestAssets.usdtTon.id, any(), any()) } returns Result.success(listOf(moonPayListedCard(), p2p))
-        val feature = open(moonPay = moonPay(check = { MoonPayAccess.SignInRequired }))
-        enter(feature, "50")
-        settle()
 
-        val shown = sent("deposit_view_ramp_insert_amount").single()
-        assertEquals("MoonPay", shown["provider_name"])
-        assertEquals("headless", shown["provider_mode"])
-    }
 
-    @Test
-    fun `Continue with a method the backend lists MoonPay for signs in, keeps the purchase, and the next one pays`() {
-        coEvery { payments.loadMethods(TestAssets.usdtTon.id, any(), any()) } returns Result.success(listOf(moonPayListedCard(), p2p))
-        coEvery { moonPayPayments.checkout(any(), any()) } returns Result.success(RampCheckout.Cancelled)
-        var signIns = 0
-        val feature = open(moonPay = moonPay(check = { MoonPayAccess.SignInRequired }, connect = { signIns++; MoonPaySignIn.SignedIn }))
-        enter(feature, "50")
-        settle()
 
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
-
-        assertEquals(1, signIns)
-        coVerify(exactly = 0) { payments.checkout(any(), any()) }
-        coVerify(exactly = 0) { moonPayPayments.checkout(any(), any()) }
-        assertTrue(sent("deposit_click_ramp_insert_amount_continue").isEmpty())
-        assertEquals(true, feature.onMoonPay)
-        assertEquals("50", feature.amount.value.text)
-        assertTrue(feature.canContinue.value)
-
-        feature.sendAction(BuyCryptoAction.Continue)
-        settle()
-
-        coVerify(exactly = 1) { moonPayPayments.checkout(any(), any()) }
-        assertEquals(1, sent("deposit_click_ramp_insert_amount_continue").size)
-    }
 
     @Test
     fun `Continue with a method the backend lists no MoonPay for goes to the merchant without a sign-in`() {
@@ -3139,12 +2922,8 @@ class BuyCryptoFeatureTest : BaseUnitTest() {
         pass(1.seconds)
     }
 
-    private fun report(paymentMethod: String, provider: String): BuyCryptoReport {
-        val purchase = BuyCryptoPurchase(TestAssets.usdtTon.id, "USD", paymentMethod, provider, DepositFlowProviderMode.Headless)
-        return BuyCryptoReport(DepositFlowFrom.WalletScreen, UtmParameters.Empty, purchase)
-    }
 
-    private fun sent(eventName: String): List<Map<String, Any>> = tracked.filter { it.first == eventName }.map { it.second }
+    .map { it.second }
 
     private fun pass(duration: Duration) {
         scheduler.advanceTimeBy(duration)

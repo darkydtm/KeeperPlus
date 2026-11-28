@@ -3,8 +3,6 @@ package com.tonapps.deposit.multicoin.screens.buy.method
 import androidx.lifecycle.SavedStateHandle
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoAnalytics
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoTrack
 import com.tonapps.deposit.multicoin.domain.MoonPayRamp
 import com.tonapps.deposit.multicoin.domain.RampPaymentMethod
 import com.tonapps.deposit.multicoin.domain.RampSavedCard
@@ -119,8 +117,6 @@ class BuyCryptoMethodFeature(
     private val relay = MviRelay<BuyCryptoMethodEvent>()
     val events: Flow<BuyCryptoMethodEvent> = relay.events
 
-    private val analytics = BuyCryptoAnalytics(data.analyticsFrom, data.utm)
-
     init {
         // Covers «Buy crypto», a restored one too, which never showed itself: its failures are told here.
         buy.sendAction(BuyCryptoAction.SetVisible(false))
@@ -157,18 +153,6 @@ class BuyCryptoMethodFeature(
     override val failed = buy.offer
         .map { it.failed }
         .cacheState(initialValue = false)
-
-    // Once per opening, at the first list that loads: a rotation or a process death does not show the picker again.
-    private val shownTrack = buy.offer
-        .mapNotNull { offer -> offer.takeIf { !it.loading && it.methods.isNotEmpty() } }
-        .take(1)
-        .onEach { offer ->
-            if (offer.assetId != null && offer.fiat != null && savedStateHandle.get<Boolean>(KEY_SHOWN_SENT) != true) {
-                savedStateHandle[KEY_SHOWN_SENT] = true
-                analytics.methodsShown(offer.assetId, offer.fiat, offer.methods)
-            }
-        }
-        .cacheState(initialValue = null)
 
     private sealed interface Removal {
         val cardId: String
@@ -221,7 +205,6 @@ class BuyCryptoMethodFeature(
             val assetId = offer.assetId
             val fiat = offer.fiat
             if (assetId != null && fiat != null) {
-                loaded(row.id)?.let { analytics.methodPicked(assetId, fiat, it) }
                 buy.sendAction(BuyCryptoAction.SelectMethod(row.id, fiat, row.title, row.subtitle, row.iconUrl, row.card?.icon, row.moonPay))
             }
             relay.emit(BuyCryptoMethodEvent.Picked)
@@ -260,18 +243,12 @@ class BuyCryptoMethodFeature(
         }
     }
 
-    private fun loaded(id: String): RampPaymentMethod? {
-        return buy.offer.value.methods.firstOrNull { it.id == id }
-    }
-
     private suspend fun openP2P(): Boolean {
         val offer = buy.offer.value
         val assetId = offer.assetId ?: return false
         val fiat = offer.fiat ?: return false
-        loaded(RampPaymentMethod.P2P_ID)?.let { analytics.methodPicked(assetId, fiat, it) }
         return source.createP2PSessionUrl(assetId, fiat)
             .onSuccess {
-                analytics.track(BuyCryptoTrack.ToP2P)
                 relay.emit(BuyCryptoMethodEvent.OpenUrl(it))
             }
             .onFailure {

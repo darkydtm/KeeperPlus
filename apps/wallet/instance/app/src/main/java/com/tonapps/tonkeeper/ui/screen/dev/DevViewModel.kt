@@ -3,7 +3,6 @@ package com.tonapps.tonkeeper.ui.screen.dev
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.core.requestVault
 import com.tonapps.extensions.bestMessage
@@ -95,7 +94,8 @@ class DevViewModel(
                 mcAccountRepository.removeChains(walletId, chains)
                 "Removed ${chains.joinToString { it.name }}. Lock and unlock the app to add them back."
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 "Failed: ${e.bestMessage}"
             }
             callback(result)
@@ -180,7 +180,8 @@ class DevViewModel(
                     }
                 }
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 lines.add(e.bestMessage)
                 systemLongToast("Exception: ${e.bestMessage}")
             }
@@ -195,7 +196,8 @@ class DevViewModel(
             val passcode = try {
                 rnLegacy.exportPasscodeWithBiometry()
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 systemLongToast("Exception: ${e.bestMessage}")
                 null
             }
@@ -242,7 +244,8 @@ class DevViewModel(
                     }
                 }
             } catch (e: Throwable) {
-                FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
                 lines.add(e.bestMessage)
                 systemLongToast("Exception: ${e.bestMessage}")
             }

@@ -14,7 +14,6 @@ import com.tonapps.extensions.toUriOrNull
 import com.tonapps.perps.PerpsFragment
 import com.tonapps.perps.screens.common.PerpsSkipIntroDialog
 import com.tonapps.tonkeeper.Environment
-import com.tonapps.tonkeeper.koin.analytics
 import com.tonapps.tonkeeper.koin.serverConfig
 import com.tonapps.wallet.api.entity.StoryEntity
 import com.tonapps.wallet.data.settings.SettingsRepository
@@ -132,18 +131,10 @@ class RemoteStoriesScreen : BaseStoriesScreen() {
             startIndex
         )
 
-        context?.analytics?.trackStoryOpen(
-            storiesId = stories.id,
-            from = from
-        )
     }
 
     override fun onStoryShown(index: Int) {
         super.onStoryShown(index)
-        context?.analytics?.trackStoryView(
-            storiesId = stories.id,
-            index = index + 1
-        )
         settingsRepository.setStoryWatchedPage(progressId, index)
     }
 
@@ -151,13 +142,6 @@ class RemoteStoriesScreen : BaseStoriesScreen() {
         super.onStoryButton(index)
         val button = stories.list.getOrNull(index)?.button ?: return
 
-        context?.analytics?.trackStoryClick(
-            storiesId = stories.id,
-            payload = button.payload,
-            type = button.type,
-            title = button.title,
-            index = index
-        )
 
         if (perpsArgs != null) {
             if (isPerpsAgreement(stories, index)) {
@@ -251,11 +235,6 @@ class RemoteStoriesScreen : BaseStoriesScreen() {
     }
 
     private fun trackSkipIntro(outcome: String) {
-        context?.analytics?.trackStoryCloseAlert(
-            storiesId = stories.id,
-            pageNumber = currentIndex.coerceAtLeast(0) + 1,
-            outcome = outcome
-        )
     }
 
     private fun removeSkipIntro() {

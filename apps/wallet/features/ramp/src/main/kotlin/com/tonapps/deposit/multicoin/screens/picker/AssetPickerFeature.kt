@@ -9,7 +9,6 @@ import androidx.paging.cachedIn
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
 import com.tonapps.chainkit.core.chain.model.account.Network
-import com.tonapps.deposit.multicoin.analytics.WithdrawAnalytics
 import com.tonapps.mvi.AsyncViewModel
 import com.tonapps.wallet.data.multichain.account.AccountWithDetails
 import com.tonapps.wallet.data.multichain.account.McAccountRepository
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import java.util.concurrent.atomic.AtomicBoolean
 
 data class AssetPickerAccount(
     val account: AccountWithDetails,
@@ -39,11 +37,6 @@ class AssetPickerFeature(
 
     val selectedFilter: StateFlow<Network.Type?> field = MutableStateFlow(null)
     val queryFilter: StateFlow<String?> field = MutableStateFlow(null)
-
-    val analytics = WithdrawAnalytics(analyticsFrom, utm = utm)
-
-    // The pager is rebuilt on every search/chain filter change; the screen is only "viewed" once.
-    private val viewTracked = AtomicBoolean(false)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val accountsFlow = combine(
@@ -68,7 +61,6 @@ class AssetPickerFeature(
                         currency = currencyCode,
                         query = query,
                         network = network?.id,
-                        onFirstPageLoaded = ::trackView,
                     )
                 },
             ).flow.map { pagingData ->
@@ -86,9 +78,4 @@ class AssetPickerFeature(
         queryFilter.tryEmit(query)
     }
 
-    private fun trackView(accounts: List<AccountWithDetails>) {
-        if (viewTracked.compareAndSet(false, true)) {
-            analytics.viewChooseAsset(accounts.map { it.asset.id })
-        }
-    }
 }

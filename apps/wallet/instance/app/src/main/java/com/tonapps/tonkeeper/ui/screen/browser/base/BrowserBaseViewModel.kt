@@ -2,13 +2,9 @@ package com.tonapps.tonkeeper.ui.screen.browser.base
 
 import android.app.Application
 import androidx.core.view.WindowInsetsCompat
-import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserType
 import com.tonapps.extensions.MutableEffectFlow
 import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
-import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
-import com.tonapps.wallet.api.API
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.chainkit.core.chain.model.account.Network
 import com.tonapps.wallet.data.browser.BrowserRepository
@@ -24,7 +20,6 @@ class BrowserBaseViewModel(
     private val wallet: WalletEntity,
     private val browserRepository: BrowserRepository,
     private val settingsRepository: SettingsRepository,
-    private val api: API,
     private val environment: Environment,
 ): BaseWalletVM(app) {
 
@@ -33,14 +28,6 @@ class BrowserBaseViewModel(
 
     private val _insetsRootFlow = MutableEffectFlow<WindowInsetsCompat>()
     val insetsRootFlow = _insetsRootFlow.asSharedFlow()
-
-    private var activeTab: DappBrowserType? = null
-    private val defaultTab: DappBrowserType
-        get() = if (api.getConfig(wallet.network).flags.disableDApps) {
-            DappBrowserType.Connected
-        } else {
-            DappBrowserType.Explore
-        }
 
     val pendingChainFlow: StateFlow<Network.Type?> field = MutableStateFlow(null)
 
@@ -52,27 +39,6 @@ class BrowserBaseViewModel(
         pendingChainFlow.value = null
     }
 
-    fun setActiveTab(type: DappBrowserType) {
-        activeTab = type
-    }
-
-    fun trackBrowserOpen(from: String, utm: UtmParameters) {
-        DappBrowserAnalytics.browserOpen(
-            from = from,
-            type = activeTab ?: defaultTab,
-            country = environment.deviceCountry,
-            utm = utm,
-        )
-    }
-
-    fun trackTabClick(type: DappBrowserType) {
-        activeTab = type
-        DappBrowserAnalytics.tabClick(
-            type = type,
-            country = environment.deviceCountry
-        )
-    }
-
     fun setInsetsRoot(value: WindowInsetsCompat) {
         _insetsRootFlow.tryEmit(value)
     }
@@ -82,6 +48,9 @@ class BrowserBaseViewModel(
     }
 
     suspend fun hasCategory(category: String): Boolean = withContext(Dispatchers.IO) {
+        if (!settingsRepository.promotionsEnabled) {
+            return@withContext false
+        }
         val categories = browserRepository.loadCategories(
             country = environment.deviceCountry,
             network = wallet.network,

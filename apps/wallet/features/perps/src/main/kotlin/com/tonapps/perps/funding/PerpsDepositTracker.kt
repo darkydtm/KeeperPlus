@@ -9,11 +9,9 @@ import com.tonapps.chainkit.core.op.Payload
 import com.tonapps.chainkit.core.op.PayloadMeta
 import com.tonapps.chainkit.core.op.SignedOperation
 import com.tonapps.chainkit.core.op.SignedPayload
-import com.tonapps.deposit.multicoin.screens.confirm.base.ConfirmationError
 import com.tonapps.deposit.multicoin.screens.confirm.base.operation.SentPayload
 import com.tonapps.deposit.multicoin.screens.confirm.fee.mayHaveRelayed
 import com.tonapps.deposit.multicoin.screens.confirm.perpetual.PerpetualDepositTracker
-import com.tonapps.perps.PerpsAnalytics
 import com.tonapps.wallet.ChainKitProvider
 import com.tonapps.wallet.PendingSwap
 import com.tonapps.wallet.data.multichain.lighter.PerpetualDepositProvider
@@ -48,14 +46,6 @@ class PerpsDepositTracker(
         journalDeposit(request, operation.id, wallet) { deposit, fundingAsset ->
             steps(deposit, fundingAsset, operation)
         }
-    }
-
-    override fun onError(error: ConfirmationError) {
-        PerpsAnalytics.depositConfirmFailed(error)
-    }
-
-    override fun onQuoteChanged() {
-        PerpsAnalytics.depositQuoteChanged()
     }
 
     override suspend fun onRelayed(request: ConfirmRequest, account: Account, wallet: MnemonicWallet) {
@@ -141,7 +131,6 @@ class PerpsDepositTracker(
                         it.sent(item.payload.payloadId, item.txHash)
                     }
                 }
-                PerpsAnalytics.depositConfirmed(request.perpetualDeposit(), request.data.assetId, operation.id)
                 sent
             }
         } finally {
@@ -171,7 +160,6 @@ class PerpsDepositTracker(
                 }
                 val step = record.steps.last()
                 journal.update(record.operationId, record.revision) { it.relayed(step.stepId, hash) }
-                PerpsAnalytics.depositConfirmed(deposit, request.data.assetId, operationId)
                 hash
             }
         } finally {

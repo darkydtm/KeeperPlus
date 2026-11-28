@@ -10,7 +10,6 @@ import android.provider.Settings
 import android.security.KeyStoreException as AndroidKeyStoreException
 import android.security.keystore.UserNotAuthenticatedException
 import androidx.security.crypto.EncryptedSharedPreferences
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.extensions.getByteArray
 import com.tonapps.log.L
 import java.security.GeneralSecurityException
@@ -131,13 +130,8 @@ class SecurityStorageBox(
                     return SecurityStorageBox(prefs)
                 } catch (e: Throwable) {
                     if (e is GeneralSecurityException && e.requiresDeviceCredential()) {
-                        throw DeviceCredentialRequiredException(e).also {
-                            IssueHelper.recordException(it)
-                        }
+                        throw DeviceCredentialRequiredException(e)
                     }
-
-                    IssueHelper
-                        .recordException(KeyHelperException.Create("Can't create new KeyStore", e))
 
                     throw e
                 }
@@ -191,10 +185,7 @@ object Security {
         } catch (e: Throwable) {
             L.e(e, "Error during private key generation")
 
-            throw KeyHelperException.Create("Failed to generate AES SK").also {
-                IssueHelper
-                    .recordException(it)
-            }
+            throw KeyHelperException.Create("Failed to generate AES SK")
         }
     }
 

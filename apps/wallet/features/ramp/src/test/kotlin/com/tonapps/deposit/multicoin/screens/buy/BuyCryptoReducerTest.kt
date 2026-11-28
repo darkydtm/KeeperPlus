@@ -2,9 +2,6 @@ package com.tonapps.deposit.multicoin.screens.buy
 
 import com.tonapps.deposit.multicoin.moonpay.api.MoonPayPaymentMethodReference
 import com.tonapps.deposit.multicoin.screens.buy.BuyCryptoReducer.ButtonPhase
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoPurchase
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoReport
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoTrack
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowProviderMode
@@ -45,7 +42,7 @@ class BuyCryptoReducerTest {
 
     private val moonPay = mockk<RampPayments>()
     private val buttonIds = generateSequence(1) { it + 1 }.map { "b$it" }.iterator()
-    private val reducer = BuyCryptoReducer(moonPay, DepositFlowFrom.WalletScreen, UtmParameters.Empty, buttonIds::next)
+    private val reducer = BuyCryptoReducer(moonPay, buttonIds::next)
     private val method = RampPaymentMethod(
         id = "card:visa",
         title = "Debit card",
@@ -125,11 +122,7 @@ class BuyCryptoReducerTest {
         assertEquals(listOf<BuyCryptoEvent>(BuyCryptoEvent.OpenMoonPay(
                 payment.copy(
                     assetLabel = "USDT (TON)",
-                    report = BuyCryptoReport(
-                        DepositFlowFrom.WalletScreen,
-                        UtmParameters.Empty,
-                        BuyCryptoPurchase("usdt", "USD", "saved_card", "MoonPay", DepositFlowProviderMode.Headless),
-                    ),
+
                 ),
             )), step.events)
         assertFalse(step.session.canContinue)
@@ -141,14 +134,6 @@ class BuyCryptoReducerTest {
         val id = quoted.button!!.id
         val pressed = reducer.reduce(quoted, Command.ButtonPressed(id, payment.copy(quote = gpQuote("q1"), externalTransactionId = id)))
 
-        val purchases = pressed.tracks.map {
-            when (it) {
-                is BuyCryptoTrack.Continued -> it.purchase
-                is BuyCryptoTrack.ToProvider -> it.purchase
-                else -> error("unexpected $it")
-            }
-        }
-        assertEquals(listOf(DepositFlowProviderMode.Headless, DepositFlowProviderMode.Headless), purchases.map { it.mode })
     }
 
     @Test

@@ -2,12 +2,8 @@ package com.tonapps.deposit.screens.ramp.amount
 
 import com.tonapps.blockchain.model.legacy.BalanceEntity
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.deposit.data.ExchangeRepository
 import com.tonapps.deposit.data.assetsOfType
-import com.tonapps.deposit.multicoin.analytics.RampAnalytics
 import com.tonapps.deposit.screens.method.RampAsset
 import com.tonapps.deposit.screens.provider.ProviderItem
 import com.tonapps.deposit.screens.provider.ProviderQuote
@@ -38,7 +34,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import java.math.BigDecimal
-import java.util.concurrent.atomic.AtomicBoolean
 
 private val ExchangeDirection?.isBuy get() = this == ExchangeDirection.buy
 private val ExchangeDirection?.isSell get() = this == ExchangeDirection.sell
@@ -115,13 +110,6 @@ class DepositAmountFeature(
 
     private val amountSubject = MviSubject<String>()
 
-    private val analytics = RampAnalytics.of(
-        data.rampType, data.analyticsFrom, DepositFlowWalletMode.Single, data.utm, DepositFlowDepositScreen.AddFunds,
-    )
-    private val analyticsCryptoAsset = data.cryptoAsset.toCurrency.analyticsAssetId()
-    private val analyticsFiatCode = data.fiatAsset.toCurrency.code
-    private val viewTracked = AtomicBoolean(false)
-
     init {
         amountSubject.events
             .debounce(300)
@@ -150,38 +138,7 @@ class DepositAmountFeature(
         val url = quote.widgetUrl
         val txId = quote.merchantTransactionId ?: ""
 
-        runCatching {
-            val amount = quote.amount.value.toDouble()
-            analytics.clickRampInsertAmountContinue(
-                cryptoAsset = analyticsCryptoAsset,
-                fiatCode = analyticsFiatCode,
-                paymentMethod = data.paymentMethodType,
-                providerName = provider.info.title,
-                amount = amount,
-            )
-            analytics.continueToRampProvider(
-                cryptoAsset = analyticsCryptoAsset,
-                fiatCode = analyticsFiatCode,
-                paymentMethod = data.paymentMethodType,
-                providerName = provider.info.title,
-                amount = amount,
-                txId = txId,
-            )
-        }
-
         relay.emit(DepositAmountEvent.Continue(url))
-    }
-
-    private fun trackViewRampInsertAmount(provider: ProviderWithQuote?) {
-        if (provider == null || !viewTracked.compareAndSet(false, true)) {
-            return
-        }
-        analytics.viewRampInsertAmount(
-            cryptoAsset = analyticsCryptoAsset,
-            fiatCode = analyticsFiatCode,
-            paymentMethod = data.paymentMethodType,
-            providerName = provider.info.title,
-        )
     }
 
     fun onAmountInput(amount: String) {
@@ -457,7 +414,6 @@ class DepositAmountFeature(
             }
 
             obtainSpecificState<DepositAmountState.Data>()?.let { updated ->
-                trackViewRampInsertAmount(updated.selectedProvider ?: updated.providers.firstOrNull())
             }
         } catch (e: Throwable) {
             L.e(e)

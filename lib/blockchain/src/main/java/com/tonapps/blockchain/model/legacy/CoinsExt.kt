@@ -1,6 +1,5 @@
 package com.tonapps.blockchain.model.legacy
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.toBigInt
 import com.tonapps.icu.Coins
 import java.math.BigInteger
@@ -12,8 +11,8 @@ fun Coins.toGrams(): org.ton.block.Coins {
                 "BigDecimal: ${this.value}\n" +
                 "decimals: ${this.decimals}\n" +
                 "long: $value")
+// Crash reporting disabled
 
-        FirebaseCrashlytics.getInstance().recordException(exception)
         throw exception
     }
     return org.ton.block.Coins.ofNano(value.toBigInt())

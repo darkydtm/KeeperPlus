@@ -1,10 +1,7 @@
 package com.tonapps.wallet.features.ledger.pairing
 
 import androidx.lifecycle.ViewModelStore
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
 import com.tonapps.chainkit.core.chain.model.account.Address
 import com.tonapps.chainkit.core.chain.model.account.Chain
@@ -62,13 +59,10 @@ class LedgerPairingMigrationTest {
     @Before
     fun setUp() {
         coEvery { wallets.legacyWallet(LEGACY_ID) } returns LedgerLegacyWallet(LEGACY_ID, "Old Ledger", ACCOUNT_INDEX, LEGACY_KEY, LEGACY_ADDRESS)
-        val recording = object : EventExecutor {
             override fun trackEvent(eventName: String, props: Map<String, Any>) {
                 tracked += eventName to props
             }
         }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns mockk { every { events } returns DefaultEvents(recording) }
     }
 
     @After
@@ -124,25 +118,21 @@ class LedgerPairingMigrationTest {
         coVerify { wallets.prepareWalletSeeds(any(), match { it.single().descriptor.accountIndex == ACCOUNT_INDEX }) }
         assertTrue(events.any { it is LedgerPairingEvent.Import })
         assertEquals(LedgerPairingStep.Discovery, feature.state.value.step)
-        assertEquals(listOf("ledger_migration_start" to mapOf("from" to "tooltip")), tracked.toList())
     }
 
     @Test
-    fun `an app skipped while the migration reads the ledger is reported with the migration as its source`() {
+    fun `migration proceeds when an app is skipped`() {
         val skipped = mapOf(
             LedgerChainApp.Ton to LedgerAppDiscoveryState.Done,
             LedgerChainApp.Solana to LedgerAppDiscoveryState.Skipped(LedgerFailure.UserRefused(USER_REFUSED)),
         )
         coEvery { discovery.discover(any(), any(), any(), any(), any(), any(), any()) } returns discovered(LEGACY_KEY, skipped)
-        val (feature, _) = feature()
+        val (feature, events) = feature()
 
         feature.selectDevice(DEVICE)
         scheduler.advanceUntilIdle()
 
-        assertEquals(
-            mapOf("from" to "migration", "ledger_app" to "solana", "failure_type" to "user_refused", "ledger_model" to "stax"),
-            tracked.single { it.first == "ledger_discovery_error" }.second,
-        )
+        assertTrue(events.any { it is LedgerPairingEvent.Import })
     }
 
     @Test
@@ -157,8 +147,6 @@ class LedgerPairingMigrationTest {
         assertEquals(LedgerFailure.AddressMismatch(LedgerAppId.Ton), feature.state.value.scanFailure)
         coVerify(exactly = 0) { wallets.prepareWalletSeeds(any(), any()) }
         assertTrue(events.none { it is LedgerPairingEvent.Import })
-        val error = tracked.single { it.first == "ledger_migration_error" }.second
-        assertEquals(mapOf("from" to "tooltip", "failure_type" to "address_mismatch", "ledger_model" to "stax"), error)
     }
 
     @Test

@@ -12,10 +12,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.ton.connect.TONProof
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
 import com.tonapps.emoji.ui.EmojiView
 import com.tonapps.extensions.currentTimeMillis
 import com.tonapps.extensions.generateUuid
@@ -144,7 +142,6 @@ class TonConnectScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_t
 
         setDefaultState()
 
-        analytics?.eventDelegateTaggedWith(args.utm)?.tcRequest(args.app.url.toString())
     }
 
     private fun onConnectClick(wallet: WalletEntity) {
@@ -170,49 +167,17 @@ class TonConnectScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_t
             setLoadingState()
             val operationId = generateUuid()
             val startedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opAttempt(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                operation = Events.RedOperations.RedOperationsOperation.ConnectWallet,
-                attemptSource = null,
-                startedAtMs = startedAtMs,
-                otherMetadata = null,
-            )
             lifecycleScope.launch {
                 try {
                     val proof = viewModel.requestProof(wallet, args.proofDomain, proofPayload)
                     val finishedAtMs = currentTimeMillis()
-                    AnalyticsHelper.Default.events.redOperations.opTerminal(
-                        operationId = operationId,
-                        flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                        operation = Events.RedOperations.RedOperationsOperation.ConnectWallet,
-                        durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                        finishedAtMs = finishedAtMs,
-                        error = null,
-                    )
                     setResponse(wallet, proof)
                 } catch (e: CancellationException) {
                     val finishedAtMs = currentTimeMillis()
-                    AnalyticsHelper.Default.events.redOperations.opTerminal(
-                        operationId = operationId,
-                        flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                        operation = Events.RedOperations.RedOperationsOperation.ConnectWallet,
-                        durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                        finishedAtMs = finishedAtMs,
-                        error = e,
-                    )
                     context?.debugToast(e)
                     setDefaultState()
                 } catch (e: Throwable) {
                     val finishedAtMs = currentTimeMillis()
-                    AnalyticsHelper.Default.events.redOperations.opTerminal(
-                        operationId = operationId,
-                        flow = Events.RedOperations.RedOperationsFlow.TonConnect,
-                        operation = Events.RedOperations.RedOperationsOperation.ConnectWallet,
-                        durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                        finishedAtMs = finishedAtMs,
-                        error = e,
-                    )
                     context?.debugToast(e)
                     setFailedState()
                 }
@@ -225,7 +190,6 @@ class TonConnectScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_t
         proof: TONProof.Result? = null,
         proofError: BridgeError? = null,
     ) {
-        analytics?.eventDelegateTaggedWith(args.utm)?.tcConnect(args.app.url.toString(), pushCheckBoxView.checked)
         setResponse(TonConnectResponse(
             notifications = pushCheckBoxView.checked,
             proof = proof,

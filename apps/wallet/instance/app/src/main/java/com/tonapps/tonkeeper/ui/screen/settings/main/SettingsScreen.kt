@@ -4,20 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.net.toUri
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.Wallet as TonWallet
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.contract.WalletVersion
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.InappReview.InappReviewAction
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
-import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.tonkeeper.Wallet
 import com.tonapps.tonkeeper.extensions.toastLoading
 import com.tonapps.tonkeeper.helper.BrowserHelper
@@ -56,24 +49,13 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     override val fragmentName: String = "SettingsScreen"
 
-    private val from: String by lazy { requireArguments().getString(ARG_FROM)!! }
-
     override val viewModel: SettingsViewModel by viewModel()
-
-    private val reviewManager: ReviewManager by lazy {
-        ReviewManagerFactory.create(requireContext())
-    }
 
     private val searchEngineMenu: ActionSheet by lazy {
         ActionSheet(requireContext())
     }
 
     private val adapter = Adapter(::onClickItem)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        analytics?.simpleTrackScreenEvent("settings_open", from)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -84,9 +66,18 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
     }
 
     private fun onClickItem(item: Item) {
-        analytics?.simpleTrackEvent("settings_select", hashMapOf(
-            "type" to item.name
-        ))
+        if (item is Item.Promotions) {
+            viewModel.togglePromotions()
+            return
+        }
+        if (item is Item.ClickHaptics) {
+            viewModel.toggleClickHaptics()
+            return
+        }
+        if (item is Item.ClickHapticsStrength) {
+            viewModel.cycleClickHapticsStrength()
+            return
+        }
         val wallet = navigationWalletForScreens() ?: return
         when (item) {
             is Item.Backup -> navigation?.add(BackupScreen.newInstance(WalletFlowSource.Settings))
@@ -126,34 +117,14 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
             is Item.FAQ -> navigation?.openURL(item.url)
             is Item.Migration -> {
                 viewModel.markMigrationOpened()
-                navigation?.add(MigrationFragment.newInstance(MigrationFrom.Settings))
+                navigation?.add(MigrationFragment.newInstance())
             }
             else -> return
         }
     }
 
     private fun openRate() {
-        activity?.let {
-            reviewManager.requestReviewFlow().addOnCompleteListener(it) { task ->
-                if (task.isSuccessful) {
-                    startReviewFlow(task.result)
-                } else {
-                    openGooglePlay()
-                }
-            }
-        }
-    }
-
-    private fun startReviewFlow(reviewInfo: ReviewInfo) {
-        activity?.let {
-            AnalyticsHelper.Default.events.inappReview.inappReview(InappReviewAction.Manual)
-            InAppReviewManager.onManualReviewRequested()
-            reviewManager.launchReviewFlow(it, reviewInfo).addOnCompleteListener(it) { task ->
-                if (!task.isSuccessful) {
-                    openGooglePlay()
-                }
-            }
-        }
+        openGooglePlay()
     }
 
     private fun openGooglePlay() {
@@ -238,14 +209,9 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     companion object {
 
-        private const val ARG_FROM = "from"
         private const val MARKET_DETAILS_URL = "market://details?id="
         private const val PLAY_STORE_DETAILS_URL = "https://play.google.com/store/apps/details?id="
 
-        fun newInstance(from: String): SettingsScreen {
-            val screen = SettingsScreen()
-            screen.putStringArg(ARG_FROM, from)
-            return screen
-        }
+        fun newInstance(@Suppress("UNUSED_PARAMETER") from: String): SettingsScreen = SettingsScreen()
     }
 }

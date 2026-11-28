@@ -25,9 +25,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeType
-import com.tonapps.bus.generated.Events.SwapsNative.SwapsNativeWalletMode
 import com.tonapps.deposit.multicoin.screens.confirm.SwapFeeSummary
 import com.tonapps.icu.CurrencyFormatter
 import com.tonapps.uikit.icon.UIKitIcon
@@ -48,17 +45,6 @@ import ui.utils.uppercased
 private val Presets = listOf(25, 50, 75, 100)
 
 internal fun SwapFeature.onSwapClick() {
-    val sell = sellAsset.value
-    val buy = buyAsset.value
-    if (!sendsInPlace && sell != null && buy != null) {
-        AnalyticsHelper.Default.eventsTaggedWith(utm).swapsNative.swapClick(
-            type = SwapsNativeType.Native,
-            walletMode = SwapsNativeWalletMode.Multi,
-            assetFrom = sell.id,
-            assetTo = buy.id,
-            isMax = amountInput.value.isMax,
-        )
-    }
     sendAction(SwapAction.Continue)
 }
 

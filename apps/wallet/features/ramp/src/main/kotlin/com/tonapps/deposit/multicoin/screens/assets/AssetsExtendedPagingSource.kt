@@ -16,7 +16,6 @@ internal class AssetsExtendedPagingSource(
     private val query: String?,
     private val fiat: String?,
     private val chain: String?,
-    private val onFirstPageLoaded: (List<RampAsset>) -> Unit = {},
 ) : PagingSource<String, RampAsset>() {
 
     private val loadedAssetIds = ConcurrentHashMap.newKeySet<String>()
@@ -38,10 +37,6 @@ internal class AssetsExtendedPagingSource(
             val assets = configuration.assets
                 .filter { runCatching { it.asset.value }.isSuccess }
                 .dropAlreadyLoaded()
-            if (params.key == null) {
-                onFirstPageLoaded(assets)
-            }
-
             LoadResult.Page(
                 data = assets,
                 prevKey = null,

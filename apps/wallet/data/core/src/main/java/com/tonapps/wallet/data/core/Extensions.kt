@@ -2,7 +2,6 @@ package com.tonapps.wallet.data.core
 
 import android.content.Context
 import androidx.biometric.BiometricManager
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 
@@ -26,5 +25,6 @@ fun isAvailableBiometric(
 }
 
 fun recordException(e: Throwable) {
-    FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
 }

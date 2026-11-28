@@ -1,7 +1,6 @@
 package com.tonapps.tonkeeper.manager.tonconnect.bridge
 
 import com.tonapps.log.L
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.base64.encodeBase64
 import com.tonapps.blockchain.ton.connect.TONProof
 import com.tonapps.extensions.bestMessage
@@ -112,7 +111,8 @@ internal class Bridge(private val api: API) {
             true
         } catch (e: Throwable) {
             DevSettings.tonConnectLog("Failed to send message to $clientId: ${e.bestMessage}")
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             false
         }
     }
@@ -162,7 +162,8 @@ internal class Bridge(private val api: API) {
                 )
             }.catch {
                 DevSettings.tonConnectLog("Failed processing event: ${it.bestMessage}", error = true)
-                FirebaseCrashlytics.getInstance().recordException(it)
+// Crash reporting disabled
+
                 val connect = (it as? BridgeException)?.connect ?: return@catch
                 sendError(connect, BridgeError.badRequest(it.message), 0)
             }.flowOn(Dispatchers.IO)

@@ -28,6 +28,7 @@ open class App : Application() {
         Theme.clear()
         Theme.add("blue", R.style.Theme_App_Blue, title = getString(Localization.theme_deep_blue))
         Theme.add("dark", R.style.Theme_App_Dark, title = getString(Localization.theme_dark))
+        Theme.add("amoled", R.style.Theme_App_Amoled, title = "AMOLED")
         Theme.add(
             "light",
             R.style.Theme_App_Light,

@@ -33,7 +33,7 @@ enum class MoonHaptic { Tick, Confirm, Reject, None }
 
 private fun View.playMoonHaptic(haptic: MoonHaptic) {
     when (haptic) {
-        MoonHaptic.Tick -> hapticTick()
+        MoonHaptic.Tick -> ClickHaptics.perform(this)
         MoonHaptic.Confirm -> hapticConfirm()
         MoonHaptic.Reject -> hapticReject()
         MoonHaptic.None -> Unit

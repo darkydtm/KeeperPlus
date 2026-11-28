@@ -7,8 +7,6 @@ import com.tonapps.blockchain.model.ConfirmContext
 import com.tonapps.blockchain.model.ConfirmOperations
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
-import com.tonapps.bus.generated.Events.RedOperations.RedOperationsOperation
-import com.tonapps.bus.generated.Events.TransactionSent.TransactionSentLedgerModel
 import com.tonapps.chainkit.core.chain.api.models.NodeError
 import com.tonapps.chainkit.core.chain.api.models.NodeRes
 import com.tonapps.chainkit.core.chain.api.models.SignError
@@ -28,9 +26,7 @@ import com.tonapps.chainkit.core.common.getOrElse
 import com.tonapps.chainkit.transaction.GasReservePolicy
 import com.tonapps.chainkit.transaction.GasReserveResult
 import com.tonapps.core.flags.InAppReviewManager
-import com.tonapps.deposit.multicoin.screens.confirm.ConfirmAnalytics
 import com.tonapps.deposit.multicoin.screens.confirm.ConfirmResultListener
-import com.tonapps.deposit.multicoin.screens.confirm.RedOperation
 import com.tonapps.deposit.multicoin.screens.confirm.fee.TxFee
 import com.tonapps.deposit.multicoin.screens.confirm.fee.TxFeeState
 import com.tonapps.deposit.multicoin.screens.confirm.fee.TxFeeLogic
@@ -39,8 +35,6 @@ import com.tonapps.deposit.multicoin.screens.confirm.fee.GaslessSender
 import com.tonapps.deposit.multicoin.screens.confirm.fee.RelayerOutcomeUnknownException
 import com.tonapps.deposit.multicoin.screens.confirm.fee.RelayerQuoteExpiredException
 import com.tonapps.deposit.multicoin.screens.confirm.fee.RelayerSigner
-import com.tonapps.wallet.data.ledger.analytics.ledgerModel
-import com.tonapps.wallet.data.ledger.analytics.toTransactionSentModel
 import com.tonapps.wallet.data.ledger.signing.LedgerDismissedException
 import com.tonapps.wallet.data.ledger.signing.ledgerCall
 import com.tonapps.deposit.multicoin.screens.confirm.fee.RelayerRejectedException
@@ -191,8 +185,6 @@ abstract class BaseTransactionConfirmFeature(
 
     final override val sendingState = MutableStateFlow(SendingState.None) // TODO rewrite
 
-    private val analytics = ConfirmAnalytics(request)
-
     protected val refreshToken = MutableStateFlow<String?>(null)
 
     // Selection deliberately outside PendingTransaction: pendingTx is rebuilt on every refresh
@@ -230,10 +222,6 @@ abstract class BaseTransactionConfirmFeature(
 
     protected open fun onSent() = Unit
 
-    override fun onStoppedAsGone() {
-        analytics.markRequestGone()
-    }
-
     // The keys a transaction is signed with: the wallet's HD wallet, behind the passcode.
     protected open suspend fun unlockSigner(pendingTx: PendingTransaction): SigningWallet {
         return SigningWallet.Hd(unlockCryptoWallet(pendingTx.wallet.id))
@@ -263,30 +251,7 @@ abstract class BaseTransactionConfirmFeature(
         refreshToken.tryEmit(System.nanoTime().toString())
     }
 
-    // Reports preparation as a RED operation; the failure path belongs to [onPrepareFailed], which the
-    // features hand to `mapLatestCatching`.
-    protected suspend fun prepareTracked(block: suspend () -> PendingTransaction?): PendingTransaction? {
-        return analytics.redOperation(RedOperationsOperation.Emulate, otherMetadata = analytics.emulateMetadata()) {
-            val pending = try {
-                block()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                // What [onPrepareFailed] shows for a throw.
-                failure(ConfirmationError.Unknown, analytics.emulateMetadata(), cause = e)
-                throw e
-            }
-            val error = confirmationError.value
-            // The terminal names the provider the route was quoted with, not the one the screen opened with.
-            val metadata = analytics.emulateMetadata(quote = pending?.quote)
-            if (error == null) {
-                success(metadata)
-            } else {
-                failure(error, metadata)
-            }
-            pending
-        }
-    }
+    protected suspend fun prepareTracked(block: suspend () -> PendingTransaction?): PendingTransaction? = block()
 
     protected suspend fun onPrepareFailed(e: Throwable) {
         verifyError(e)
@@ -312,7 +277,6 @@ abstract class BaseTransactionConfirmFeature(
             .getOrNull()
 
         val transaction = bind(msg.operation, account.value)
-
 
         val (feeResult, nonceResult) = withContext(Async.Io) {
             val feeTask = async { provider.estimateFee(transaction) }
@@ -632,7 +596,7 @@ abstract class BaseTransactionConfirmFeature(
 
         return mainScope.launch {
             try {
-                analytics.redOperation(analytics.sendOperation) {
+                run {
                     val batch = (pendingTx.request.type as? ConfirmType.Message)
                         ?.takeIf { it.type == ConfirmType.Message.Type.Transactions }
                     val signing = if (pendingTx.wallet.isHardware) {
@@ -655,7 +619,7 @@ abstract class BaseTransactionConfirmFeature(
                         sendingState.tryEmit(SendingState.None)
                         val error = signing?.error?.let(::parseSignError) ?: ConfirmationError.Unknown
                         confirmationError.tryEmit(error)
-                        failure(error)
+
                         return@launch
                     }
 
@@ -668,7 +632,7 @@ abstract class BaseTransactionConfirmFeature(
                     }
 
                     approveDappRequest(result)
-                    success()
+
                 }
             } catch (e: Throwable) {
                 sendingState.tryEmit(SendingState.None)
@@ -710,7 +674,7 @@ abstract class BaseTransactionConfirmFeature(
 
     // solana_signAndSendTransaction: signed as solana_signTransaction is, then broadcast. Null when
     // the broadcast failed, after reporting it.
-    private suspend fun RedOperation.sendSignedTransaction(
+    private suspend fun sendSignedTransaction(
         pendingTx: PendingTransaction,
         account: Account,
         signed: String,
@@ -726,7 +690,7 @@ abstract class BaseTransactionConfirmFeature(
             sendingState.tryEmit(SendingState.None)
             val error = parseNodeError(nodeError)
             confirmationError.tryEmit(error)
-            failure(error)
+
             return null
         }
         // As after any other send: the balance and history pick the transaction up right away.
@@ -734,7 +698,7 @@ abstract class BaseTransactionConfirmFeature(
         return WcSolanaAnswers.sent(signed)
     }
 
-    private suspend fun RedOperation.signCommitted(
+    private suspend fun signCommitted(
         tx: Signing.Tx,
         pendingTx: PendingTransaction,
         fee: Fee,
@@ -806,7 +770,7 @@ abstract class BaseTransactionConfirmFeature(
         return prerequisites + main
     }
 
-    private suspend fun RedOperation.signCommittedWithLedger(
+    private suspend fun signCommittedWithLedger(
         tx: Signing.Tx,
         pendingTx: PendingTransaction,
         fee: Fee,
@@ -869,16 +833,15 @@ abstract class BaseTransactionConfirmFeature(
     /** What [tx], sent ahead of [main], is signed as. */
     protected open fun signableApproval(tx: Transaction, main: Transaction): Transaction = tx
 
-    private fun RedOperation.reportSignFailure(signError: SignError, pendingTx: PendingTransaction) {
+    private fun reportSignFailure(signError: SignError, pendingTx: PendingTransaction) {
         L.e(signError)
         sendingState.tryEmit(SendingState.None)
         val error = parseSignError(signError)
         confirmationError.tryEmit(error)
-        failure(error)
-        analytics.swapFailed(pendingTx, error)
-    }
 
-    private suspend fun RedOperation.broadcast(pendingTx: PendingTransaction, committed: SendData): String? {
+            }
+
+    private suspend fun broadcast(pendingTx: PendingTransaction, committed: SendData): String? {
         var state = committed
 
         while (state.signed.isNotEmpty()) {
@@ -930,9 +893,8 @@ abstract class BaseTransactionConfirmFeature(
                 }
                 sendingState.tryEmit(SendingState.None)
                 confirmationError.tryEmit(error)
-                failure(error)
-                analytics.swapFailed(pendingTx, error)
-                return null
+
+                                return null
             }
             val hash = result.unwrap()
             L.d("Tx hash $hash")
@@ -974,17 +936,11 @@ abstract class BaseTransactionConfirmFeature(
             return null
         }
 
-        analytics.swapConfirm(pendingTx)
-
         sendingState.tryEmit(SendingState.Loading)
 
         return mainScope.launch {
             try {
-                analytics.redOperation(
-                    operation = analytics.sendOperation,
-                    attemptSource = analytics.sendAttemptSource,
-                    otherMetadata = analytics.sendMetadata(tx.value, selected, pendingTx.quote),
-                ) {
+                run {
                     val committed = sendData.value?.takeUnless { it.staleBeforeSend } ?: run {
                         val signed = signCommitted(tx, pendingTx, fee, nonce) ?: return@launch
                         stopIfGone()
@@ -993,8 +949,6 @@ abstract class BaseTransactionConfirmFeature(
 
                     val signedResult = if (pendingTx.request.action.withSend) {
                         val hash = broadcast(pendingTx, committed) ?: return@launch
-                        analytics.transactionSent(tx.value, selected, pendingTx.quote, pendingTx.wallet.isHardware, ledgerModelOf(pendingTx))
-                        analytics.swapSuccess(pendingTx)
                         trackSuccessfulSend(pendingTx)
                         hash
                     } else {
@@ -1003,7 +957,7 @@ abstract class BaseTransactionConfirmFeature(
                     }
 
                     approveDappRequest(signedResult)
-                    success()
+
                 }
             } catch (e: Throwable) {
                 sendingState.tryEmit(SendingState.None)
@@ -1019,7 +973,6 @@ abstract class BaseTransactionConfirmFeature(
                     else -> e.toConfirmationError()
                 }
                 confirmationError.tryEmit(error)
-                analytics.swapFailed(pendingTx, error, e)
                 return@launch
             }
 
@@ -1047,12 +1000,7 @@ abstract class BaseTransactionConfirmFeature(
 
         return mainScope.launch {
             try {
-                analytics.swapConfirm(pendingTx)
-                analytics.redOperation(
-                    operation = analytics.sendOperation,
-                    attemptSource = analytics.sendAttemptSource,
-                    otherMetadata = analytics.sendMetadata(tx.value, option, pendingTx.quote),
-                ) {
+                run {
                     requireSignatureEnabled(tx.value.account)
                     val signer = if (pendingTx.wallet.isHardware) {
                         RelayerSigner.Ledger(pendingTx.wallet.id)
@@ -1066,11 +1014,9 @@ abstract class BaseTransactionConfirmFeature(
                         }
                     }
 
-                    analytics.transactionSent(tx.value, option, pendingTx.quote, pendingTx.wallet.isHardware, ledgerModelOf(pendingTx))
-                    analytics.swapSuccess(pendingTx)
                     notifyTransactionSent(pendingTx)
                     trackSuccessfulSend(pendingTx)
-                    success()
+
                 }
                 onSent()
                 sendingState.tryEmit(SendingState.Done)
@@ -1124,13 +1070,6 @@ abstract class BaseTransactionConfirmFeature(
         } else {
             ConfirmationError.Unknown
         }
-    }
-
-    private suspend fun ledgerModelOf(pendingTx: PendingTransaction): TransactionSentLedgerModel? {
-        if (!pendingTx.wallet.isHardware) {
-            return null
-        }
-        return accountRepo.ledgerModel(pendingTx.wallet.id)?.toTransactionSentModel()
     }
 
     private fun trackSuccessfulSend(pendingTx: PendingTransaction) {

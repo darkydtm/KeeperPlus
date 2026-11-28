@@ -65,7 +65,8 @@ fun MoonTheme(
             LocalGlass provides GlassConfig.isEnabled,
             // No ripple anywhere; press feedback is the scale animation instead.
             LocalRippleConfiguration provides null,
-            LocalIndication provides ScaleIndication
+            LocalIndication provides ScaleIndication,
+            LocalClickHaptic provides rememberClickHaptic()
         ) {
             content()
         }

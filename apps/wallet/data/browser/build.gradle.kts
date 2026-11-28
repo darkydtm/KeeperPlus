@@ -14,7 +14,6 @@ dependencies {
 
     implementation(projects.lib.blockchain)
     implementation(projects.lib.network)
-    implementation(projects.lib.bus)
     implementation(projects.lib.extensions)
 }
 

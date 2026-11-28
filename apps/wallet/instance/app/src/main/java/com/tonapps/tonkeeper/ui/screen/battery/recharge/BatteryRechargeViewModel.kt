@@ -2,11 +2,10 @@ package com.tonapps.tonkeeper.ui.screen.battery.recharge
 
 import android.app.Application
 import androidx.lifecycle.viewModelScope
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.extensions.equalsRawAddress
 import com.tonapps.blockchain.ton.extensions.isValidTonAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeSize
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeType
 import com.tonapps.chainkit.core.chain.model.num.Formatter
@@ -68,7 +67,6 @@ class BatteryRechargeViewModel(
     private val tokenRepository: TokenRepository,
     private val settingsRepository: SettingsRepository,
     private val api: API,
-    private val analytics: AnalyticsHelper,
     private val tonRecharge: BatteryTonRecharge,
 ) : BaseWalletVM(app) {
 
@@ -295,13 +293,6 @@ class BatteryRechargeViewModel(
             .distinctUntilChanged()
             .debounce(300L) // wait 300ms before emitting
             .onEach { params ->
-                analytics.eventsTaggedWith(args.utm).batteryNative.batterySelect(
-                    from = args.from,
-                    type = BatteryNativeType.Crypto,
-                    size = params.size,
-                    promo = params.promo,
-                    jetton = params.jetton
-                )
             }
             .launch()
 
@@ -523,13 +514,6 @@ class BatteryRechargeViewModel(
         } else {
             _selectedPackTypeFlow.value?.batterySize() ?: BatteryNativeSize.Custom
         }
-        analytics.eventsTaggedWith(args.utm).batteryNative.batterySuccess(
-            from = args.from,
-            type = BatteryNativeType.Crypto,
-            size = size,
-            promo = (promoStateFlow.value as? PromoState.Applied)?.appliedPromo,
-            jetton = _tokenFlow.value?.token?.symbol
-        )
 
         emit(boc)
     }.flowOn(Dispatchers.IO)

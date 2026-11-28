@@ -8,10 +8,8 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.extensions.hex
 import com.tonapps.blockchain.tron.TronTransaction
 import com.tonapps.blockchain.tron.TronTransfer
-import com.tonapps.bus.generated.Events.Migration.MigrationChain
 import com.tonapps.icu.Coins
 import com.tonapps.log.L
-import com.tonapps.migration.analytics.MigrationAnalytics
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.api.AuthorizationProvider
 import com.tonapps.wallet.api.tron.entity.TronResourcesEntity
@@ -44,6 +42,24 @@ import java.math.BigInteger
 
 private const val WALLETS_COUNT_CACHE_TTL_MS = 5 * 60_000L
 
+internal fun rememberEmptyMigration(
+    destinationId: String?,
+    enabled: Boolean,
+    confirmedEmpty: Boolean,
+    persist: (String) -> Unit,
+) {
+    if (enabled && confirmedEmpty && destinationId != null) persist(destinationId)
+}
+
+internal fun completeTonMigrationValues(
+    accountIds: List<String>,
+    values: Map<String, MigrationWalletValue>?,
+): Boolean = values != null && accountIds.all { accountId ->
+    val value = values[accountId]
+    value != null && value.balance >= 0 && value.nftCount >= 0 &&
+        value.jettons.all { it.balance.toBigIntegerOrNull()?.signum()?.let { sign -> sign >= 0 } == true }
+}
+
 class MigrationRepository(
     private val accountRepository: AccountRepository,
     private val mcAccountRepository: McAccountRepository,
@@ -64,19 +80,26 @@ class MigrationRepository(
 
     private val walletsCountMutex = Mutex()
 
-    suspend fun loadWallets(): List<MigratableWallet>? = withContext(Async.Io) {
+    suspend fun loadWallets(rememberEmpty: Boolean = true): List<MigratableWallet>? = withContext(Async.Io) {
+        // Capture the destination before any network work; selection can change while loading.
+        val destinationId = accountRepository.getSelectedWalletId()
         val wallets = candidateWallets()
         if (wallets.isEmpty()) {
+            rememberEmptyMigration(destinationId, rememberEmpty, true, settingsRepository::setMigrationEmpty)
             return@withContext emptyList()
         }
 
         val currency = settingsRepository.currency
         val migrationByAccount = fetchMigrationValues(wallets, currency)
             ?: return@withContext null
+        if (!completeTonMigrationValues(wallets.map { it.accountId }, migrationByAccount)) {
+            return@withContext null
+        }
         val rates = loadRates(currency)
         val tronBalancesByWalletId = loadTronBalances(wallets)
+        if (tronBalancesByWalletId == null) return@withContext null
 
-        wallets.mapNotNull { wallet ->
+        val loaded = wallets.mapNotNull { wallet ->
             MigratableWallet.create(
                 wallet = wallet,
                 value = migrationByAccount[wallet.accountId],
@@ -88,6 +111,13 @@ class MigrationRepository(
             compareByDescending<MigratableWallet> { it.fiatBalance }
                 .thenByDescending { it.nftCount },
         )
+        rememberEmptyMigration(
+            destinationId = destinationId,
+            enabled = rememberEmpty,
+            confirmedEmpty = loaded.isEmpty() && !api.getConfig(TonNetwork.MAINNET).flags.disableTron,
+            persist = settingsRepository::setMigrationEmpty,
+        )
+        loaded
     }
 
     // The cache key includes the candidate wallet ids, so adding or removing a TON wallet
@@ -101,7 +131,7 @@ class MigrationRepository(
             ) {
                 return cached.count
             }
-            val count = loadWallets()?.size ?: return cached?.count ?: 0
+            val count = loadWallets(rememberEmpty = false)?.size ?: return cached?.count ?: 0
             walletsCountCache = WalletsCount(
                 count = count,
                 candidateIds = candidateIds,
@@ -120,7 +150,6 @@ class MigrationRepository(
         val mcWalletId = accountRepository.getSelectedWalletId()
         val destinationWallet = mcWalletId?.let { mcAccountRepository.getWallet(it) }
         if (mcWalletId == null || destinationWallet == null) {
-            MigrationAnalytics.prepareError(chain = MigrationChain.Multichain, isBlocking = true)
             return@withContext null
         }
 
@@ -129,7 +158,6 @@ class MigrationRepository(
         val tonLeg = if (wallet.hasTonAssets) {
             val destinationAddress = mcAccountRepository.getTonAccount(mcWalletId)?.displayAddress
             if (destinationAddress == null) {
-                MigrationAnalytics.prepareError(chain = MigrationChain.Multichain, isBlocking = true)
                 return@withContext null
             }
             prepareTonLeg(
@@ -148,7 +176,6 @@ class MigrationRepository(
             TonLegPrepare.Empty
         }
 
-        var tronError: Throwable? = null
         val tronPrepare = try {
             prepareTron(
                 source = source,
@@ -160,25 +187,11 @@ class MigrationRepository(
             throw e
         } catch (e: Throwable) {
             L.e("MigrationRepository", "Failed to prepare TRON migration", e)
-            tronError = e
             MigrationTronPrepare.Empty
         }
 
         val tonResponse = tonLeg.response
         val hasTonPrepare = !tonResponse?.transactions.isNullOrEmpty()
-        if (wallet.hasTonAssets && tonResponse == null) {
-            MigrationAnalytics.prepareError(
-                chain = MigrationChain.Ton,
-                isBlocking = !tronPrepare.hasTransfers,
-            )
-        }
-        if (tronError != null) {
-            MigrationAnalytics.prepareError(
-                chain = MigrationChain.Tron,
-                isBlocking = !hasTonPrepare,
-                error = tronError,
-            )
-        }
         if (!hasTonPrepare && !tronPrepare.hasTransfers) {
             return@withContext null
         }
@@ -441,6 +454,7 @@ class MigrationRepository(
     }
 
     suspend fun completeRaffleMigration(mcWalletId: String) = withContext(Async.Io) {
+        if (!settingsRepository.promotionsEnabled) return@withContext
         try {
             api.multichain.raffles.completeWalletRaffleMigration(mcWalletId, xWalletId = mcWalletId)
         } catch (e: CancellationException) {
@@ -999,7 +1013,7 @@ class MigrationRepository(
 
     private suspend fun loadTronBalances(
         wallets: List<WalletEntity>,
-    ): Map<String, TronBalances> {
+    ): Map<String, TronBalances>? {
         if (api.getConfig(TonNetwork.MAINNET).flags.disableTron) {
             return emptyMap()
         }
@@ -1009,12 +1023,12 @@ class MigrationRepository(
         }
 
         val addressByWalletId = resolveTronAddresses(wallets)
-        if (addressByWalletId.isEmpty()) {
-            return emptyMap()
+        if (addressByWalletId.size != wallets.size) {
+            return null
         }
 
-        val balancesByAddress = api.tron
-            .getTronAccountBalancesBatch(addressByWalletId.values.distinct())
+        val balancesByAddress = (api.tron
+            .getTronAccountBalancesBatchOrNull(addressByWalletId.values.distinct()) ?: return null)
             .mapValues { (_, balances) ->
                 TronBalances(
                     usdt = balances.usdt.value,
@@ -1031,9 +1045,13 @@ class MigrationRepository(
     ): Map<String, String> {
         return buildMap {
             for (wallet in wallets) {
-                val address = runCatching {
+                val address = try {
                     accountRepository.getTronAddress(wallet.id)
-                }.getOrNull() ?: continue
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    null
+                } ?: continue
                 put(wallet.id, address)
             }
         }

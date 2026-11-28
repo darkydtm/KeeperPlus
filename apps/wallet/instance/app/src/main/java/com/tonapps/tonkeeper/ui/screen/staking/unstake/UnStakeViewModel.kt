@@ -18,12 +18,7 @@ import com.tonapps.blockchain.ton.extensions.storeMaybeRef
 import com.tonapps.blockchain.ton.extensions.storeOpCode
 import com.tonapps.blockchain.ton.extensions.storeQueryId
 import com.tonapps.blockchain.ton.extensions.toUserFriendly
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
-import com.tonapps.core.helper.TON_COIN_ASSET_ID
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.deposit.usecase.emulation.Emulated
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
 import com.tonapps.deposit.usecase.sign.SignUseCase
@@ -35,7 +30,6 @@ import com.tonapps.icu.CurrencyFormatter
 import com.tonapps.ledger.ton.Transaction
 import com.tonapps.legacy.enteties.SendMetadataEntity
 import com.tonapps.legacy.enteties.StakedEntity
-import com.tonapps.portfolio.analytics.StakingAnalytics
 import com.tonapps.tonkeeper.helper.DateHelper
 import com.tonapps.tonkeeper.ui.base.BaseWalletVM
 import com.tonapps.tonkeeper.ui.screen.staking.StakingInsufficientFundsUiState
@@ -205,36 +199,7 @@ class UnStakeViewModel(
                 wallet.accountId,
                 wallet.network
             ).pools.find { it.implementation == staked?.pool?.implementation }
-            analyticsProps()?.let { props ->
-                StakingAnalytics.unstakeInput(from = "staking_viewer", props = props, utm = utm)
-            }
         }
-    }
-
-    private fun analyticsProps(): StakingAnalytics.Props? {
-        val poolInfo = _poolInfoFlow.value ?: return null
-        return StakingAnalytics.Props(
-            jettonSymbol = TokenEntity.TON.symbol,
-            providerName = poolInfo.implementation.title,
-            providerDomain = poolInfo.details.url,
-        )
-    }
-
-    private fun trackUnstakeSuccess() {
-        analyticsProps()?.let { StakingAnalytics.unstakeSuccess(it, utm) }
-        val pool = _stakeFlow.value?.pool
-        TransactionSentAnalytics.transactionSent(
-            wallet = wallet,
-            category = Events.TransactionSent.TransactionSentCategory.Staking,
-            categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Unstake,
-            asset = TON_COIN_ASSET_ID,
-            amount = _amountFlow.value,
-            feeAsset = Events.TransactionSent.TransactionSentFeeAsset.Coin,
-            initiatedBy = Events.TransactionSent.TransactionSentInitiatedBy.User,
-            stakingProvider = pool?.address,
-            isLiquid = pool?.let { it.implementation == StakingPool.Implementation.LiquidTF },
-            utm = utm,
-        )
     }
 
     private fun startTicker(timestamp: Long) {
@@ -253,36 +218,12 @@ class UnStakeViewModel(
     fun requestFee() = unsignedBodyFlow().map { message ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Emulate,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val emulated = emulationUseCase(message, params = true)
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
             emulated.takeUnless { it.failed }
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             null
         }
     }.take(1).flowOn(Dispatchers.IO)
@@ -328,7 +269,6 @@ class UnStakeViewModel(
     }
 
     fun confirm() {
-        analyticsProps()?.let { StakingAnalytics.unstakeConfirm(it, utm) }
         collectFlow(poolFlow.take(1)) { pool ->
             _eventFlow.tryEmit(UnStakeEvent.OpenConfirm(pool, Coins.of(_amountFlow.value)))
         }
@@ -629,40 +569,15 @@ class UnStakeViewModel(
     ) = ledgerTransactionFlow().map { (seqno, transaction) ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Unstake,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val message = signUseCase(context, wallet, seqno, transaction)
 
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, message, false, "", 0.0)
-            trackUnstakeSuccess()
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             throw e
         }
     }
@@ -672,14 +587,6 @@ class UnStakeViewModel(
     ) = unsignedBodyFlow().map { message ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Unstake,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val cell = message.createUnsignedBody(false)
 
@@ -688,26 +595,9 @@ class UnStakeViewModel(
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, boc, false, "", 0.0)
-            trackUnstakeSuccess()
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             throw e
         }
     }

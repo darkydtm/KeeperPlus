@@ -74,12 +74,7 @@ fun AssetsScreen(
         initialTab = initialTab,
         onSearch = { query, tab -> feature.sendAction(AssetsAction.Search(query, tab)) },
         onLoadMore = { feature.sendAction(AssetsAction.LoadMore) },
-        onAssetClick = {
-            feature.sendAction(
-                AssetsAction.TrackAssetClick(it, (state as? AssetsState.Data)?.query.orEmpty())
-            )
-            onOpenAssetDetails(it)
-        },
+        onAssetClick = onOpenAssetDetails,
         onBack = onBack,
     )
 }

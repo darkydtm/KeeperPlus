@@ -1,7 +1,6 @@
 package com.tonapps.wallet.data.token.source
 
 import com.tonapps.blockchain.ton.TonNetwork
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.wallet.api.API
 import com.tonapps.blockchain.model.legacy.BalanceEntity
 import com.tonapps.blockchain.model.legacy.TokenEntity
@@ -36,7 +35,8 @@ internal class RemoteDataSource(
                 extensions = SUPPORTED_EXTENSIONS,
             )
         } catch (e: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             null
         }
     }

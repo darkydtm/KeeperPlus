@@ -1,15 +1,9 @@
 package com.tonapps.deposit.multicoin.screens.buy
 
 import com.tonapps.blockchain.model.legacy.WalletCurrency
-import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowProviderMode
 import com.tonapps.chainkit.core.chain.model.account.Asset
 import com.tonapps.core.components.sanitizeAmountInput
 import com.tonapps.core.components.withLocaleDecimalSeparator
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoAnalytics
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoReport
-import com.tonapps.deposit.multicoin.analytics.BuyCryptoTrack
 import com.tonapps.deposit.multicoin.data.RampAssetDetail
 import com.tonapps.deposit.multicoin.domain.MoonPayAccess
 import com.tonapps.deposit.multicoin.domain.MoonPaySignIn
@@ -38,8 +32,6 @@ import java.math.RoundingMode
 // asked for, so one that came too late changes nothing.
 internal class BuyCryptoReducer(
     private val moonPay: RampPayments?,
-    private val analyticsFrom: DepositFlowFrom,
-    private val utm: UtmParameters,
     // The external transaction id of a new buy button.
     private val newButtonId: () -> String,
 ) {
@@ -314,8 +306,7 @@ internal class BuyCryptoReducer(
         class ButtonEnded(val id: String, val quiet: Boolean, val signInRequired: Boolean) : Command
     }
 
-    // [tracks] are what the step means for analytics; the feature sends them.
-    class Step(val session: Session, val events: List<BuyCryptoEvent> = emptyList(), val tracks: List<BuyCryptoTrack> = emptyList())
+    class Step(val session: Session, val events: List<BuyCryptoEvent> = emptyList())
 
     private sealed interface AmountInput {
         data class Typed(val text: String, val fiat: String?) : AmountInput
@@ -338,7 +329,7 @@ internal class BuyCryptoReducer(
             is Command.SignInEnded -> signInEnded(session, command, events)
         }
         val shown = withButton(dropStaleRetry(firstLoad(next)))
-        return Step(shown, events, tracks(session, next, shown, command))
+        return Step(shown, events)
     }
 
     // A retry of the providers is the customer's only while its load is the one to come: another pair, a sign-in or
@@ -352,79 +343,6 @@ internal class BuyCryptoReducer(
         }
     }
 
-    // The amount screen is seen once the provider is known: MoonPay's with its methods, a merchant with its first offer.
-    // [shown] is [next] after a pick that waited for the first load: a setup it replaces at once was never on screen.
-    private fun tracks(previous: Session, next: Session, shown: Session, command: Command): List<BuyCryptoTrack> {
-        return when (command) {
-            is Command.SetupLoaded -> {
-                val setup = next.setup?.takeIf { it !== previous.setup && it === shown.setup && it.method?.isMoonPay == true }
-                listOfNotNull(
-                    setup?.let { BuyCryptoAnalytics.purchase(it.asset?.assetId, it.fiat, it.method, offer = null) }
-                        ?.let(BuyCryptoTrack::AmountShown),
-                )
-            }
-            is Command.Quoted -> {
-                val offer = next.quote.offer as? RampOffer.Available
-                val setup = command.key.setup
-                listOfNotNull(
-                    offer?.takeIf { next.quotesLanded != previous.quotesLanded }
-                        ?.let { BuyCryptoAnalytics.purchase(setup.asset?.assetId, setup.fiat, setup.method, it) }
-                        ?.let { purchase -> purchase.takeUnless { next.signsIn } ?: purchase.signingInToMoonPay() }
-                        ?.let(BuyCryptoTrack::AmountShown),
-                )
-            }
-            is Command.Act -> {
-                val continuing = next.phase as? Phase.Continuing
-                listOfNotNull(
-                    continuing?.takeIf { previous.phase !is Phase.Continuing && it.setup.method?.isP2P == false && !it.signIn }
-                        ?.let { BuyCryptoAnalytics.purchase(it.setup.asset?.assetId, it.setup.fiat, it.setup.method, it.offer) }
-                        ?.let(BuyCryptoTrack::Continued),
-                )
-            }
-            is Command.ButtonReady,
-            is Command.ButtonEnded,
-            -> emptyList()
-            // A tap on MoonPay's button is the Continue and the handover to MoonPay at once, as on iOS.
-            is Command.ButtonPressed -> {
-                val setup = previous.setup
-                if (next.phase !is Phase.Paying || previous.phase is Phase.Paying || setup == null) {
-                    return emptyList()
-                }
-                val purchase = BuyCryptoAnalytics.purchase(setup.asset?.assetId, setup.fiat, setup.method, previous.quote.offer as? RampOffer.Available)
-                    ?.copy(mode = DepositFlowProviderMode.Headless)
-                    ?: return emptyList()
-                listOf(BuyCryptoTrack.Continued(purchase), BuyCryptoTrack.ToProvider(purchase, command.data.externalTransactionId))
-            }
-            is Command.ContinueEnded -> {
-                val continuing = previous.phase as? Phase.Continuing ?: return emptyList()
-                val setup = continuing.setup
-                // The checkout is where Continue went: MoonPay's payment in the app or a page outside it.
-                val mode = when (command.checkout) {
-                    is RampCheckout.Pay -> DepositFlowProviderMode.Headless
-                    is RampCheckout.OpenUrl -> DepositFlowProviderMode.Merchant
-                    else -> null
-                }
-                val purchase = BuyCryptoAnalytics.purchase(setup.asset?.assetId, setup.fiat, setup.method, continuing.offer)
-                    ?.let { purchase -> mode?.let(purchase::withMode) ?: purchase }
-                val txId = when (val checkout = command.checkout) {
-                    is RampCheckout.Pay -> checkout.data.externalTransactionId
-                    is RampCheckout.OpenUrl -> (continuing.offer?.ticket as? RampTicket.Merchant)?.merchantTransactionId
-                    else -> null
-                }
-                when {
-                    next.phase !is Phase.Ordered && next.phase !is Phase.Paying -> emptyList()
-                    setup.method?.isP2P == true -> listOf(BuyCryptoTrack.ToP2P)
-                    purchase != null && txId != null -> listOf(BuyCryptoTrack.ToProvider(purchase, txId))
-                    else -> emptyList()
-                }
-            }
-            is Command.Connected,
-            is Command.ProvidersLoaded,
-            is Command.RangeLoaded,
-            is Command.SignInEnded,
-            -> emptyList()
-        }
-    }
 
     // Before anything has loaded, the screen is on MoonPay if MoonPay is connected.
     fun onMoonPay(session: Session): Boolean {
@@ -916,13 +834,9 @@ internal class BuyCryptoReducer(
         }
         val setup = session.setup
         val asset = setup?.asset
-        val offer = session.quote.offer as? RampOffer.Available
-        val purchase = setup?.let { BuyCryptoAnalytics.purchase(asset?.assetId, it.fiat, it.method, offer) }
-            ?.copy(mode = DepositFlowProviderMode.Headless)
         events += BuyCryptoEvent.OpenMoonPay(
             pressed.data.copy(
                 assetLabel = asset?.let { assetLabel(it.symbol, it.networkName) },
-                report = purchase?.let { BuyCryptoReport(analyticsFrom, utm, it) },
             ),
         )
         val button = session.button?.takeIf { it.id == pressed.id }?.copy(phase = ButtonPhase.Pressed)
@@ -943,13 +857,10 @@ internal class BuyCryptoReducer(
             is RampCheckout.Pay -> {
                 // The asset Continue was tapped for: a pick made while the checkout ran must not rename it.
                 val asset = phase.setup.asset
-                val purchase = BuyCryptoAnalytics.purchase(asset?.assetId, phase.setup.fiat, phase.setup.method, phase.offer)
-                    ?.copy(mode = DepositFlowProviderMode.Headless)
                 events += BuyCryptoEvent.OpenMoonPay(
                     checkout.data.copy(
                         assetLabel = asset?.let { assetLabel(it.symbol, it.networkName) },
-                        report = purchase?.let { BuyCryptoReport(analyticsFrom, utm, it) },
-                    ),
+                            ),
                 )
                 session.copy(phase = Phase.Paying)
             }

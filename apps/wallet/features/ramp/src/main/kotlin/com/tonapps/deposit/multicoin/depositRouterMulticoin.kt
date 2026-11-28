@@ -23,7 +23,6 @@ import java.util.UUID
 import androidx.navigation3.runtime.NavKey
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowAddFundsOption
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.core.flags.WalletFeature
@@ -170,12 +169,10 @@ fun DepositMulticoinRouter(
                         rampType = rampType,
                         onClose = onBack,
                         onReceive = {
-                            feature.analytics.optionClick(DepositFlowAddFundsOption.ReceiveTokens)
                             backStack.add(DepositMulticoinRoutes.Receive)
                         },
                         onSend = { },
                         onCardClick = { card ->
-                            feature.analytics.optionClick(DepositFlowAddFundsOption.BuyWithFiat)
                             buyCryptoKeyboard = true
                             backStack.add(
                                 if (buyCrypto) {
@@ -226,7 +223,6 @@ fun DepositMulticoinRouter(
                         onClose = onBack,
                         onBack = { backStack.safeRemoveLastOrNull(key) },
                         onSelected = { asset ->
-                            feature.onSelected(asset)
                             backStack.add(
                                 DepositMulticoinRoutes.Buy(
                                     assetId = asset.asset.id,
@@ -357,7 +353,6 @@ fun DepositMulticoinRouter(
                         onClose = onBack,
                         onBack = { backStack.safeRemoveLastOrNull(key) },
                         onSelected = { asset ->
-                            feature.onSelected(asset)
                             resultStore.setResult(
                                 KEY_BUY_CRYPTO_ASSET_RESULT,
                                 BuyCryptoAction.SelectAsset(

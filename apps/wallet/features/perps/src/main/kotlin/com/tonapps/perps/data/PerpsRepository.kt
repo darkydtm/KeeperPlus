@@ -19,7 +19,6 @@ import io.perpsapi.models.ActivityItem
 import io.perpsapi.models.Balance
 import io.perpsapi.models.BindAccountRequest
 import io.perpsapi.models.ChangeAccountTierRequest
-import io.perpsapi.models.ClientMetric
 import io.perpsapi.models.Deposit
 import io.perpsapi.models.DepositQuote
 import io.perpsapi.models.DepositQuoteRequest
@@ -39,7 +38,6 @@ import io.perpsapi.models.PortfolioOrder
 import io.perpsapi.models.PositionAutoCloseLeg
 import io.perpsapi.models.PositionEpisode
 import io.perpsapi.models.PositionSide
-import io.perpsapi.models.RecordClientMetricsRequest
 import io.perpsapi.models.SendTransactionsRequest
 import io.perpsapi.models.SignedTransaction
 import io.perpsapi.models.TradingScreen
@@ -456,20 +454,6 @@ class PerpsRepository(
             }
             L.e(e)
             KResult.Err(e.toPerpsSendError())
-        }
-    }
-
-    suspend fun recordClientMetric(walletId: String, metric: ClientMetric): Unit = withContext(Async.Io) {
-        try {
-            api.perps.clientMetrics.recordClientMetrics(
-                xWalletId = walletId,
-                recordClientMetricsRequest = RecordClientMetricsRequest(metrics = listOf(metric)),
-            )
-        } catch (e: Throwable) {
-            if (e is CancellationException) {
-                throw e
-            }
-            L.e(e)
         }
     }
 

@@ -15,8 +15,6 @@ import com.tonapps.ledgerkit.controller.LedgerScope
 import com.tonapps.wallet.ChainKitProvider
 import com.tonapps.wallet.data.ledger.LedgerAddresses
 import com.tonapps.wallet.data.ledger.LedgerChainApp
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.reportingLedgerIssues
 import com.tonapps.wallet.data.ledger.solana.SolanaTrustedNames
 import com.tonapps.time.TimeProvider
 import com.tonapps.wallet.data.multichain.account.McAccountRepository
@@ -41,7 +39,7 @@ internal class LedgerSigningInteractorImpl(
     private val bitcoin = BitcoinLedgerSigner(chainKitProvider)
     private val solana = SolanaLedgerSigner(trustedNames)
 
-    override suspend fun signTransactions(walletId: String, requests: List<LedgerTransactionRequest>): List<ByteArray> = signing {
+    override suspend fun signTransactions(walletId: String, requests: List<LedgerTransactionRequest>): List<ByteArray> = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         val prepared = requests.flatMap { request -> prepare(context, request) }
         controller.run(context.request(LedgerPurpose.SignTransaction)) {
@@ -56,7 +54,7 @@ internal class LedgerSigningInteractorImpl(
         }
     }
 
-    override suspend fun signMessage(walletId: String, account: Account, type: MessageType, data: String): String = signing {
+    override suspend fun signMessage(walletId: String, account: Account, type: MessageType, data: String): String = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         val chain = account.chain
         if (!chain.ledgerSignsMessage(type)) {
@@ -80,7 +78,7 @@ internal class LedgerSigningInteractorImpl(
         }
     }
 
-    override suspend fun signTonTransactions(walletId: String, transactions: List<LedgerTonTransaction>): List<Cell> = signing {
+    override suspend fun signTonTransactions(walletId: String, transactions: List<LedgerTonTransaction>): List<Cell> = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         controller.run(context.request(LedgerPurpose.SignTransaction)) {
             IdentityVerifier(context).verify(this, Chain.Ton.Mainnet)
@@ -95,7 +93,7 @@ internal class LedgerSigningInteractorImpl(
         transaction: LedgerTonTransaction,
         step: Int,
         totalSteps: Int,
-    ): Cell = signing {
+    ): Cell = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         controller.run(context.request(LedgerPurpose.SignTransaction)) {
             IdentityVerifier(context).verify(this, Chain.Ton.Mainnet)
@@ -103,7 +101,7 @@ internal class LedgerSigningInteractorImpl(
         }
     }
 
-    override suspend fun signTonProof(walletId: String, domain: String, timestamp: Long, payload: String): ByteArray = signing {
+    override suspend fun signTonProof(walletId: String, domain: String, timestamp: Long, payload: String): ByteArray = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         controller.run(context.request(LedgerPurpose.SignProof)) {
             IdentityVerifier(context).verify(this, Chain.Ton.Mainnet)
@@ -111,7 +109,7 @@ internal class LedgerSigningInteractorImpl(
         }
     }
 
-    override suspend fun signTronTransaction(walletId: String, transaction: TronTransaction): TronTransaction = signing {
+    override suspend fun signTronTransaction(walletId: String, transaction: TronTransaction): TronTransaction = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         val path = context.path(Chain.Tron.Mainnet)
         val signature = controller.run(context.request(LedgerPurpose.SignTransaction)) {
@@ -121,7 +119,7 @@ internal class LedgerSigningInteractorImpl(
         transaction.withSignature(signature)
     }
 
-    override suspend fun signSolanaTransactions(walletId: String, account: Account, transactions: List<String>): List<String> = signing {
+    override suspend fun signSolanaTransactions(walletId: String, account: Account, transactions: List<String>): List<String> = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         val chain = account.chain
         if (chain !is Chain.Solana) {
@@ -136,7 +134,7 @@ internal class LedgerSigningInteractorImpl(
         }
     }
 
-    override suspend fun verifyAddress(walletId: String, chain: Chain) = signing {
+    override suspend fun verifyAddress(walletId: String, chain: Chain) = run {
         val context = LedgerWalletContext.load(accountRepository, walletId)
         val account = context.account(chain)
         controller.run(context.request(LedgerPurpose.VerifyAddress)) {
@@ -260,8 +258,6 @@ internal class LedgerSigningInteractorImpl(
             else -> throw LedgerFailureException(LedgerFailure.Unsupported("Signing on ${chain.name}"))
         }
     }
-
-    private inline fun <T> signing(block: () -> T): T = reportingLedgerIssues(LedgerIssueSite.Signing, block)
 
     private fun requireMatch(matches: Boolean, app: LedgerAppId) {
         if (!matches) {

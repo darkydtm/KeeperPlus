@@ -11,7 +11,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -23,16 +25,18 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import ui.tick
+
+internal val LocalClickHaptic = staticCompositionLocalOf<() -> Unit> { {} }
+
+@Composable
+internal expect fun rememberClickHaptic(): () -> Unit
 
 /**
- * Ripple-free press feedback: scales content down while pressed and plays the standard tick
- * haptic when the press is released as a click. Wired app-wide as the default [LocalIndication]
- * in [MoonTheme], so every `clickable`/`combinedClickable` picks it up.
+ * Ripple-free press feedback, with optional click haptics. Installed as the default indication
+ * in [MoonTheme]; components that override their indication require separate integration.
  */
 object ScaleIndication : IndicationNodeFactory {
 
@@ -55,7 +59,8 @@ fun Modifier.pressScale(
 ): Modifier {
     val scale = remember { Animatable(1f) }
     var pressPivot by remember { mutableStateOf(Offset.Unspecified) }
-    val haptic = LocalHapticFeedback.current
+    val haptic by rememberUpdatedState(LocalClickHaptic.current)
+    val shouldPlayHaptic by rememberUpdatedState(hapticOnClick)
     LaunchedEffect(interactionSource) {
         collectPressScale(
             interactionSource = interactionSource,
@@ -63,7 +68,7 @@ fun Modifier.pressScale(
             onPress = { position -> pressPivot = position },
             onClickHaptic = {
                 // Opt out for elements that play their own semantic haptic in onClick.
-                if (hapticOnClick) haptic.tick()
+                if (shouldPlayHaptic) haptic()
             },
         )
     }
@@ -138,7 +143,7 @@ private class ScaleIndicationNode(
                 onPress = { position -> pressPivot = position },
                 onClickHaptic = {
                     if (isAttached) {
-                        currentValueOf(LocalHapticFeedback).tick()
+                        currentValueOf(LocalClickHaptic).invoke()
                     }
                 },
             )

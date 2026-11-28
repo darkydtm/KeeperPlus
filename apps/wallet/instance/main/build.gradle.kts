@@ -6,12 +6,9 @@ import com.android.SdkConstants.ABI_INTEL_ATOM64
 
 plugins {
     id("target.android.app")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
     id("kotlin-parcelize")
     id("kotlinx-serialization")
     id("androidx.baselineprofile")
-    id("com.google.firebase.firebase-perf")
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -81,7 +78,7 @@ android {
             isShrinkResources = true
             isCrunchPngs = true
             
-            resValue("string", "app_name", "Keeper Beta")
+            resValue("string", "app_name", "Keeper + Beta")
             applicationIdSuffix = ".beta"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_beta")
@@ -94,7 +91,7 @@ android {
         debug {
             isMinifyEnabled = false
 
-            resValue("string", "app_name", "Keeper Dev")
+            resValue("string", "app_name", "Keeper + Dev")
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_debug")
@@ -147,10 +144,6 @@ dependencies {
     implementation(libs.camerax.core)
     implementation(libs.camerax.base)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.config)
-    implementation(libs.firebase.messaging)
-
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
 
@@ -192,7 +185,6 @@ dependencies {
     implementation(projects.apps.wallet.data.tokens)
     implementation(projects.apps.wallet.data.account)
     implementation(projects.apps.wallet.data.cache)
-    implementation(projects.apps.wallet.data.attribution)
     implementation(projects.apps.wallet.data.multichain.wallet)
     implementation(projects.apps.wallet.data.multichain.exchange)
     implementation(projects.apps.wallet.data.ledger)
@@ -211,11 +203,10 @@ dependencies {
     implementation(projects.apps.wallet.api)
 
     implementation(projects.lib.blockchain)
-    implementation(projects.lib.bus)
+    implementation(projects.lib.extensions)
     implementation(projects.lib.features)
     implementation(projects.lib.icu)
     implementation(projects.lib.wc)
-    implementation(projects.lib.extensions)
     implementation(projects.lib.log)
     implementation(projects.lib.network)
     implementation(projects.lib.wallet)

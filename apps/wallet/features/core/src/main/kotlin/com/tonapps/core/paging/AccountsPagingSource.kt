@@ -33,11 +33,6 @@ class AccountsPagingSource(
     private val onTotalLoaded: ((AccountsWithTotal) -> Unit)? = null,
     private val onNetworkConfirmed: (() -> Unit)? = null,
     private val onLoadError: ((Throwable) -> Unit)? = null,
-    /** Like [onLoadError], for the first page only: a failed next page leaves the loaded assets on screen. */
-    private val onRefreshError: ((Throwable) -> Unit)? = null,
-    private val onCachedLoaded: (() -> Unit)? = null,
-    private val onRequestStarted: (() -> Unit)? = null,
-    private val onRequestFinished: (() -> Unit)? = null,
 ) : PagingSource<String, AccountWithDetails>() {
 
     private val sessionKey = buildSessionKey()
@@ -81,7 +76,6 @@ class AccountsPagingSource(
 
             getCachedAccountsOrNull()?.let { cached ->
                 notifyTotalLoaded(cached)
-                onCachedLoaded?.invoke()
                 refreshFromNetwork(
                     pageSize = params.loadSize,
                 )
@@ -122,9 +116,6 @@ class AccountsPagingSource(
         }
 
         onLoadError?.invoke(error)
-        if (params is LoadParams.Refresh) {
-            onRefreshError?.invoke(error)
-        }
         return LoadResult.Error(error)
     }
 
@@ -160,7 +151,6 @@ class AccountsPagingSource(
                     return@launch
                 }
                 onLoadError?.invoke(e)
-                onRefreshError?.invoke(e)
             }
         }
     }
@@ -188,15 +178,10 @@ class AccountsPagingSource(
     }
 
     private suspend fun fetchFirstPage(limit: Int): AccountsWithTotal {
-        onRequestStarted?.invoke()
-        try {
-            return fetchAccounts(
-                cursor = null,
-                limit = limit,
-            )
-        } finally {
-            onRequestFinished?.invoke()
-        }
+        return fetchAccounts(
+            cursor = null,
+            limit = limit,
+        )
     }
 
     private suspend fun fetchAccounts(

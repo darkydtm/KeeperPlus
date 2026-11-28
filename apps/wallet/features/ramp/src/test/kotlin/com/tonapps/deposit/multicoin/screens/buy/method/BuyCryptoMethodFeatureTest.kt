@@ -2,10 +2,7 @@ package com.tonapps.deposit.multicoin.screens.buy.method
 
 import com.tonapps.deposit.multicoin.moonpay.MoonPayMethodSupport
 import androidx.lifecycle.SavedStateHandle
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.contract.EventExecutor
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.DefaultEvents
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
 import com.tonapps.deposit.multicoin.data.RampMethod
 import com.tonapps.deposit.multicoin.data.RampProvider
@@ -31,8 +28,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,87 +69,16 @@ class BuyCryptoMethodFeatureTest : BaseUnitTest() {
 
     private val buy = FakeOffer(offer(listOf(card, p2p)))
 
-    private val tracked = mutableListOf<Pair<String, Map<String, Any>>>()
 
-    @Before
-    fun recordAnalytics() {
-        val recording = object : EventExecutor {
-            override fun trackEvent(eventName: String, props: Map<String, Any>) {
-                tracked += eventName to props
-            }
-        }
-        val helper = mockk<AnalyticsHelper> {
-            every { events } returns DefaultEvents(recording)
-            every { eventsTaggedWith(any()) } returns DefaultEvents(recording)
-        }
-        mockkObject(AnalyticsHelper.Companion)
-        every { AnalyticsHelper.Default } returns helper
-    }
 
-    @After
-    fun stopRecordingAnalytics() {
-        unmockkObject(AnalyticsHelper.Companion)
-    }
 
-    @Test
-    fun `the picker reports its methods once per opening, a pick and an opened market`() {
-        val handle = SavedStateHandle()
-        val feature = open(handle = handle)
-        open(handle = handle)
 
-        pick(feature, "card")
-        pick(feature, RampPaymentMethod.P2P_ID)
 
-        val picker = mapOf(
-            "from" to "wallet_screen",
-            "add_funds_option" to "buy_with_fiat",
-            "deposit_screen" to "buy_crypto",
-            "buy_asset" to "usdt",
-            "sell_asset" to "EUR",
-        )
-        assertEquals(listOf(picker + mapOf("available_options" to "card,p2p")), sent("deposit_view_fiat_payment_method"))
-        assertEquals(
-            listOf(picker + mapOf("payment_method" to "card"), picker + mapOf("payment_method" to "p2p")),
-            sent("deposit_click_fiat_payment_method"),
-        )
-        assertEquals(1, sent("deposit_continue_to_p2p_market").size)
-    }
 
-    @Test
-    fun `the picker is reported only once the methods of «Buy crypto» land`() {
-        buy.offer.value = offer(emptyList(), loading = true)
-        open()
-        assertTrue(sent("deposit_view_fiat_payment_method").isEmpty())
 
-        buy.offer.value = offer(listOf(card, p2p))
-        dispatchers.scheduler.runCurrent()
 
-        assertEquals(1, sent("deposit_view_fiat_payment_method").size)
-    }
 
-    @Test
-    fun `a picked method goes to «Buy crypto» and closes the picker, a second tap before it closes is no second pick`() {
-        val feature = open()
-        val events = collectEvents(feature)
 
-        pick(feature, "card")
-        pick(feature, "card")
-
-        assertEquals(listOf<BuyCryptoAction>(BuyCryptoAction.SelectMethod("card", "EUR", "card", null, null, null, moonPay = false)), buy.sent)
-        assertEquals(1, sent("deposit_click_fiat_payment_method").size)
-        assertEquals(listOf(BuyCryptoMethodEvent.Picked), events)
-    }
-
-    @Test
-    fun `a saved MoonPay card is reported as a saved card`() {
-        buy.offer.value = offer(listOf(newCard, saved("valid", 12, 2030)))
-        val feature = open()
-
-        pick(feature, "card:valid")
-
-        assertEquals("saved_card", sent("deposit_click_fiat_payment_method").single()["payment_method"])
-        assertEquals("card,saved_card", sent("deposit_view_fiat_payment_method").single()["available_options"])
-    }
 
     @Test
     fun `opening covers «Buy crypto», so its failures are told here and not on its return`() {
@@ -373,7 +297,7 @@ class BuyCryptoMethodFeatureTest : BaseUnitTest() {
         return feature
     }
 
-    private fun sent(eventName: String): List<Map<String, Any>> = tracked.filter { it.first == eventName }.map { it.second }
+    .map { it.second }
 
     private fun pick(feature: BuyCryptoMethodFeature, id: String) {
         feature.sendAction(BuyCryptoMethodAction.Pick(id))

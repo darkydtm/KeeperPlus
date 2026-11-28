@@ -3,16 +3,14 @@ package com.tonapps.tonkeeper.ui.screen.ledger.pair
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowWalletSource
+import com.tonapps.bus.walletimport.WalletImportPairingSource
 import com.tonapps.bus.walletimport.WalletImportPairingSession
 import com.tonapps.bus.walletimport.WalletImportPairingSessions
 import com.tonapps.tonkeeper.extensions.toast
-import com.tonapps.tonkeeper.ui.screen.init.WalletImportAnalytics
 import com.tonapps.tonkeeper.ui.screen.ledger.steps.LedgerConnectionFragment
 import com.tonapps.tonkeeper.ui.screen.ledger.steps.LedgerConnectionType
 import com.tonapps.tonkeeper.ui.screen.ledger.steps.LedgerConnectionViewModel
 import com.tonapps.tonkeeper.ui.screen.ledger.steps.LedgerEvent
-import com.tonapps.tonkeeper.ui.screen.ledger.toWalletFlowLedgerModel
 import com.tonapps.tonkeeper.ui.screen.root.RootViewModel
 import com.tonapps.tonkeeperx.R
 import kotlinx.coroutines.Dispatchers
@@ -36,12 +34,10 @@ class PairLedgerScreen : BaseFragment(R.layout.fragment_ledger_pair), BaseFragme
 
     private val connectionViewModel: LedgerConnectionViewModel by viewModel()
 
-    private val importAnalytics: WalletImportAnalytics by inject()
-
     private val pairingSessions: WalletImportPairingSessions by inject()
 
     private val pairingSession: WalletImportPairingSession? by lazy {
-        pairingSessions.active(WalletFlowWalletSource.Ledger)
+        pairingSessions.active(WalletImportPairingSource.Ledger)
     }
 
     private var isHandedOff = false
@@ -108,8 +104,6 @@ class PairLedgerScreen : BaseFragment(R.layout.fragment_ledger_pair), BaseFragme
             }
 
             is LedgerEvent.Error -> {
-                pairingSession?.setBlocked(WalletImportPairingSession.Blocker.ConnectionError)
-                trackImportError(event.message)
                 navigation?.toast(event.message)
             }
 
@@ -128,18 +122,6 @@ class PairLedgerScreen : BaseFragment(R.layout.fragment_ledger_pair), BaseFragme
             pairingSession?.exit()
         }
         super.onDestroy()
-    }
-
-    private fun trackImportError(message: String) {
-        val ledgerModel = connectionViewModel.connectedLedgerModel?.toWalletFlowLedgerModel()
-        lifecycleScope.launch {
-            importAnalytics.trackError(
-                walletSource = WalletFlowWalletSource.Ledger,
-                errorType = "ledger_connect_error",
-                errorMessage = message,
-                ledgerModel = ledgerModel,
-            )
-        }
     }
 
     companion object {

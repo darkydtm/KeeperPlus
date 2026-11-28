@@ -26,8 +26,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.tonapps.async.Async
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.legacy.TokenEntity
@@ -46,24 +44,17 @@ import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.AssetScreen.AssetScreenFrom
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
-import com.tonapps.bus.generated.Events.DeeplinkOpen.DeeplinkOpenFrom
 import com.tonapps.bus.generated.Events.EarnFlow.EarnEntryViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerMigrationStartFrom
 import com.tonapps.bus.generated.Events.MysteryRaffle.MysteryRaffleSource
 import com.tonapps.bus.generated.Events.WalletFlow.WalletFlowSource
-import com.tonapps.bus.generated.Events.Migration.MigrationFrom
 import com.tonapps.bus.generated.Events.Perps.PerpsEntryPoint
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderLaunchStep
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.chainkit.core.chain.model.account.Network
 import com.tonapps.core.RNLegacyDelegate
 import com.tonapps.core.deeplink.DeepLink
 import com.tonapps.core.deeplink.DeepLinkBuilder
 import com.tonapps.core.deeplink.DeepLinkRoute
-import com.tonapps.core.deeplink.DeeplinkOpenAnalytics
 import com.tonapps.core.flags.FeatureManager
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.wallet.api.internal.BootConfigOverrides
@@ -122,7 +113,6 @@ import com.tonapps.tonkeeper.extensions.isDarkMode
 import com.tonapps.tonkeeper.extensions.openAppSettings
 import com.tonapps.tonkeeper.extensions.toast
 import com.tonapps.tonkeeper.helper.BrowserHelper
-import com.tonapps.tonkeeper.koin.analytics
 import com.tonapps.tonkeeper.koin.remoteConfig
 import com.tonapps.tonkeeper.manager.earn.EarnUrlResolver
 import com.tonapps.tonkeeper.manager.push.PushManager
@@ -169,7 +159,6 @@ import com.tonapps.trading.isTonOrTronAssetId
 import com.tonapps.uikit.color.backgroundPageColor
 import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.data.battery.BatteryRepository
-import com.tonapps.wallet.data.attribution.AttributionManager
 import com.tonapps.wallet.data.collectibles.entities.NftEntity
 import com.tonapps.wallet.data.core.Theme
 import com.tonapps.wallet.data.core.entity.RawMessageEntity
@@ -259,27 +248,12 @@ class RootActivity : BaseWalletActivity(),
     private val environment by inject<Environment>()
     private val emulationUseCase by inject<EmulationUseCase>()
     private val passcodeManager by inject<PasscodeManager>()
-    private val attributionManager by inject<AttributionManager>()
     private val earnUrlResolver by inject<EarnUrlResolver>()
     private val dappScreenFactory by inject<DAppScreenFactory>()
     private val perpsDepositArrivals by inject<PerpsDepositArrivals>()
     private val moonPayFrames by inject<MoonPayFrames>()
     private val lockScreenShown = MutableStateFlow(false)
-    private val googlePlayUpdateHelper by lazy(LazyThreadSafetyMode.NONE) {
-        GooglePlayUpdateHelper(
-            activity = this,
-            viewModel = viewModel,
-            environment = environment,
-        )
-    }
-    private val inAppReviewHelper by lazy(LazyThreadSafetyMode.NONE) {
-        InAppReviewHelper(
-            activity = this,
-            environment = environment,
-        )
-    }
     private lateinit var uiHandler: Handler
-    private var isLaunchLockShown = false
     private var isIntentConsumed = false
 
     // Only a sheet that is going away frees the queue: one destroyed together with the activity, by a
@@ -297,9 +271,7 @@ class RootActivity : BaseWalletActivity(),
             if (f !is BaseFragment) {
                 return
             }
-            val screenName = f.fragmentName
-            Firebase.crashlytics.log("screen: $screenName")
-            Firebase.crashlytics.setCustomKey("lastScreen", screenName)
+            // Screen telemetry is intentionally disabled.
         }
     }
 
@@ -329,11 +301,7 @@ class RootActivity : BaseWalletActivity(),
         supportFragmentManager.fragmentFactory = WalletFragmentFactory()
         supportFragmentManager.registerFragmentLifecycleCallbacks(screenBreadcrumbCallbacks, true)
         supportFragmentManager.registerFragmentLifecycleCallbacks(confirmSheetCallbacks, false)
-        attributionManager.withPrivateLinkHidden(this) {
-            super.onCreate(savedInstanceState)
-            attributionManager.onLauncherActivityCreated(this)
-        }
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.SceneConnect)
+        super.onCreate(savedInstanceState)
 
         if (theme.isSystem) {
             setAppearanceLight(!isDarkMode)
@@ -346,20 +314,13 @@ class RootActivity : BaseWalletActivity(),
 
         isIntentConsumed = savedInstanceState?.getBoolean(STATE_INTENT_CONSUMED) == true
         val isLaunchedFromHistory = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-        val isRedelivery = savedInstanceState != null || isLaunchedFromHistory
         val isRelaunchedFromRecents = isLaunchedFromHistory && savedInstanceState == null
         val isIntentHandled = intent.getBooleanExtra(EXTRA_INTENT_HANDLED, false)
-        if (isRedelivery && intent.data?.let(attributionManager::isAttributionLink) == true) {
-            intent.data = null
-        } else if (!isIntentConsumed && !isRelaunchedFromRecents && !isIntentHandled) {
+        if (!isIntentConsumed && !isRelaunchedFromRecents && !isIntentHandled) {
             if (savedInstanceState != null) {
                 PUSH_EXTRA_KEYS.forEach(intent::removeExtra)
             }
-            handleIntent(
-                intent = intent,
-                isColdStart = true,
-                isRedelivery = isRedelivery,
-            )
+            handleIntent(intent)
             intent.putExtra(EXTRA_INTENT_HANDLED, true)
         }
         lifecycleScope.launch {
@@ -404,7 +365,6 @@ class RootActivity : BaseWalletActivity(),
 
         collectFlow(viewModel.hasWalletFlow) { init(it) }
         collectFlow(viewModel.eventFlow) { event(it) }
-        collectFlow(viewModel.inAppReviewRequestFlow) { inAppReviewHelper.requestReview() }
         collectFlow(viewModel.lockscreenFlow, ::pinState)
         collectFlow(perpsDepositArrivals.arrivals.flowWithLifecycle(lifecycle)) {
             confirmedToast(getString(Localization.perps_deposit_completed), ToastFeedback.Success)
@@ -416,19 +376,6 @@ class RootActivity : BaseWalletActivity(),
         collectFlow(appShortcutRepository.pendingDeeplinkFlow.flowWithLifecycle(lifecycle)) {
             viewModel.openShortcutDApp(it)
         }
-        collectFlow(attributionManager.deepLinkFlow.flowWithLifecycle(lifecycle)) { attributionLink ->
-            val uri = DeepLink.fixBadUri(attributionLink.appLink)
-            val from = if (attributionLink.isDeferred) {
-                DeeplinkOpenFrom.DeferredLink
-            } else {
-                DeeplinkOpenFrom.UniversalLink
-            }
-            DeeplinkOpenAnalytics.report(uri, attributionLink.isColdStart, from)
-            if (DeepLinkRoute.resolve(uri) !is DeepLinkRoute.Unknown) {
-                processDeepLink(uri, false, null, fromExternal = true, waitForWallet = true)
-            }
-        }
-
         App.applyConfiguration(resources.configuration)
         remoteConfig?.fetchAndActivate()
     }
@@ -764,7 +711,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     override fun onOpenMigration() {
-        navigation?.add(MigrationFragment.newInstance(MigrationFrom.Setup))
+        navigation?.add(MigrationFragment.newInstance())
     }
 
     override fun onOpenLedgerDevice(walletId: String, from: LedgerDeviceViewFrom) {
@@ -843,8 +790,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     // The multichain history knows only multichain wallets; a legacy one, back from a swap, has its own.
-    override fun onOpenHistory(trigger: ScreenRenderTrigger) {
-        ScreenRenderTracker.shared.begin(ScreenRenderId.History, trigger, isFirstOpen = true)
+    override fun onOpenHistory() {
         lifecycleScope.launch {
             val wallet = unifiedAccountRepository.getSelectedWallet() ?: return@launch
             if (wallet.type == WalletType.Multichain) {
@@ -1025,7 +971,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     override fun onResume() {
-        attributionManager.withPrivateLinkHidden(this) { super.onResume() }
+        super.onResume()
         viewModel.connectTonConnectBridge()
         if (pushSettingsOpened) {
             pushSettingsOpened = false
@@ -1051,19 +997,12 @@ class RootActivity : BaseWalletActivity(),
 
     override fun onStart() {
         super.onStart()
-        googlePlayUpdateHelper.onStart()
         passcodeManager.restoreSessionOnForeground()
-    }
-
-    override fun onStop() {
-        googlePlayUpdateHelper.onStop()
-        super.onStop()
     }
 
     private suspend fun pinState(state: LockScreen.State) {
         // The lock is an overlay, so stop the covered fragments from reopening their keyboard over the numpad.
         lockKeyboard(state != LockScreen.State.None)
-        reportLaunchLock(state)
         lockPasscodeView.setLoading(state == LockScreen.State.Migrating)
         if (state == LockScreen.State.NewChains) {
             // Part of the lock screen: shown over it first, so the wallet never shows in between.
@@ -1193,7 +1132,6 @@ class RootActivity : BaseWalletActivity(),
 
     fun event(event: RootEvent) {
         when (event) {
-            RootEvent.CheckGooglePlayUpdate -> googlePlayUpdateHelper.checkForUpdates()
             is RootEvent.Singer -> add(
                 InitScreen.newInstance(
                     if (event.qr) {
@@ -1453,22 +1391,7 @@ class RootActivity : BaseWalletActivity(),
         }
     }
 
-    // The time the user spends on the lock is left out of the cold launch timing.
-    private fun reportLaunchLock(state: LockScreen.State) {
-        val tracker = ScreenRenderTracker.shared
-        if (state != LockScreen.State.None) {
-            isLaunchLockShown = true
-            tracker.launchMark(ScreenRenderLaunchStep.PasscodeShown)
-            tracker.pauseLaunch()
-        } else if (isLaunchLockShown) {
-            isLaunchLockShown = false
-            tracker.resumeLaunch()
-            tracker.launchMark(ScreenRenderLaunchStep.PasscodeEntered)
-        }
-    }
-
     fun init(hasWallet: Boolean) {
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.RootStart)
         if (hasWallet) {
             setMainFragment()
         } else {
@@ -1477,7 +1400,6 @@ class RootActivity : BaseWalletActivity(),
     }
 
     private fun setIntroFragment() {
-        ScreenRenderTracker.shared.cancelLaunch()
         setPrimaryFragment(StartScreen.newInstance(), runnable = {
             lockView.visibility = View.GONE
             passcodeManager.lockscreenHidden()
@@ -1485,8 +1407,6 @@ class RootActivity : BaseWalletActivity(),
     }
 
     private fun setMainFragment() {
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.MainStart)
-        ScreenRenderTracker.shared.beginLaunch()
         setPrimaryFragment(MainScreen.newInstance())
     }
 
@@ -1499,11 +1419,11 @@ class RootActivity : BaseWalletActivity(),
         super.onNewIntent(intent)
         setIntent(intent)
         tryToApplyStaticFeatureFlags(intent)
-        handleIntent(intent, isColdStart = false, isRedelivery = false)
+        handleIntent(intent)
         intent.putExtra(EXTRA_INTENT_HANDLED, true)
     }
 
-    private fun handleIntent(intent: Intent, isColdStart: Boolean, isRedelivery: Boolean) {
+    private fun handleIntent(intent: Intent) {
         if (intent.action == ACTION_INSTALL_DOWNLOADED_APK) {
             val token = intent.getStringExtra(EXTRA_APK_INSTALL_TOKEN)
             intent.action = null
@@ -1522,17 +1442,13 @@ class RootActivity : BaseWalletActivity(),
         if (0 >= DevSettings.firstLaunchDate) {
             DevSettings.firstLaunchDeeplink = uri?.toString() ?: ""
         } else if (uri?.hasRefer() == true || uri?.hasUtmSource() == true) {
-            analytics?.openRefDeeplink(uri.toString())
         }
         val extras = intent.extras
         if (extras != null && !extras.isEmpty && viewModel.processIntentExtras(extras)) {
             PUSH_EXTRA_KEYS.forEach(intent::removeExtra)
             return
-        } else if (uri != null && !attributionManager.interceptLink(uri, isColdStart)) {
+        } else if (uri != null) {
             val link = DeepLink.fixBadUri(uri)
-            if (!isRedelivery) {
-                DeeplinkOpenAnalytics.report(link, isColdStart)
-            }
             processDeepLink(
                 link,
                 false,

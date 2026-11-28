@@ -17,12 +17,7 @@ class EarnNativeMethodsTest {
 
     private var theme = "dark"
 
-    private var tracked: Pair<String, Map<String, Any>>? = null
-
-    private val methods = EarnNativeMethods(
-        onTrack = { event, params -> tracked = event to params },
-        currentTheme = { theme },
-    )
+    private val methods = EarnNativeMethods(currentTheme = { theme })
 
     @Test
     fun `navigateBack closes the screen`() {
@@ -60,7 +55,7 @@ class EarnNativeMethodsTest {
     }
 
     @Test
-    fun `tracking forwards scalar params only`() {
+    fun `tracking is acknowledged without an effect`() {
         val params = JSONObject()
             .put("event", "earn_open")
             .put(
@@ -71,18 +66,9 @@ class EarnNativeMethodsTest {
                     .put("nested", JSONObject().put("ignored", true)),
             )
 
-        methods.handle("analytics.track", params)
+        val result = methods.handle("analytics.track", params) as NativeMethodResult.Success
 
-        assertEquals("earn_open", tracked?.first)
-        assertEquals(
-            mapOf<String, Any>(
-                "source" to "carousel",
-                "count" to 2,
-                "isExternalWebView" to 1,
-                "eventProvider" to "vaults.fyi",
-            ),
-            tracked?.second,
-        )
+        assertEquals(null, result.effect)
     }
 
     @Test

@@ -5,14 +5,12 @@ import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.bus.core.contract.TonAddressTags
+import com.tonapps.blockchain.ton.TonAddressTags
 import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.blockchain.ton.extensions.isValidTonAddress
 import com.tonapps.blockchain.tron.isValidTronAddress
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.deposit.data.ExchangeRepository
 import com.tonapps.deposit.screens.send.state.SendDestination
 import com.tonapps.icu.Coins
@@ -197,8 +195,6 @@ class SendFeature(
 
     // region Action Handlers
     private suspend fun handleInit() {
-        AnalyticsHelper.Default.eventsTaggedWith(data.utm).sendNative.sendOpen(from = data.analyticsFrom)
-
         val initData = withContext(Dispatchers.IO) {
             wallet = accountRepository.getSelectedWallet() ?: return@withContext null
             val fiatCurrency = settingsRepository.currency
@@ -324,12 +320,6 @@ class SendFeature(
         }
 
         val input = obtainState()
-
-        AnalyticsHelper.Default.eventsTaggedWith(data.utm).sendNative.sendClick(
-            from = data.analyticsFrom,
-            asset = input.selectedToken.balance.token.analyticsAssetId(),
-            amount = input.amount.value.toDouble(),
-        )
 
         try {
             val tokenAmount = getTokenAmount(input)

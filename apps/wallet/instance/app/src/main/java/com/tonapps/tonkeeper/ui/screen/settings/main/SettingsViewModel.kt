@@ -10,14 +10,12 @@ import com.tonapps.blockchain.ton.TonNetwork
 import com.tonapps.blockchain.ton.contract.BaseWalletContract
 import com.tonapps.blockchain.ton.contract.WalletVersion
 import com.tonapps.blockchain.ton.extensions.toAccountId
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.legacy.enteties.AssetsEntity
 import com.tonapps.legacy.enteties.AssetsExtendedEntity
 import com.tonapps.tonkeeper.Environment
 import com.tonapps.tonkeeper.Wallet
-import com.tonapps.tonkeeper.core.FirebaseHelper
 import com.tonapps.tonkeeper.extensions.capitalized
 import com.tonapps.tonkeeper.manager.push.PushManager
 import com.tonapps.tonkeeper.manager.tonconnect.TonConnectManager
@@ -62,6 +60,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import uikit.extensions.ClickHaptics
 
 class SettingsViewModel(
     application: Application,
@@ -76,7 +75,6 @@ class SettingsViewModel(
     private val tokenRepository: TokenRepository,
     private val batteryRepository: BatteryRepository,
     private val pluginsRepository: PluginsRepository,
-    private val analytics: AnalyticsHelper,
     private val mcAccountRepository: McAccountRepository,
     private val unifiedAccountRepository: UnifiedAccountRepository,
     private val pushManager: PushManager,
@@ -111,6 +109,23 @@ class SettingsViewModel(
         )
     }
 
+    private val preferenceRefresh = MutableStateFlow(0)
+
+    fun togglePromotions() {
+        settingsRepository.promotionsEnabled = !settingsRepository.promotionsEnabled
+        preferenceRefresh.value++
+    }
+
+    fun toggleClickHaptics() {
+        ClickHaptics.setEnabled(context, !ClickHaptics.getEnabled(context))
+        preferenceRefresh.value++
+    }
+
+    fun cycleClickHapticsStrength() {
+        ClickHaptics.setStrength(context, ClickHaptics.getStrength(context) % 3 + 1)
+        preferenceRefresh.value++
+    }
+
     private val _uiItemsFlow = MutableStateFlow<List<Item>>(emptyList())
     val uiItemsFlow = _uiItemsFlow.asStateFlow().filter { it.isNotEmpty() }
 
@@ -119,7 +134,8 @@ class SettingsViewModel(
             walletFlow.filterNotNull(),
             settingsDataFlow,
             settingsRepository.walletPrefsChangedFlow,
-        ) { wallet, settings, _ ->
+            preferenceRefresh,
+        ) { wallet, settings, _, _ ->
             val kind = withContext(Dispatchers.IO) {
                 refreshKind(wallet)
             }
@@ -210,7 +226,6 @@ class SettingsViewModel(
     fun setSearchEngine(searchEngine: SearchEngine?) {
         val engine = searchEngine ?: SearchEngine.DUCKDUCKGO
         settingsRepository.searchEngine = engine
-        FirebaseHelper.searchEngine(engine.title)
     }
 
     fun markMigrationOpened() {
@@ -235,7 +250,6 @@ class SettingsViewModel(
                 return@launch
             }
             onConfirmed()
-            analytics.simpleTrackEvent("delete_wallet")
             deleteWallet(wallet, onDeleted)
         }
     }
@@ -525,7 +539,7 @@ class SettingsViewModel(
         uiItems.add(Item.Account(displayWallet))
         uiItems.add(Item.Space)
 
-        if (hasNonMultichainWallets) {
+        if (hasNonMultichainWallets && !settingsRepository.isMigrationEmpty(mc.id)) {
             uiItems.add(
                 Item.Migration(
                     position = ListCell.Position.SINGLE,
@@ -592,6 +606,10 @@ class SettingsViewModel(
     }
 
     private fun MutableList<Item>.addSettingsFooter(config: ConfigEntity) {
+        add(Item.Space)
+        add(Item.Promotions(settingsRepository.promotionsEnabled, ListCell.Position.FIRST))
+        add(Item.ClickHaptics(ClickHaptics.getEnabled(context), ListCell.Position.MIDDLE))
+        add(Item.ClickHapticsStrength(ClickHaptics.getStrength(context), ListCell.Position.LAST))
         add(Item.Space)
         add(Item.FAQ(ListCell.Position.FIRST, config.faqUrl))
         add(Item.Support(ListCell.Position.MIDDLE))

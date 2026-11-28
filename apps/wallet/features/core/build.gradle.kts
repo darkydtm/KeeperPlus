@@ -9,8 +9,6 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.debugTooling)
 
-    implementation(platform(libs.firebase.bom))
-
     implementation(libs.bundles.nav3)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.koin.core)
@@ -38,9 +36,8 @@ dependencies {
     implementation(projects.ui.uikit.core)
 
     implementation(projects.lib.icu)
-    implementation(projects.lib.bus)
-    implementation(projects.lib.emoji)
     implementation(projects.lib.extensions)
+    implementation(projects.lib.emoji)
     implementation(projects.lib.blockchain)
     implementation(projects.lib.features)
     implementation(projects.apps.wallet.data.features)

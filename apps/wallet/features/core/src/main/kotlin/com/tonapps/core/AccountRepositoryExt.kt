@@ -1,6 +1,5 @@
 package com.tonapps.core
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.data.passcode.PasscodeReason
 import com.tonapps.wallet.data.rn.RNException
@@ -43,7 +42,8 @@ suspend fun AccountRepository.requestPrivateKey(
             PrivateKeyEd25519(seed)
         }
     } catch (e: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
         null
     }
 }

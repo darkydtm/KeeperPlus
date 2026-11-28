@@ -13,11 +13,6 @@ import com.tonapps.blockchain.ton.extensions.equalsAddress
 import com.tonapps.blockchain.ton.extensions.storeCoins
 import com.tonapps.blockchain.ton.extensions.storeOpCode
 import com.tonapps.blockchain.ton.extensions.storeQueryId
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.generated.Events
-import com.tonapps.bus.generated.opTerminal
-import com.tonapps.core.helper.TON_COIN_ASSET_ID
-import com.tonapps.core.helper.TransactionSentAnalytics
 import com.tonapps.deposit.usecase.emulation.Emulated
 import com.tonapps.deposit.usecase.emulation.EmulationUseCase
 import com.tonapps.deposit.usecase.sign.SignUseCase
@@ -120,36 +115,12 @@ class StakeWithdrawViewModel(
     private fun requestEmulation() = unsignedBodyFlow().map { message ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Emulate,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val emulated = emulationUseCase(message, params = true)
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
             emulated.takeUnless { it.failed }
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Emulate,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             null
         }
     }
@@ -281,66 +252,21 @@ class StakeWithdrawViewModel(
         createUnStakeFlow(wallet)
     }).flowOn(Dispatchers.IO)
 
-    private fun trackWithdrawSent() {
-        val stake = _poolFlow.value?.first ?: return
-        val amount = if (stake.pool.implementation == StakingPool.Implementation.Whales) {
-            stake.readyWithdraw
-        } else {
-            stake.balance
-        }
-        TransactionSentAnalytics.transactionSent(
-            wallet = wallet,
-            category = Events.TransactionSent.TransactionSentCategory.Staking,
-            categoryDetail = Events.TransactionSent.TransactionSentCategoryDetail.Claim,
-            asset = TON_COIN_ASSET_ID,
-            amount = amount.value.toDouble(),
-            feeAsset = Events.TransactionSent.TransactionSentFeeAsset.Coin,
-            initiatedBy = Events.TransactionSent.TransactionSentInitiatedBy.User,
-            stakingProvider = stake.pool.address,
-            isLiquid = stake.pool.implementation == StakingPool.Implementation.LiquidTF,
-        )
-    }
-
     private fun createLedgerStakeFlow(
         context: Context,
         wallet: WalletEntity
     ) = ledgerTransactionFlow().map { (seqno, transaction) ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Unstake,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val message = signUseCase(context, wallet, seqno, transaction)
 
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, message, false, "", 0.0)
-            trackWithdrawSent()
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             throw e
         }
     }
@@ -350,14 +276,6 @@ class StakeWithdrawViewModel(
     ) = unsignedBodyFlow().map { message ->
         val operationId = generateUuid()
         val startedAtMs = currentTimeMillis()
-        AnalyticsHelper.Default.events.redOperations.opAttempt(
-            operationId = operationId,
-            flow = Events.RedOperations.RedOperationsFlow.Stake,
-            operation = Events.RedOperations.RedOperationsOperation.Unstake,
-            attemptSource = null,
-            startedAtMs = startedAtMs,
-            otherMetadata = null,
-        )
         try {
             val cell = message.createUnsignedBody(false)
 
@@ -366,26 +284,9 @@ class StakeWithdrawViewModel(
             taskStateFlow.tryEmit(ProcessTaskView.State.LOADING)
 
             transactionManager.send(wallet, boc, false, "", 0.0)
-            trackWithdrawSent()
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = null,
-            )
         } catch (e: Throwable) {
             val finishedAtMs = currentTimeMillis()
-            AnalyticsHelper.Default.events.redOperations.opTerminal(
-                operationId = operationId,
-                flow = Events.RedOperations.RedOperationsFlow.Stake,
-                operation = Events.RedOperations.RedOperationsOperation.Unstake,
-                durationMs = (finishedAtMs - startedAtMs).toDouble(),
-                finishedAtMs = finishedAtMs,
-                error = e,
-            )
             throw e
         }
     }

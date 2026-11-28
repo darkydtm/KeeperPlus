@@ -1,8 +1,6 @@
 package com.tonapps.tonkeeper
 
-import android.app.ActivityManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
@@ -10,8 +8,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.lifecycle.ProcessLifecycleInitializer
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.startup.AppInitializer
 import androidx.work.DelegatingWorkerFactory
 import coil3.ImageLoader
@@ -23,19 +19,11 @@ import coil3.memory.MemoryCache
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
 import com.ton_keeper.BuildConfig
 import com.tonapps.async.Async
 import com.tonapps.blockchain.ton.TonNetwork
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.core.IssueHelper
-import com.tonapps.bus.core.tracer.AnalyticException
-import com.tonapps.bus.screenrender.ScreenRenderLaunchStep
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.chainkit.core.log.AndroidInitializer
 import com.tonapps.core.flags.FeatureManager
-import com.tonapps.core.flags.InAppReviewManager
 import com.tonapps.core.flags.RemoteConfig
 import com.tonapps.core.flags.TooltipManager
 import com.tonapps.core.flags.WalletFeature
@@ -45,10 +33,8 @@ import com.tonapps.deposit.depositModule
 import com.tonapps.extensions.AppContext
 import com.tonapps.extensions.cacheFolder
 import com.tonapps.extensions.cacheSharedFolder
-import com.tonapps.extensions.packageInfo
 import com.tonapps.extensions.pubKey
 import com.tonapps.extensions.setLocales
-import com.tonapps.extensions.versionCodeCompat
 import com.tonapps.log.L
 import com.tonapps.log.LoggerConfig
 import com.tonapps.migration.migrationModule
@@ -62,8 +48,6 @@ import com.tonapps.perps.trade.PerpsOperationRecovery
 import com.tonapps.portfolio.portfolioModule
 import com.tonapps.tonkeeper.api.appApiModule
 import com.tonapps.tonkeeper.core.DevSettings
-import com.tonapps.tonkeeper.core.analytics.ScreenRenderAnalytics
-import com.tonapps.tonkeeper.helper.ReferrerClientHelper
 import com.tonapps.tonkeeper.koin.koinModel
 import com.tonapps.tonkeeper.koin.viewModelWalletModule
 import com.tonapps.tonkeeper.koin.workerModule
@@ -74,9 +58,6 @@ import com.tonapps.wallet.api.entity.PerpsAccess
 import com.tonapps.wallet.chainKitModule
 import com.tonapps.wallet.data.account.AccountRepository
 import com.tonapps.wallet.data.account.accountModule
-import com.tonapps.wallet.data.attribution.AttributionConfig
-import com.tonapps.wallet.data.attribution.AttributionManager
-import com.tonapps.wallet.data.attribution.attributionModule
 import com.tonapps.wallet.data.backup.backupModule
 import com.tonapps.wallet.data.banner.bannerModule
 import com.tonapps.wallet.data.battery.batteryModule
@@ -109,7 +90,6 @@ import com.tonapps.wallet.features.ledger.ledgerFeatureModule
 import com.tonapps.wc.WcInitializer
 import com.tonapps.wc.models.WcWalletConfig
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.factory.KoinWorkerFactory
@@ -129,9 +109,6 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
             .build()
 
     override fun onCreate() {
-        if (!isStartedByUser()) {
-            ScreenRenderTracker.shared.cancelLaunch()
-        }
         SafeProxySelector.install(this)
         if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 //            StrictMode.setVmPolicy(
@@ -147,9 +124,6 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
 
         AppContext.initialize(this)
         instance = this
-        FirebaseApp.initializeApp(this)
-        FirebaseMessaging.getInstance().setDeliveryMetricsExportToBigQuery(true)
-        AnalyticsHelper.Default.applyInstallKeys(this)
         if (!NativeLibraries.load()) {
             super.onCreate()
             return
@@ -157,12 +131,10 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
         initChainKitContext()
         FeatureManager.initialize(this, RemoteConfig())
         initLogger(this)
-        AnalyticsHelper.Default.start(this)
         validateDatabases()
         T.initialize(this)
         initWc()
         TooltipManager.initialize(this)
-        InAppReviewManager.initialize(this)
         Mvi.init(Mvi.Config(useThreadCheck = BuildConfig.DEBUG, isFastFail = BuildConfig.DEBUG))
         disableComposeSmartSelection()
         setFormatterLocale(resources.configuration.locales[0])
@@ -174,7 +146,6 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
             DevSettings.checkInstallationVersion(BuildConfig.VERSION_CODE.toLong())
         }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(AnalyticProcessLifecycleObserver(this))
 
         val koin = startKoin {
             androidContext(this@AppDelegate)
@@ -213,7 +184,6 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
                 collectiblesModule,
                 pluginsModule,
                 cacheModule,
-                attributionModule,
                 mcWalletModule,
                 mcExchangeModule,
                 ledgerModule,
@@ -223,23 +193,13 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
         }.koin
         startBackgroundServices(koin)
 
-        initAttribution(koin.get(), koin.get()) { koin.get<ReferrerClientHelper>().getInstallReferrer() }
         val api = koin.get<API>()
         WalletFeature.Perps.isAllowedByConfig = { api.getConfig(TonNetwork.MAINNET).perpsAccess != PerpsAccess.Hidden }
-        ScreenRenderTracker.shared.reporter = ScreenRenderAnalytics(this) { koin.get<AccountRepository>() }
 
         // The same list the platform gets, so the formatter never resolves a different locale.
         val localeList = koin.get<SettingsRepository>().localeList
         setFormatterLocale(localeList.get(0) ?: resources.configuration.locales[0])
         setLocales(localeList)
-        ScreenRenderTracker.shared.launchMark(ScreenRenderLaunchStep.DidFinishLaunching)
-    }
-
-    // A process started for a push or a broadcast is not a launch the user waits for.
-    private fun isStartedByUser(): Boolean {
-        val info = ActivityManager.RunningAppProcessInfo()
-        ActivityManager.getMyMemoryState(info)
-        return info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
     }
 
     private fun initWc() {
@@ -247,18 +207,13 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
             this,
             WcWalletConfig(
                 projectId = "d9e3b2252349d4b1f5b32d77c9c77082",
-                appName = "Keeper",
-                appDescription = "Keeper is a self-custody crypto wallet that supports 7+ networks. Buy, swap, send, trade and stake from one app, backed by a single recovery phrase that never leaves your device. Formerly Tonkeeper, with 77+ million downloads.",
+                appName = "Keeper +",
+                appDescription = "Keeper + is a self-custody crypto wallet that supports 7+ networks. Buy, swap, send, trade and stake from one app, backed by a single recovery phrase that never leaves your device. Formerly Tonkeeper, with 77+ million downloads.",
                 appUrl = "https://keeperwallet.com/",
                 icon = "",
                 relayUrl = null,
                 redirect = null,
             ),
-            onError = {
-                AnalyticsHelper.Default.captureException(
-                    AnalyticException.WalletConnect("WalletConnect init failed", it)
-                )
-            },
         )
     }
 
@@ -271,56 +226,9 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
         scope.launch { koin.get<PerpsDepositArrivals>().start() }
     }
 
-    private fun initAttribution(
-        attributionManager: AttributionManager,
-        settingsRepository: SettingsRepository,
-        installReferrer: suspend () -> String?,
-    ) {
-        attributionManager.initialize(
-            application = this,
-            config = AttributionConfig(
-                appsFlyerDevKey = "K4DcfTJtj9yZvub93jxPzW",
-                isDebug = BuildConfig.DEBUG,
-                installReferrer = installReferrer,
-            ),
-        )
-        Async.ioScope().launch {
-            settingsRepository.isMigratedFlow.first()
-            attributionManager.setCustomerUserId(settingsRepository.installId)
-        }
-    }
-
     private fun initChainKitContext() {
         val appInitializer = AppInitializer.getInstance(this)
         appInitializer.initializeComponent(AndroidInitializer::class.java)
-        if (!appInitializer.isEagerlyInitialized(AndroidInitializer::class.java)) {
-            reportSkippedChainKitInitializer(appInitializer)
-        }
-    }
-
-    private fun reportSkippedChainKitInitializer(appInitializer: AppInitializer) {
-        try {
-            val hasStartupProviderRun = appInitializer.isEagerlyInitialized(ProcessLifecycleInitializer::class.java)
-            IssueHelper.recordException(
-                IllegalStateException(
-                    "ChainKit AndroidInitializer was not run by InitializationProvider, " +
-                        "startup provider ran: $hasStartupProviderRun, ${installedPackageState()}"
-                )
-            )
-        } catch (_: Exception) {
-        }
-    }
-
-    private fun installedPackageState(): String {
-        val installedPackage = try {
-            packageInfo
-        } catch (_: PackageManager.NameNotFoundException) {
-            return "installed package not found, running versionCode: ${BuildConfig.VERSION_CODE}"
-        }
-        val secondsSinceUpdate = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - installedPackage.lastUpdateTime)
-        return "installed versionCode: ${installedPackage.versionCodeCompat}, " +
-            "running versionCode: ${BuildConfig.VERSION_CODE}, " +
-            "seconds since update: $secondsSinceUpdate"
     }
 
     private fun validateDatabases() {

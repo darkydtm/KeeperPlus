@@ -7,7 +7,6 @@ import com.tonapps.blockchain.model.CommonTransactionData
 import com.tonapps.blockchain.model.ConfirmRequest
 import com.tonapps.blockchain.model.ConfirmType
 import com.tonapps.blockchain.model.legacy.WalletEntity
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeSize
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeType
 import com.tonapps.chainkit.core.chain.model.num.Formatter
@@ -69,7 +68,6 @@ class BatteryAssetRechargeViewModel(
     private val mcAccountRepository: McAccountRepository,
     private val settingsRepository: SettingsRepository,
     private val api: API,
-    private val analytics: AnalyticsHelper,
 ) : BaseWalletVM(app) {
 
     /** What the screen is built of, read once it opens. */
@@ -398,13 +396,6 @@ class BatteryAssetRechargeViewModel(
 
     /** The confirm screen sent the purchase: the balance grows once the transfer lands. */
     fun onPurchaseSent() {
-        analytics.eventsTaggedWith(args.utm).batteryNative.batterySuccess(
-            from = args.from,
-            type = BatteryNativeType.Crypto,
-            size = batterySize(),
-            promo = appliedPromo(promoStateFlow.value),
-            jetton = sourceFlow.value?.symbol,
-        )
 
         val before = chargesBeforePurchase ?: return
         Async.globalScope().launch {
@@ -413,13 +404,6 @@ class BatteryAssetRechargeViewModel(
     }
 
     private fun trackSelect() {
-        analytics.eventsTaggedWith(args.utm).batteryNative.batterySelect(
-            from = args.from,
-            type = BatteryNativeType.Crypto,
-            size = batterySize(),
-            promo = appliedPromo(promoStateFlow.value),
-            jetton = sourceFlow.value?.symbol,
-        )
     }
 
     private fun batterySize(): BatteryNativeSize {

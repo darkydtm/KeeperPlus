@@ -14,7 +14,6 @@ internal class AssetPickerPagingSource(
     private val currency: String,
     private val query: String?,
     private val network: String?,
-    private val onFirstPageLoaded: (List<AccountWithDetails>) -> Unit = {},
 ) : PagingSource<String, AccountWithDetails>() {
 
     private val loadedAssetIds = ConcurrentHashMap.newKeySet<String>()
@@ -36,10 +35,6 @@ internal class AssetPickerPagingSource(
             )
 
             val accounts = page.accounts.dropAlreadyLoaded()
-            if (params.key == null) {
-                onFirstPageLoaded(accounts)
-            }
-
             LoadResult.Page(
                 data = accounts,
                 prevKey = null,

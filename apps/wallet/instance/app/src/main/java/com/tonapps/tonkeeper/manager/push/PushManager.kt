@@ -382,9 +382,7 @@ class PushManager(
     )
 
     private suspend fun getFirebaseToken(): String? {
-        return settingsRepository.firebaseToken ?: FirebasePush.requestToken()?.also {
-            settingsRepository.firebaseToken = it
-        }
+        return null
     }
 
     private suspend fun getTonProof(wallet: WalletEntity): String? {

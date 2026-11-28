@@ -11,12 +11,9 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.model.legacy.WalletCurrency
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowFrom
-import com.tonapps.bus.generated.Events.WithdrawFlow.WithdrawFlowWithdrawOption
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.core.navigation.LocalResultStore
 import com.tonapps.core.navigation.rememberResultStore
 import com.tonapps.deposit.data.AssetFilter
@@ -133,7 +130,6 @@ fun WithdrawRouter(
     val backStack = rememberNestedNavBackStack(initial, onBack)
     val resultStore = rememberResultStore()
     var sendParams by remember { mutableStateOf<SendParams?>(null) } // TODO remove
-    val withdrawEvents = remember(utm) { AnalyticsHelper.Default.eventsTaggedWith(utm).withdrawFlow }
 
     CompositionLocalProvider(LocalResultStore provides resultStore) {
         MoonNav(
@@ -148,10 +144,6 @@ fun WithdrawRouter(
                         onClose = onBack,
                         onQr = { },
                         onSend = {
-                            withdrawEvents.withdrawOptionClick(
-                                from = analyticsFrom,
-                                withdrawOption = WithdrawFlowWithdrawOption.SendTokens,
-                            )
                             backStack.add(WithdrawRoutes.SendAmount(null))
                         },
                         onBuyCash = { preferredCurrency ->
@@ -241,12 +233,6 @@ fun WithdrawRouter(
                         onSelected = { currency ->
                             when (key.filter) {
                                 AssetFilter.StablecoinRoot -> {
-                                    withdrawEvents.withdrawClickFiatAsset(
-                                        from = analyticsFrom,
-                                        withdrawOption = WithdrawFlowWithdrawOption.SellToCard,
-                                        sellAsset = currency.analyticsAssetId(),
-                                    )
-
                                     backStack.add(WithdrawRoutes.WithdrawMethod(
                                         asset = RampAsset.Currency(currency),
                                         sectionFilter = PaymentMethodSectionFilter.StablecoinOnly,
@@ -261,12 +247,6 @@ fun WithdrawRouter(
                                     ))
                                 }
                                 else -> {
-                                    withdrawEvents.withdrawClickFiatAsset(
-                                        from = analyticsFrom,
-                                        withdrawOption = WithdrawFlowWithdrawOption.SellToCard,
-                                        sellAsset = currency.analyticsAssetId(),
-                                    )
-
                                     backStack.add(WithdrawRoutes.WithdrawMethod(
                                         asset = RampAsset.Currency(currency),
                                         sectionFilter = sectionFilter,
@@ -404,7 +384,7 @@ fun WithdrawRouter(
 
                 is WithdrawRoutes.Scanner -> NavEntry(key) {
                     ScannerScreen(
-                        onResult = { value, _ ->
+                        onResult = { value ->
                             resultStore.setResult(KEY_SCANNER_RESULT, value)
                             backStack.safeRemoveLastOrNull(key)
                         },

@@ -17,7 +17,7 @@ class ConfigStoriesAutoShow(
     private val storiesWithoutAutoShow = mutableSetOf<Pair<String?, List<String>>>()
 
     suspend fun showOnce(wallet: WalletEntity, show: suspend (StoryEntity.Stories) -> Boolean) {
-        if (session.hasShown(wallet.id)) {
+        if (!settingsRepository.promotionsEnabled || session.hasShown(wallet.id)) {
             return
         }
         val walletId = wallet.id.takeIf { wallet.type == WalletType.Multichain }

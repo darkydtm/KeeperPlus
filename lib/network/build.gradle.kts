@@ -12,7 +12,6 @@ dependencies {
 
     implementation(projects.lib.log)
     implementation(projects.lib.time)
-    implementation(projects.lib.bus)
     implementation(projects.kmp.async)
 
     testImplementation(libs.junit)

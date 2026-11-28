@@ -12,7 +12,6 @@ import com.tonapps.mvi.flow.withLatestFrom
 import com.tonapps.mvi.graph.GraphViewModel
 import com.tonapps.mvi.graph.KResult
 import com.tonapps.mvi.graph.KState
-import com.tonapps.perps.PerpsAnalytics
 import com.tonapps.perps.data.PerpMarket
 import com.tonapps.perps.data.PerpsAccountRefresh
 import com.tonapps.perps.data.PerpsCandle
@@ -551,11 +550,6 @@ class PerpsAssetDetailsFeature(
         .mapStateDataValueOrNull()
         .mapResultErrorOrNull()
         .map { it?.value }
-        .cacheState(initialValue = null)
-
-    private val errorReport = error
-        .filterNotNull()
-        .onEach { PerpsAnalytics.tradingDataError(marketIndex) }
         .cacheState(initialValue = null)
 
     override val tradingError = tradingState
@@ -1238,7 +1232,7 @@ private const val SLIPPAGE_STATUS_PREFIX = "canceled-too-much-slippage"
  *   detailsState ──► details? ──┬──► about?
  *                               ├──► priceDecimals
  *                               └──► sizeDecimals?
- *   detailsState [dataOrNull, errOrNull] ──► error? ──► errorReport
+ *   detailsState [dataOrNull, errOrNull] ──► error?
  *
  *                detailsState ──┐
  *                tradingState ──┴──► isLoading

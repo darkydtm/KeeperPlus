@@ -2,18 +2,12 @@ package com.tonapps.deposit
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import com.tonapps.blockchain.model.legacy.WalletCurrency
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowAddFundsOption
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowDepositScreen
 import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowFrom
-import com.tonapps.bus.generated.Events.DepositFlow.DepositFlowWalletMode
-import com.tonapps.core.helper.analyticsAssetId
 import com.tonapps.core.navigation.LocalResultStore
 import com.tonapps.core.navigation.rememberResultStore
 import com.tonapps.deposit.data.AssetFilter
@@ -106,16 +100,6 @@ fun DepositRouter(
 ) {
     val backStack = rememberNestedNavBackStack(initial, onBack)
     val resultStore = rememberResultStore()
-    val depositEvents = remember(utm) { AnalyticsHelper.Default.eventsTaggedWith(utm).depositFlow }
-
-    fun trackOptionClick(addFundsOption: DepositFlowAddFundsOption) {
-        depositEvents.depositOptionClick(
-            from = analyticsFrom,
-            walletMode = DepositFlowWalletMode.Single,
-            addFundsOption = addFundsOption,
-        )
-    }
-
     CompositionLocalProvider(LocalResultStore provides resultStore) {
         MoonNav(
             backStack = backStack,
@@ -128,23 +112,23 @@ fun DepositRouter(
                         rampType = RampType.RampOn,
                         onClose = onBack,
                         onQr = {
-                            trackOptionClick(DepositFlowAddFundsOption.ReceiveTokens)
+
                             backStack.add(DepositRoutes.Qr)
                         },
                         onSend = { },
                         onBuyCash = { preferredCurrency ->
-                            trackOptionClick(DepositFlowAddFundsOption.BuyWithFiat)
+
                             backStack.add(DepositRoutes.ExtendedCryptoList(filter = AssetFilter.Cash, preferredCurrency = preferredCurrency))
                         },
                         onBuyCrypto = { asset ->
-                            trackOptionClick(DepositFlowAddFundsOption.BuyTonWithCrypto)
+
                             backStack.add(DepositRoutes.Buy(
                                 asset = asset,
                                 sectionFilter = PaymentMethodSectionFilter.CryptoOnly,
                             ))
                         },
                         onBuyStablecoins = {
-                            trackOptionClick(DepositFlowAddFundsOption.BuyWithStablecoins)
+
                             backStack.add(DepositRoutes.ExtendedCryptoList(filter = AssetFilter.StablecoinRoot))
                         },
                     )
@@ -167,12 +151,6 @@ fun DepositRouter(
                         onSelected = { currency ->
                             when (key.filter) {
                                 AssetFilter.StablecoinRoot -> {
-                                    depositEvents.depositClickFiatAsset(
-                                        from = analyticsFrom,
-                                        addFundsOption = DepositFlowAddFundsOption.BuyWithFiat,
-                                        depositScreen = DepositFlowDepositScreen.AddFunds,
-                                        buyAsset = currency.analyticsAssetId(),
-                                    )
                                     backStack.add(DepositRoutes.Buy(
                                         asset = RampAsset.Currency(currency),
                                         sectionFilter = PaymentMethodSectionFilter.StablecoinOnly,
@@ -187,12 +165,6 @@ fun DepositRouter(
                                     ))
                                 }
                                 else -> {
-                                    depositEvents.depositClickFiatAsset(
-                                        from = analyticsFrom,
-                                        addFundsOption = DepositFlowAddFundsOption.BuyWithFiat,
-                                        depositScreen = DepositFlowDepositScreen.AddFunds,
-                                        buyAsset = currency.analyticsAssetId(),
-                                    )
                                     backStack.add(DepositRoutes.Buy(
                                         asset = RampAsset.Currency(currency),
                                         sectionFilter = sectionFilter,
@@ -239,13 +211,6 @@ fun DepositRouter(
                             ))
                         },
                         onOpenP2P = { url ->
-                            // P2P is a payment method of «Buy with fiat», the option the user came through, as on iOS.
-                            depositEvents.depositContinueToP2pMarket(
-                                from = analyticsFrom,
-                                walletMode = DepositFlowWalletMode.Single,
-                                addFundsOption = DepositFlowAddFundsOption.BuyWithFiat,
-                                depositScreen = DepositFlowDepositScreen.AddFunds,
-                            )
                             openProvider(url)
                         },
                         onAutoNavigateCrypto = { resolvedAsset, targetCurrency ->

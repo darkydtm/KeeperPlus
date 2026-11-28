@@ -6,12 +6,6 @@ import com.tonapps.blockchain.model.legacy.Wallet
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.screenrender.ScreenRenderErrorKind
-import com.tonapps.bus.screenrender.ScreenRenderErrors
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderStage
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.core.flags.RemoteConfig
 import com.tonapps.core.flags.AddMcWalletTooltipInteractor
 import com.tonapps.core.flags.LedgerMigrationTooltipInteractor
@@ -152,18 +146,10 @@ class WalletViewModel(
         _lastLtFlow
     ) { _, _, _, lastLt -> lastLt }
 
-    private val screenRender = ScreenRenderTracker.shared
-
-    @Volatile
-    private var balanceErrorKind: ScreenRenderErrorKind? = null
-
     init {
         viewModelScope.launch {
             val cached = screenCacheSource.getWalletScreen(wallet)
             _uiItemsFlow.value = cached ?: listOf(Item.Skeleton(true))
-            if (cached != null) {
-                screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Portfolio)
-            }
         }
 
         requestDnsExpiring()
@@ -256,17 +242,11 @@ class WalletViewModel(
                     state.totalBalanceFiat
                 )
                 _stateMainFlow.value = state
-                screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Portfolio)
             }
 
             if (isRequestUpdate) {
                 try {
-                    screenRender.requestStarted(ScreenRenderId.Portfolio)
-                    val remoteAssets = try {
-                        getAssets(walletCurrency, true)
-                    } finally {
-                        screenRender.requestFinished(ScreenRenderId.Portfolio)
-                    }
+                    val remoteAssets = getAssets(walletCurrency, true)
                     val batteryBalance = getBatteryBalance(wallet, true)
                     val banners = getBanners(wallet, true)
                     val plugins = pluginsRepository.getPlugins(wallet, true)
@@ -302,27 +282,18 @@ class WalletViewModel(
                         settingsRepository.setWalletLastUpdated(wallet.id)
                         balanceStale.value = false
                         setStatus(Status.Default)
-                        balanceErrorKind = null
-                        screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.Portfolio)
-                    } else {
-                        // The repository swallows the failure; only the connection says why.
-                        val errorKind = if (currentIsOnline) {
-                            ScreenRenderErrorKind.Unknown
-                        } else {
-                            ScreenRenderErrorKind.Offline
-                        }
-                        reportBalanceFailure(errorKind)
                     }
                 } catch (e: Throwable) {
                     L.e(e, "Balance loading error")
-                    reportBalanceFailure(ScreenRenderErrors.kind(e))
                     throw e
                 }
             }
         }.launchIn(viewModelScope)
 
         combine(
-            stateMainFlow,
+            combine(stateMainFlow, settingsRepository.promotionsEnabledFlow) { state, enabled ->
+                if (enabled) state else state.copy(banners = emptyList())
+            },
             alertNotificationsFlow,
             _stateSettingsFlow,
             updateWalletSettings,
@@ -402,7 +373,6 @@ class WalletViewModel(
         passcodeManager.lockscreenHiddenFlow.first { it }
         return when {
             LedgerLegacyTwins.isMigratable(wallet) && ledgerMigrationTooltip.shouldShow() -> {
-                AnalyticsHelper.Default.events.ledgerFlow.ledgerMigrationTooltipView()
                 WalletHeaderTooltip.LedgerMigration
             }
             addMcWalletTooltip.consume(AddMcWalletTooltipInteractor.Placement.MAIN) -> WalletHeaderTooltip.AddMultichain
@@ -584,28 +554,6 @@ class WalletViewModel(
 
     private fun setCached(wallet: WalletEntity, items: List<Item>) {
         screenCacheSource.set(CACHE_NAME, wallet.id, items)
-    }
-
-    private fun reportBalanceFailure(kind: ScreenRenderErrorKind) {
-        balanceErrorKind = kind
-        screenRender.failed(ScreenRenderId.Portfolio, kind)
-    }
-
-    /** The tab is shown again. The balance is not reloaded on that, so the visit ends with what is on screen. */
-    fun onScreenShown() {
-        val errorKind = balanceErrorKind
-        if (_stateMainFlow.value == null && errorKind == null) {
-            // Still loading: the session ends with that load.
-            return
-        }
-        if (_stateMainFlow.value != null) {
-            screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Portfolio)
-        }
-        if (errorKind != null) {
-            screenRender.failed(ScreenRenderId.Portfolio, errorKind)
-        } else {
-            screenRender.finish(ScreenRenderId.Portfolio)
-        }
     }
 
     override fun onCleared() {

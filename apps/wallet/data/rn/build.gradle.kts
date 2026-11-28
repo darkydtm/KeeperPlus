@@ -4,9 +4,6 @@ plugins {
 }
 
 dependencies {
-    api(platform(libs.firebase.bom))
-    api(libs.firebase.crashlytics)
-
     implementation(libs.androidx.biometric)
     implementation(libs.ton.crypto)
     implementation(libs.koin.core)

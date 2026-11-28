@@ -3,18 +3,11 @@ package com.tonapps.trading.screens.shelves
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.bus.core.AnalyticsHelper
-import com.tonapps.bus.screenrender.ScreenRenderErrorKind
-import com.tonapps.bus.screenrender.ScreenRenderErrors
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderStage
-import com.tonapps.bus.screenrender.ScreenRenderTracker
 import com.tonapps.core.flags.WalletFeature
 import com.tonapps.log.L
 import com.tonapps.mvi.AsyncViewModel
 import com.tonapps.perps.data.PerpMarket
 import com.tonapps.perps.data.PerpsRepository
-import com.tonapps.trading.TradeEntryTracker
 import com.tonapps.trading.data.TradingRepository
 import com.tonapps.wallet.api.entity.BannerEntity
 import com.tonapps.wallet.data.account.AccountRepository
@@ -26,7 +19,6 @@ import com.tonapps.mvi.flow.flatMapLatestCatching
 import com.tonapps.wallet.data.raffle.RaffleRepository
 import com.tonapps.wallet.data.raffle.bannerEntity
 import com.tonapps.wallet.data.settings.SettingsRepository
-import io.tradingapi.models.MarketItem
 import io.tradingapi.models.MarketListKey
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -102,7 +94,9 @@ class ShelvesFeature(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    val perpsShelfMarkets: StateFlow<List<PerpMarket>> = isPerpsVisible
+    val perpsShelfMarkets: StateFlow<List<PerpMarket>> = combine(
+        isPerpsVisible, settingsRepository.promotionsEnabledFlow,
+    ) { visible, enabled -> visible && enabled }
         .flatMapLatest { visible ->
             if (visible) {
                 merge(refreshSignal.map { }, perpsShelfReload)
@@ -114,11 +108,6 @@ class ShelvesFeature(
             }
         }
         .cacheState(initialValue = emptyList())
-
-    private val screenRender = ScreenRenderTracker.shared
-
-    @Volatile
-    private var shelvesErrorKind: ScreenRenderErrorKind? = null
 
     private val _shelvesError = MutableStateFlow(false)
     val shelvesError: StateFlow<Boolean> = _shelvesError.asStateFlow()
@@ -170,20 +159,10 @@ class ShelvesFeature(
                         emit(null)
                     }
                     try {
-                        var isFetched = false
-                        val groups = tradingRepository.getShelfGroups(
-                            isMultichainWallet = isMultichain,
-                            onFetchStarted = {
-                                isFetched = true
-                                screenRender.requestStarted(ScreenRenderId.Trade)
-                            },
-                            onFetchFinished = { screenRender.requestFinished(ScreenRenderId.Trade) },
-                        )
+                        val groups = tradingRepository.getShelfGroups(isMultichainWallet = isMultichain)
                         emit(groups)
-                        shelvesErrorKind = null
-                        reportShelvesShown(isFresh = isFetched)
                     } catch (e: CancellationException) {
-                        // A newer load replaced this one (flatMapLatest); it reports for the session.
+                        // A newer load replaced this one (flatMapLatest).
                         throw e
                     } catch (e: Throwable) {
                         L.e(e)
@@ -191,9 +170,6 @@ class ShelvesFeature(
                             _shelvesError.value = true
                             emit(emptyList())
                         }
-                        val kind = ScreenRenderErrors.kind(e)
-                        shelvesErrorKind = kind
-                        screenRender.failed(ScreenRenderId.Trade, kind)
                     } finally {
                         _isRefreshing.value = false
                     }
@@ -202,33 +178,8 @@ class ShelvesFeature(
         }
         .cacheState()
 
-    init {
-        AnalyticsHelper.Default.events.tradeUiFlow.tradeStarted(from = TradeEntryTracker.consumeFrom())
-    }
-
-    // Shelves are cached in memory for the process; a cached answer needs no request.
-    private fun reportShelvesShown(isFresh: Boolean) {
-        if (isFresh) {
-            screenRender.contentApplied(ScreenRenderStage.Fresh, ScreenRenderId.Trade)
-        } else {
-            screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Trade)
-            screenRender.finish(ScreenRenderId.Trade)
-        }
-    }
-
-    /** The tab is shown again. Shelf groups load once, so the visit ends with what is on screen or the last failure. */
     fun onScreenShown() {
         screenShown.tryEmit(Unit)
-        val groups = shelfGroupsFlow.value ?: return
-        if (groups.isNotEmpty()) {
-            screenRender.contentApplied(ScreenRenderStage.Cached, ScreenRenderId.Trade)
-        }
-        val errorKind = shelvesErrorKind
-        if (errorKind != null) {
-            screenRender.failed(ScreenRenderId.Trade, errorKind)
-        } else {
-            screenRender.finish(ScreenRenderId.Trade)
-        }
     }
 
     fun refresh() {
@@ -262,13 +213,6 @@ class ShelvesFeature(
         bgScope.launch {
             bannerRepository.hideBanner(walletId, banner.id)
         }
-    }
-
-    fun trackAssetClick(item: MarketItem) {
-        AnalyticsHelper.Default.events.tradeUiFlow.tradeClickAsset(
-            from = TradeEntryTracker.consumeFrom(),
-            asset = item.asset.id
-        )
     }
 
     fun removeFavorites(assetIds: Collection<String>) {

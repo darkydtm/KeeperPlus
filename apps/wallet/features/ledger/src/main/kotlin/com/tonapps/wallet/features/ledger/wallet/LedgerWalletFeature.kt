@@ -1,8 +1,6 @@
 package com.tonapps.wallet.features.ledger.wallet
 
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDeviceViewFrom
-import com.tonapps.bus.generated.Events.LedgerFlow.LedgerDiscoveryErrorFrom
 import com.tonapps.chainkit.core.chain.model.account.Chain
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.LedgerFailureException
@@ -12,14 +10,6 @@ import com.tonapps.mvi.AsyncViewModel
 import com.tonapps.mvi.MviRelay
 import com.tonapps.wallet.data.ledger.LedgerChainApp
 import com.tonapps.wallet.data.ledger.LedgerWalletInteractor
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
-import com.tonapps.wallet.data.ledger.analytics.ledgerAppsSkipped
-import com.tonapps.wallet.data.ledger.analytics.ledgerFailure
-import com.tonapps.wallet.data.ledger.analytics.ledgerModel
-import com.tonapps.wallet.data.ledger.analytics.toAnalyticsApps
-import com.tonapps.wallet.data.ledger.analytics.toFailureType
-import com.tonapps.wallet.data.ledger.analytics.toLedgerFlowModel
 import com.tonapps.wallet.data.ledger.connection.LedgerActivity
 import com.tonapps.wallet.data.ledger.connection.LedgerConnectionInteractor
 import com.tonapps.wallet.data.ledger.connection.LedgerConnectionStatus
@@ -58,11 +48,7 @@ internal class LedgerWalletFeature(
 
     private var workJob: Job? = null
 
-    private val analytics
-        get() = AnalyticsHelper.Default.events.ledgerFlow
-
     init {
-        analytics.ledgerDeviceView(from)
         bgScope.launch {
             accountRepository.refreshTrigger.collect { reload() }
         }
@@ -93,22 +79,14 @@ internal class LedgerWalletFeature(
             return
         }
         state.update { it.copy(isAddingNetworks = true) }
-        analytics.ledgerAddNetworksStart()
         workJob = bgScope.launch {
             try {
                 val result = walletInteractor.addMissingNetworks(walletId)
-                val ledgerModel = accountRepository.ledgerModel(walletId)
-                analytics.ledgerAddNetworksSuccess(
-                    addedApps = result.added.map(LedgerChainApp::forChain).distinct().toAnalyticsApps(),
-                    ledgerModel = ledgerModel?.toLedgerFlowModel(),
-                )
-                analytics.ledgerAppsSkipped(LedgerDiscoveryErrorFrom.AddNetworks, result.skipped, ledgerModel)
                 relay.emit(LedgerWalletEvent.NetworksAdded(result.added, skipReason = result.skipped.values.firstOrNull()))
                 reload()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                trackAddNetworksFailure(e)
                 reportFailure(e)
             } finally {
                 state.update { it.copy(isAddingNetworks = false) }
@@ -145,20 +123,8 @@ internal class LedgerWalletFeature(
         bgScope.launch { reload() }
     }
 
-    private suspend fun trackAddNetworksFailure(error: Exception) {
-        val failure = error.ledgerFailure
-        if (failure == LedgerFailure.Cancelled) {
-            return
-        }
-        analytics.ledgerAddNetworksError(
-            failureType = failure?.toFailureType(),
-            ledgerModel = accountRepository.ledgerModel(walletId)?.toLedgerFlowModel(),
-        )
-    }
-
     private fun reportFailure(error: Exception) {
         L.e(error)
-        LedgerNonFatals.recordIssue(error, LedgerIssueSite.DeviceScreen)
         val ledgerFailure = error as? LedgerFailureException
         if (ledgerFailure?.isPresented == true) {
             return
@@ -193,7 +159,6 @@ internal class LedgerWalletFeature(
             throw e
         } catch (e: Exception) {
             L.e(e)
-            LedgerNonFatals.recordIssue(e, LedgerIssueSite.DeviceScreen)
             state.update { it.copy(isLoaded = true, isLoadFailed = it.device == null) }
         }
     }

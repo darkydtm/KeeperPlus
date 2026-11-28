@@ -28,9 +28,8 @@ dependencies {
     implementation(projects.ui.uikit.icon)
     implementation(projects.ui.uikit.core)
 
-    implementation(projects.lib.bus)
-    implementation(projects.lib.icu)
     implementation(projects.lib.extensions)
+    implementation(projects.lib.icu)
     implementation(projects.lib.blockchain)
     implementation(projects.lib.qr)
 

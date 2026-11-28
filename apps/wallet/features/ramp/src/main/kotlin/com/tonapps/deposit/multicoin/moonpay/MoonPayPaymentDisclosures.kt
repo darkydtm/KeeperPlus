@@ -1,7 +1,6 @@
 package com.tonapps.deposit.multicoin.moonpay
 
 import com.tonapps.deposit.multicoin.moonpay.api.MoonPayBuyQuote
-import com.tonapps.bus.core.IssueHelper
 import com.tonapps.log.L
 
 // A legal text to show in full before the payment; [links] are ranges of [text] that open their url.
@@ -42,11 +41,9 @@ object MoonPayPaymentDisclosures {
         return shown.map { parse(it.markdown) }
     }
 
-    // At error level and to Crashlytics: warnings stay on the device.
+    // Keep mismatches visible in local logs while preserving the conservative disclosure.
     private fun reportMismatch(message: String) {
-        val error = MoonPayDisclosureMismatch(message)
-        L.e(error)
-        runCatching { IssueHelper.recordException(error) }
+        L.e(MoonPayDisclosureMismatch(message))
     }
 
     enum class Disclosure(val id: String, val markdown: String) {

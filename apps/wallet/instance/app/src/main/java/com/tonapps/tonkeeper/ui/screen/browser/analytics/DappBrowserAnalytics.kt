@@ -1,65 +1,19 @@
 package com.tonapps.tonkeeper.ui.screen.browser.analytics
 
 import android.net.Uri
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.generated.Events
 import com.tonapps.bus.generated.Events.DappBrowser.DappAppClickFrom
 import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserAssetChain
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserOpenFrom
-import com.tonapps.bus.generated.Events.DappBrowser.DappBrowserType
 import com.tonapps.wallet.data.browser.entities.BrowserAppEntity
 
 object DappBrowserAnalytics {
 
-    const val WALLET_TAB_SOURCE = "wallet"
     const val IN_DAPP_LINK_SOURCE = "dapp"
     const val SHORTCUT_DAPP_SOURCE = "shortcut"
     const val EXTERNAL_LINK_SOURCE = "external_link"
 
     private const val UNKNOWN_LOCATION = "ZZ"
     private const val UNKNOWN_DOMAIN = "unknown"
-
-    internal val events: Events.DappBrowser
-        get() = AnalyticsHelper.Default.events.dappBrowser
-
-    internal fun eventsTaggedWith(utm: UtmParameters): Events.DappBrowser {
-        return AnalyticsHelper.Default.eventsTaggedWith(utm).dappBrowser
-    }
-
-    fun browserOpen(
-        from: String,
-        type: DappBrowserType,
-        country: String?,
-        utm: UtmParameters = UtmParameters.Empty,
-    ) {
-        eventsTaggedWith(utm).dappBrowserOpen(
-            from = openFrom(from),
-            type = type,
-            location = location(country)
-        )
-    }
-
-    fun tabClick(type: DappBrowserType, country: String?) {
-        events.dappBrowserTabClick(
-            type = type,
-            location = location(country)
-        )
-    }
-
-    fun searchOpen(country: String?) {
-        events.dappBrowserSearchOpen(
-            url = UNKNOWN_DOMAIN,
-            location = location(country)
-        )
-    }
-
-    fun searchClick(url: Uri?, country: String?) {
-        events.dappBrowserSearchClick(
-            url = domain(url),
-            location = location(country)
-        )
-    }
 
     fun catalogContext(
         source: String,
@@ -103,17 +57,6 @@ object DappBrowserAnalytics {
             location = location(country),
             utm = utm,
         )
-    }
-
-    private fun openFrom(source: String): DappBrowserOpenFrom {
-        return when (source.lowercase()) {
-            WALLET_TAB_SOURCE -> DappBrowserOpenFrom.Wallet
-            "story", "stories" -> DappBrowserOpenFrom.Story
-            "history", "activity" -> DappBrowserOpenFrom.History
-            "connected_apps" -> DappBrowserOpenFrom.ConnectedApps
-            EXTERNAL_LINK_SOURCE -> DappBrowserOpenFrom.DeepLink
-            else -> DappBrowserOpenFrom.Other
-        }
     }
 
     private fun appClickFrom(source: String): DappAppClickFrom {

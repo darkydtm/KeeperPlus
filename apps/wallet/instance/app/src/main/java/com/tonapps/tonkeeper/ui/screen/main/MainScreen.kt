@@ -7,24 +7,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
-import com.tonapps.bus.core.contract.UtmParameters
-import com.tonapps.bus.screenrender.ScreenRenderId
-import com.tonapps.bus.screenrender.ScreenRenderTracker
-import com.tonapps.bus.screenrender.ScreenRenderTrigger
 import com.tonapps.extensions.query
 import com.tonapps.log.L
 import com.tonapps.tonkeeper.extensions.removeAllFragments
 import com.tonapps.tonkeeper.koin.serverFlags
 import com.tonapps.tonkeeper.ui.base.BaseWalletScreen
 import com.tonapps.tonkeeper.ui.base.ScreenContext
-import com.tonapps.tonkeeper.ui.screen.browser.analytics.DappBrowserAnalytics
 import com.tonapps.tonkeeper.ui.screen.browser.base.BrowserBaseScreen
 import com.tonapps.portfolio.PortfolioFragment
-import com.tonapps.portfolio.analytics.PortfolioAnalytics
 import com.tonapps.tonkeeper.ui.screen.wallet.main.WalletScreen
 import com.tonapps.trading.screens.shelves.ShelvesFragment
 import com.tonapps.tonkeeper.ui.screen.root.RootEvent
@@ -165,7 +158,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         }
         rootViewModel.eventFlow.filterIsInstance<RootEvent.OpenTab>().onEach {
             val itemId = resolveId(it.link.toString())
-            beginTabScreenRender(itemId, it.trigger)
             bottomTabsView.selectedItemId = itemId
             val extra = when (itemId) {
                 R.id.browser -> it.link.query("category")
@@ -177,7 +169,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
             } else {
                 null
             }
-            setFragment(itemId, it.wallet, it.from, extra, true, network, scrollUpOnReTap = true, browserOpenUtm = it.utm)
+            setFragment(itemId, it.wallet, extra, true, network, scrollUpOnReTap = true)
             parentClearState()
         }.launchIn(lifecycleScope)
 
@@ -198,7 +190,7 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         }
         collectFlow(viewModel.selectedWalletFlow.filterNotNull()) { wallet ->
             applyWallet(wallet)
-            setFragment(bottomTabsView.selectedItemId, wallet, null, null, false)
+            setFragment(bottomTabsView.selectedItemId, wallet, null, false)
         }
 
         bottomTabsView.toggleItem(R.id.trading, true)
@@ -237,24 +229,8 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         currentWalletId = wallet.id
 
         bottomTabsView.doOnClick = { itemId ->
-            beginTabScreenRender(itemId, ScreenRenderTrigger.InApp)
-            setFragment(itemId, wallet, DappBrowserAnalytics.WALLET_TAB_SOURCE, null, false, scrollUpOnReTap = true)
+            setFragment(itemId, wallet, null, false, scrollUpOnReTap = true)
         }
-    }
-
-    // Before the tab is shown, so its lifecycle reaches the session; a re-tap of the visible tab starts none.
-    private fun beginTabScreenRender(itemId: Int, trigger: ScreenRenderTrigger) {
-        val existing = fragments[itemId]
-        if (existing != null && existing.isAdded && !existing.isHidden) {
-            return
-        }
-        val screen = when (itemId) {
-            R.id.wallet -> ScreenRenderId.Portfolio
-            R.id.trading -> ScreenRenderId.Trade
-            R.id.browser -> ScreenRenderId.Browser
-            else -> return
-        }
-        ScreenRenderTracker.shared.begin(screen, trigger, isFirstOpen = existing == null)
     }
 
     private fun getFragment(itemId: Int, wallet: WalletEntity): Fragment {
@@ -283,15 +259,13 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
     private fun setFragment(
         itemId: Int,
         wallet: WalletEntity,
-        browserOpenFrom: String?,
         extra: String?,
         forceScrollUp: Boolean,
         network: String? = null,
         scrollUpOnReTap: Boolean = false,
-        browserOpenUtm: UtmParameters = UtmParameters.Empty,
     ) {
         viewModel.setData(wallet, itemId)
-        setFragment(getFragment(itemId, wallet), forceScrollUp, scrollUpOnReTap, browserOpenFrom, browserOpenUtm, extra, 0, wallet, network)
+        setFragment(getFragment(itemId, wallet), forceScrollUp, scrollUpOnReTap, extra, 0, wallet, network)
         (activity as? NavigationActivity)?.updateBackCallbackState()
     }
 
@@ -299,8 +273,6 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         fragment: Fragment,
         forceScrollUp: Boolean,
         scrollUpOnReTap: Boolean,
-        browserOpenFrom: String?,
-        browserOpenUtm: UtmParameters,
         extra: String?,
         attempt: Int,
         wallet: WalletEntity,
@@ -338,14 +310,11 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
         transaction.runOnCommit {
             checkBottomDivider(fragment)
             if (fragment is BrowserBaseScreen) {
-                browserOpenFrom?.let { fragment.trackBrowserOpen(it, browserOpenUtm) }
                 applyBrowserExtras(fragment, extra, network)
             } else if (fragment is ShelvesFragment) {
                 if (!extra.isNullOrBlank()) {
                     fragment.scrollToShelf(extra)
                 }
-            } else if (fragment is PortfolioFragment || fragment is WalletScreen) {
-                PortfolioAnalytics.open(wallet)
             }
         }
         try {
@@ -353,9 +322,10 @@ class MainScreen: BaseWalletScreen<ScreenContext.None>(R.layout.fragment_main, S
             L.d("MainScreenLog", "Set fragment: $fragment")
         } catch (e: Throwable) {
             L.e("MainScreenLog", "Failed to set fragment", e)
-            FirebaseCrashlytics.getInstance().recordException(e)
+// Crash reporting disabled
+
             postDelayed(1000) {
-                setFragment(fragment, forceScrollUp, scrollUpOnReTap, browserOpenFrom, browserOpenUtm, extra, attempt + 1, wallet, network)
+                setFragment(fragment, forceScrollUp, scrollUpOnReTap, extra, attempt + 1, wallet, network)
             }
         }
     }

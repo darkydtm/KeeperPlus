@@ -5,7 +5,6 @@ import com.tonapps.blockchain.model.legacy.TokenEntity
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.WalletType
 import com.tonapps.blockchain.ton.extensions.toUserFriendly
-import com.tonapps.bus.core.AnalyticsHelper
 import com.tonapps.bus.core.contract.UtmParameters
 import com.tonapps.bus.generated.Events
 import com.tonapps.deposit.screens.qr.QrAssetFeature.Keys.Tokens
@@ -76,17 +75,6 @@ class QrAssetFeature(
     }
 
     private val tokensCache = TimedCacheMemory<Keys>()
-
-    init {
-        AnalyticsHelper.Default.simpleTrackEvent("receive_open")
-        AnalyticsHelper.Default.eventsTaggedWith(data.utm).depositFlow.depositViewReceiveTokens(
-            from = data.analyticsFrom,
-            walletMode = Events.DepositFlow.DepositFlowWalletMode.Single,
-            addFundsOption = Events.DepositFlow.DepositFlowAddFundsOption.ReceiveTokens,
-            depositScreen = Events.DepositFlow.DepositFlowDepositScreen.AddFunds,
-            network = Events.DepositFlow.DepositFlowNetwork.TON,
-        )
-    }
 
     override fun createViewState(): QrAssetViewState {
         return buildViewState {

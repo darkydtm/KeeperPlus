@@ -1,10 +1,9 @@
 package com.tonapps.wallet.data.ledger.connection
 
+import com.tonapps.log.L
 import android.content.Context
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.controller.LedgerPurpose
-import com.tonapps.wallet.data.ledger.analytics.LedgerIssueSite
-import com.tonapps.wallet.data.ledger.analytics.LedgerNonFatals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -33,7 +32,7 @@ internal class LedgerActivityPrefsStore(context: Context) : LedgerActivityStore 
         return try {
             LedgerActivityCodec.decode(raw)
         } catch (e: IllegalArgumentException) {
-            LedgerNonFatals.report(e, LedgerIssueSite.Storage)
+            L.w(e)
             emptyList()
         }
     }
