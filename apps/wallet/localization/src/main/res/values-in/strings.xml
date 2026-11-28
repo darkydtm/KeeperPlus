@@ -60,7 +60,7 @@
     <string name="backup_attention_description">Harap baca dengan cermat sebelum melihat frasa pemulihan Anda.</string>
     <string name="backup_attention_line_1">Jangan pernah membagikan Frasa Pemulihan Anda kepada siapa pun.</string>
     <string name="backup_attention_line_2">Jika seseorang memiliki Frasa Pemulihan Anda, mereka dapat mengakses dompet Anda dan menarik dana.</string>
-    <string name="backup_attention_line_3">Dukungan Keeper + tidak akan pernah meminta Frasa Pemulihan Anda.</string>
+    <string name="backup_attention_line_3">Dukungan Keeper+ tidak akan pernah meminta Frasa Pemulihan Anda.</string>
     <string name="backup_attention_title">Pemeriksaan Keamanan</string>
     <string name="backup_check">Pemeriksaan Cadangan</string>
     <string name="backup_check_choose_subtitle">Mari kita lihat apakah Anda sudah benar. Pilih kata %1$d, %2$d, dan %3$d.</string>
@@ -68,7 +68,7 @@
     <string name="backup_check_subtitle">Mari kita lihat apakah Anda sudah benar. Masukkan kata %1$d, %2$d, dan %3$d.</string>
     <string name="badge_new">NEW</string>
     <string name="balance_prefix">Saldo: %1$s</string>
-    <string name="banner_top">Anda saat ini menggunakan versi eksperimental dari Keeper +.</string>
+    <string name="banner_top">Anda saat ini menggunakan versi eksperimental dari Keeper+.</string>
     <string name="banner_top_button">Instal versi stabil</string>
     <string name="battery">Baterai</string>
     <string name="battery_best_value">Paling hemat</string>
@@ -109,15 +109,15 @@
     <string name="battery_refill_gift_subtitle">Bagikan dengan teman</string>
     <string name="battery_refill_negative_balance">Baterai Anda habis karena pembelian yang dikembalikan. Isi ulang daya Anda untuk melanjutkan.</string>
     <string name="battery_refill_subtitle">Tukar dan kirim token GRAM dan bayar lebih sedikit biaya TRC-20</string>
-    <string name="battery_refill_title">Baterai Keeper +</string>
+    <string name="battery_refill_title">Baterai Keeper+</string>
     <string name="battery_refilled">Baterai diisi ulang</string>
     <string name="battery_refund_subtitle">Isi ulang dan pengembalian dana</string>
     <string name="battery_refund_title">Riwayat Pengisian Daya</string>
     <string name="battery_required_text">Pengisian baterai digunakan untuk menutupi biaya transaksi, membuat transfer lebih sederhana dan lebih ekonomis.</string>
-    <string name="battery_required_title">Baterai Keeper + diperlukan untuk %1$s</string>
+    <string name="battery_required_title">Baterai Keeper+ diperlukan untuk %1$s</string>
     <string name="battery_small_pack">Kecil</string>
     <plurals name="battery_swap">
-        <item quantity="other">≈ %1$s pertukaran melalui Keeper +</item>
+        <item quantity="other">≈ %1$s pertukaran melalui Keeper+</item>
     </plurals>
     <string name="battery_top_up_for">Isi ulang seharga %1$s</string>
     <string name="battery_topped_up">Baterai diisi ulang</string>
@@ -125,7 +125,7 @@
     <string name="biometric_description">Anda selalu dapat membuka dompet Anda dengan kode sandi.</string>
     <string name="biometric_enabled">Biometrik diaktifkan</string>
     <string name="blockchain_fees">Biaya Blockchain</string>
-    <string name="blockchain_fees_desc">Baterai Keeper + adalah cara termudah untuk membayar biaya blockchain. Anda juga bisa isi ulang dengan GRAM dan TRX.</string>
+    <string name="blockchain_fees_desc">Baterai Keeper+ adalah cara termudah untuk membayar biaya blockchain. Anda juga bisa isi ulang dengan GRAM dan TRX.</string>
     <string name="bluetooth_permissions_alert_message">Silakan aktifkan izin Bluetooth di pengaturan Anda untuk menggunakan fitur ini</string>
     <string name="bluetooth_permissions_alert_open_settings">Buka Pengaturan</string>
     <string name="bluetooth_permissions_alert_title">Izin Bluetooth</string>
@@ -240,7 +240,7 @@
     <string name="connected_apps_empty">Tidak ada aplikasi yang terhubung</string>
     <string name="connected_apps_source_deeplink">Tautan eksternal</string>
     <string name="connected_apps_source_qr">Perangkat lain</string>
-    <string name="connected_placeholder_subtitle">Jelajahi aplikasi dan layanan di peramban Keeper +.</string>
+    <string name="connected_placeholder_subtitle">Jelajahi aplikasi dan layanan di peramban Keeper+.</string>
     <string name="connected_placeholder_title">Aplikasi yang terhubung akan ditampilkan di sini</string>
     <string name="connecting">Menghubungkan</string>
     <string name="contact_delete_dialog">Apakah Anda yakin ingin menghapus “%1$s” dari Buku Alamat Anda?</string>
@@ -267,13 +267,13 @@
     <string name="customize">Sesuaikan</string>
     <string name="customize_wallet_subtitle">Nama dan ikon dompet disimpan secara lokal di perangkat Anda.</string>
     <string name="customize_wallet_title">Sesuaikan Dompet Anda</string>
-    <string name="dapp_disclaimer">Anda membuka aplikasi eksternal yang tidak dioperasikan oleh Keeper +. Lanjutkan hanya jika Anda mempercayai sumbernya.</string>
+    <string name="dapp_disclaimer">Anda membuka aplikasi eksternal yang tidak dioperasikan oleh Keeper+. Lanjutkan hanya jika Anda mempercayai sumbernya.</string>
     <string name="dapp_load_failed_subtitle">Kami tidak dapat memuat halaman. Coba lagi.</string>
     <string name="dapp_manifest_error">Tidak dapat memuat manifes dApp. Silakan coba lagi.</string>
     <string name="dapp_safe_modal_subtitle">Kami tidak membukanya karena alasan keamanan</string>
     <string name="dapp_safe_modal_title">Tautan tersebut mengarah ke layanan penipuan</string>
     <string name="dapp_safe_model_button">Cara agar tetap aman</string>
-    <string name="dapp_share_subtitle">Tautan ini membuka %1$s langsung di Keeper +. Anda dapat menggunakannya lagi nanti atau membagikannya jika diperlukan.</string>
+    <string name="dapp_share_subtitle">Tautan ini membuka %1$s langsung di Keeper+. Anda dapat menggunakannya lagi nanti atau membagikannya jika diperlukan.</string>
     <string name="dapp_share_title">Bagikan %1$s</string>
     <string name="decrypt_comment">Dekripsi</string>
     <string name="decrypted_comment_action">Dekripsi komentar</string>
@@ -452,11 +452,11 @@
     <string name="intro_description">Buat dompet baru atau tambahkan yang sudah ada</string>
     <string name="intro_line_1_description">TON adalah jaringan yang dirancang untuk kecepatan dan throughput. Biaya jauh lebih rendah dibandingkan dengan blockchain lain, dan transaksi dikonfirmasi dalam hitungan detik.</string>
     <string name="intro_line_1_title">Kecepatan kelas dunia</string>
-    <string name="intro_line_2_description">Keeper + menyimpan kunci kriptografi Anda di perangkat Anda tanpa memerlukan dokumen, informasi pribadi, detail kontak, atau KYC.</string>
+    <string name="intro_line_2_description">Keeper+ menyimpan kunci kriptografi Anda di perangkat Anda tanpa memerlukan dokumen, informasi pribadi, detail kontak, atau KYC.</string>
     <string name="intro_line_2_title">Keamanan menyeluruh</string>
     <string name="intro_line_3_description">Langganan TON adalah peer-to-peer dan tanpa batas sehingga tidak ada yang dapat membatasi penyedia atau pelanggan. Biaya hampir nol dan kendali penuh untuk Anda.</string>
     <string name="intro_line_3_title">Langganan bawaan</string>
-    <string name="intro_title">Selamat datang di <annotation colorAttr="textAccentColor">Keeper +</annotation></string>
+    <string name="intro_title">Selamat datang di <annotation colorAttr="textAccentColor">Keeper+</annotation></string>
     <string name="invalid_address">Alamat dompet tidak valid.</string>
     <string name="invalid_link">Tautan tidak valid</string>
     <string name="jetton_transfer">Transfer %1$s</string>
@@ -514,7 +514,7 @@
     <string name="ledger_mc_comment_rules">Ledger menampilkan komentar hingga 120 karakter: huruf Latin, angka, dan tanda baca.</string>
     <string name="ledger_mc_connection_allow">Izinkan</string>
     <string name="ledger_mc_connection_bluetooth_off">Bluetooth mati</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper + terhubung ke Ledger Anda melalui Bluetooth</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper+ terhubung ke Ledger Anda melalui Bluetooth</string>
     <string name="ledger_mc_connection_busy">Sedang digunakan</string>
     <string name="ledger_mc_connection_check">Periksa</string>
     <string name="ledger_mc_connection_checked">Ledger terhubung</string>
@@ -525,9 +525,9 @@
     <string name="ledger_mc_connection_location_off">Lokasi mati</string>
     <string name="ledger_mc_connection_location_off_hint">Versi Android Anda memerlukan lokasi untuk menemukan perangkat Bluetooth</string>
     <string name="ledger_mc_connection_nearby">Di dekat</string>
-    <string name="ledger_mc_connection_nearby_hint">Keeper + akan terhubung saat Anda mengonfirmasi transaksi</string>
+    <string name="ledger_mc_connection_nearby_hint">Keeper+ akan terhubung saat Anda mengonfirmasi transaksi</string>
     <string name="ledger_mc_connection_no_permission">Tidak ada akses ke perangkat sekitar</string>
-    <string name="ledger_mc_connection_no_permission_hint">Izinkan Keeper + menemukan perangkat sekitar di pengaturan aplikasi</string>
+    <string name="ledger_mc_connection_no_permission_hint">Izinkan Keeper+ menemukan perangkat sekitar di pengaturan aplikasi</string>
     <string name="ledger_mc_connection_not_found">Tidak ditemukan di dekat</string>
     <string name="ledger_mc_connection_not_found_hint">Nyalakan, buka kuncinya, dan dekatkan. Jika Ledger Live terbuka, tutup.</string>
     <string name="ledger_mc_connection_searching">Mencari Ledger Anda…</string>
@@ -557,7 +557,7 @@
     <string name="ledger_mc_error_not_found">Ledger tidak ditemukan. Pastikan perangkat menyala, tidak terkunci, berada di dekat Anda, dan Bluetooth-nya aktif.</string>
     <string name="ledger_mc_error_pairing">Permintaan untuk memasangkan ditolak. Terima permintaan tersebut di ponsel dan di Ledger Anda.</string>
     <string name="ledger_mc_error_pairing_lost">Ledger Anda tidak lagi mengenali ponsel ini. Hapus Ledger di pengaturan Bluetooth ponsel, lalu pasangkan lagi.</string>
-    <string name="ledger_mc_error_permission">Keeper + memerlukan akses Bluetooth untuk terhubung ke Ledger Anda.</string>
+    <string name="ledger_mc_error_permission">Keeper+ memerlukan akses Bluetooth untuk terhubung ke Ledger Anda.</string>
     <string name="ledger_mc_error_raw_messages">Aktifkan «Blind signing» atau «Raw messages» di pengaturan aplikasi %1$s pada Ledger Anda.</string>
     <string name="ledger_mc_error_refused">Permintaan ditolak di Ledger Anda.</string>
     <string name="ledger_mc_error_scan_unavailable">Android menjeda pemindaian Bluetooth sejenak. Tunggu beberapa detik, lalu coba lagi.</string>
@@ -574,7 +574,7 @@
     <string name="ledger_mc_item_subtitle">Dompet perangkat keras melalui USB atau Bluetooth. Kunci tidak pernah meninggalkan perangkat</string>
     <string name="ledger_mc_item_title">Hubungkan Ledger</string>
     <string name="ledger_mc_location_off">Android memerlukan lokasi yang aktif untuk menemukan perangkat Bluetooth.</string>
-    <string name="ledger_mc_migrate_description">Hubungkan Ledger yang menyimpan %1$s. Keeper + akan membaca alamat Ethereum, Bitcoin, Solana, dan jaringan lainnya, lalu dompet menjadi multichain dengan alamat TON yang sama.</string>
+    <string name="ledger_mc_migrate_description">Hubungkan Ledger yang menyimpan %1$s. Keeper+ akan membaca alamat Ethereum, Bitcoin, Solana, dan jaringan lainnya, lalu dompet menjadi multichain dengan alamat TON yang sama.</string>
     <string name="ledger_mc_migrate_tooltip">Tambahkan Ethereum, Bitcoin, Solana, dan jaringan lain ke dompet Ledger ini</string>
     <string name="ledger_mc_networks_added">Jaringan ditambahkan</string>
     <string name="ledger_mc_nothing_to_add">Semua jaringan yang didukung sudah ditambahkan</string>
@@ -586,8 +586,8 @@
     <string name="ledger_mc_paired">Ledger terhubung</string>
     <string name="ledger_mc_permission_denied">Akses Bluetooth nonaktif. Izinkan akses ke perangkat di sekitar di Pengaturan untuk menghubungkan Ledger Anda.</string>
     <string name="ledger_mc_permission_denied_location">Akses lokasi nonaktif. Izinkan di Pengaturan agar Android dapat menemukan Ledger Anda lewat Bluetooth.</string>
-    <string name="ledger_mc_permission_description">Izinkan Keeper + menemukan perangkat di sekitar untuk menghubungkan Ledger Anda melalui Bluetooth.</string>
-    <string name="ledger_mc_permission_description_location">Android memerlukan akses lokasi untuk menemukan perangkat Bluetooth. Keeper + tidak menggunakan lokasi Anda.</string>
+    <string name="ledger_mc_permission_description">Izinkan Keeper+ menemukan perangkat di sekitar untuk menghubungkan Ledger Anda melalui Bluetooth.</string>
+    <string name="ledger_mc_permission_description_location">Android memerlukan akses lokasi untuk menemukan perangkat Bluetooth. Keeper+ tidak menggunakan lokasi Anda.</string>
     <string name="ledger_mc_progress_bitcoin_change">Ledger Anda juga akan menampilkan %1$s kembali ke alamat Anda sendiri. Ini adalah kembalian:</string>
     <string name="ledger_mc_progress_close_app">Menutup %1$s di Ledger Anda</string>
     <string name="ledger_mc_progress_confirm_account_step">Akun %1$d dari %2$d. Ledger Anda akan menampilkan “Keeper wallet” sebagai domain aplikasi</string>
@@ -777,7 +777,7 @@
     <string name="mute">Bisukan</string>
     <string name="name">Nama</string>
     <string name="name_your_wallet">Beri nama dompet Anda</string>
-    <string name="name_your_wallet_subtitle">Beri nama dompet Anda untuk memudahkan mengidentifikasinya saat menggunakan Keeper +. Nama-nama ini disimpan secara lokal, dan hanya dapat dilihat oleh Anda.</string>
+    <string name="name_your_wallet_subtitle">Beri nama dompet Anda untuk memudahkan mengidentifikasinya saat menggunakan Keeper+. Nama-nama ini disimpan secara lokal, dan hanya dapat dilihat oleh Anda.</string>
     <string name="network">Jaringan</string>
     <string name="network_fee">Biaya jaringan</string>
     <string name="networks">Jaringan</string>
@@ -979,7 +979,7 @@
     <string name="perps_deposit_min_amount_usd">Setoran minimum adalah %1$s</string>
     <string name="perps_deposit_network_fee_line">Biaya jaringan %1$s</string>
     <string name="perps_deposit_network_fees">Biaya jaringan</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper + tidak mengambil bagian apa pun dari biaya ini.</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper+ tidak mengambil bagian apa pun dari biaya ini.</string>
     <string name="perps_deposit_no_quote">Tidak ada penawaran</string>
     <string name="perps_deposit_no_quote_change_amount">Gagal mendapat penawaran. Ubah jumlah</string>
     <string name="perps_deposit_no_sources">Tidak ada aset yang didukung untuk disetor</string>
@@ -1152,7 +1152,7 @@
     <string name="perps_reduce_margin_description">Tarik kembali margin saat posisi Anda kuat</string>
     <string name="perps_reduce_only_full">Posisi ini terlalu kecil untuk dikurangi. Gunakan “Tutup posisi”.</string>
     <string name="perps_region_restricted_banner">Anda dapat menjelajahi pasar, tetapi setoran dan trading dinonaktifkan.</string>
-    <string name="perps_region_restricted_caption">Setoran dan trading dinonaktifkan untuk lokasi Anda. Jika Anda menggunakan VPN, matikan VPN tersebut dan buka kembali Keeper +.</string>
+    <string name="perps_region_restricted_caption">Setoran dan trading dinonaktifkan untuk lokasi Anda. Jika Anda menggunakan VPN, matikan VPN tersebut dan buka kembali Keeper+.</string>
     <string name="perps_region_restricted_title">Futures tidak tersedia di wilayah Anda</string>
     <string name="perps_retry">Coba lagi</string>
     <string name="perps_review_add_long_title">Tambah ke long %1$s</string>
@@ -1212,7 +1212,7 @@
     <string name="perps_risk_disclosure_footnote">Pengungkapan Risiko · Didukung oleh Lighter</string>
     <string name="perps_risk_disclosure_keeper_terms">Ketentuan Penggunaan Keeper</string>
     <string name="perps_risk_disclosure_lighter_terms">Ketentuan Lighter</string>
-    <string name="perps_risk_disclosure_text">Anda dapat kehilangan seluruh investasi dengan cepat akibat leverage dan fluktuasi pasar. Posisi dapat dilikuidasi secara otomatis. Harga bergantung pada tingkat pendanaan dan likuiditas. Futures dan data pasar disediakan oleh Lighter, protokol pihak ketiga. Keeper + menyediakan antarmuka non-kustodian dan tidak mengeksekusi perdagangan atau memberikan saran investasi.</string>
+    <string name="perps_risk_disclosure_text">Anda dapat kehilangan seluruh investasi dengan cepat akibat leverage dan fluktuasi pasar. Posisi dapat dilikuidasi secara otomatis. Harga bergantung pada tingkat pendanaan dan likuiditas. Futures dan data pasar disediakan oleh Lighter, protokol pihak ketiga. Keeper+ menyediakan antarmuka non-kustodian dan tidak mengeksekusi perdagangan atau memberikan saran investasi.</string>
     <string name="perps_risk_disclosure_title">Pengungkapan Risiko</string>
     <string name="perps_search_hint">Cari berdasarkan ticker atau nama</string>
     <string name="perps_service_perps">Futures</string>
@@ -1289,7 +1289,7 @@
     </plurals>
     <string name="raffle_ends_in">Berakhir dalam %1$s</string>
     <string name="raffle_faq">FAQ</string>
-    <string name="raffle_faq_about_a">Pada %1$s kami akan meluncurkan undian multichain dengan lebih dari 2.000 pemenang. Tiket adalah peluang Anda untuk menang.\n\nMigrasilah ke multichain sebelum tanggal itu dan Anda mendapat 10 tiket, sebagai ucapan terima kasih kami karena Anda pengguna awal Keeper +.\n\nHadiah, cara tambahan untuk mendapatkan tiket, dan mekanisme lengkapnya akan diungkap minggu depan.</string>
+    <string name="raffle_faq_about_a">Pada %1$s kami akan meluncurkan undian multichain dengan lebih dari 2.000 pemenang. Tiket adalah peluang Anda untuk menang.\n\nMigrasilah ke multichain sebelum tanggal itu dan Anda mendapat 10 tiket, sebagai ucapan terima kasih kami karena Anda pengguna awal Keeper+.\n\nHadiah, cara tambahan untuk mendapatkan tiket, dan mekanisme lengkapnya akan diungkap minggu depan.</string>
     <string name="raffle_faq_about_q">Apa itu Mystery Raffle?</string>
     <string name="raffle_faq_earn_a">• %1$s untuk migrasi dari dompet TON ke dompet multichain\n• 1 tiket untuk setiap swap cross-chain senilai $100\n• Hingga 1000 tiket bonus dengan menyelesaikan Bonus pencapaian\n• Tugas tambahan akan diungkap selama kampanye</string>
     <string name="raffle_faq_earn_q">Bagaimana cara mendapatkan tiket?</string>
@@ -1337,7 +1337,7 @@
     <string name="ramp_withdrawal_fee">Biaya penarikan</string>
     <string name="ramp_withdrawal_time">Waktu penarikan</string>
     <string name="rate">Kurs</string>
-    <string name="rate_tonkeeper">Beri nilai Keeper +</string>
+    <string name="rate_tonkeeper">Beri nilai Keeper+</string>
     <string name="receive">Terima</string>
     <string name="receive_asset_description">Kirim hanya %1$s (%2$s) dan token di jaringan %1$s ke alamat ini, atau Anda mungkin kehilangan dana Anda.</string>
     <string name="receive_asset_title">Alamat %1$s Anda</string>
@@ -1358,9 +1358,9 @@
     <string name="refill">Isi ulang</string>
     <string name="refresh">Segarkan</string>
     <string name="refund">Pengembalian</string>
-    <string name="reinstall_description">Beberapa file aplikasi hilang di perangkat ini. Pasang Keeper + dari Google Play untuk memperbaikinya.</string>
+    <string name="reinstall_description">Beberapa file aplikasi hilang di perangkat ini. Pasang Keeper+ dari Google Play untuk memperbaikinya.</string>
     <string name="reinstall_open_google_play">Buka Google Play</string>
-    <string name="reinstall_title">Keeper + tidak dapat dimulai</string>
+    <string name="reinstall_title">Keeper+ tidak dapat dimulai</string>
     <string name="rejected">Ditolak</string>
     <string name="remaining_balance">Sisa: %1$s</string>
     <string name="remind_me_later">Ingatkan saya nanti</string>
@@ -1459,7 +1459,7 @@
     <string name="sign_message_error_invalid_request">Permintaan tidak valid</string>
     <string name="sign_message_error_network_mismatch">Permintaan ini untuk jaringan lain</string>
     <string name="sign_message_error_not_supported">Dompet ini tidak dapat menandatangani permintaan ini</string>
-    <string name="sign_message_not_sent_warning">Keeper + tidak akan mengirim transaksi ini. %1$s akan mengirimnya sekarang atau nanti dan membayar biaya jaringan.</string>
+    <string name="sign_message_not_sent_warning">Keeper+ tidak akan mengirim transaksi ini. %1$s akan mengirimnya sekarang atau nanti dan membayar biaya jaringan.</string>
     <string name="sign_out">Keluar</string>
     <string name="sign_out_description">Ini akan menghapus kunci dompet Anda. Pastikan Anda telah mencadangkan frasa pemulihan Anda.</string>
     <string name="sign_out_title">🚧 🚨 Keluar? 🚨 🚧</string>
@@ -1500,7 +1500,7 @@
     <string name="staking_current_round">Siklus saat ini</string>
     <string name="staking_deposit_wallet">Isi Saldo Dompet</string>
     <string name="staking_details">Detail</string>
-    <string name="staking_details_description">Staking didasarkan pada kontrak pintar oleh pihak ketiga. Keeper + tidak bertanggung jawab atas pengalaman staking.</string>
+    <string name="staking_details_description">Staking didasarkan pada kontrak pintar oleh pihak ketiga. Keeper+ tidak bertanggung jawab atas pengalaman staking.</string>
     <string name="staking_first_reward">Hadiah pertama</string>
     <string name="staking_get_withdraw">Dapatkan penarikan</string>
     <string name="staking_insufficient_required">Diperlukan untuk transaksi: %1$s.</string>
@@ -1547,10 +1547,10 @@
     <string name="staking_withdrawal_amount">Jumlah penarikan</string>
     <string name="start_agree">Dengan melanjutkan, Anda menyetujui <annotation colorAttr="textAccentColor">Ketentuan Penggunaan</annotation> kami</string>
     <string name="start_create_new_wallet">Buat dompet baru</string>
-    <string name="start_dialog_description">Anda memerlukan dompet yang terhubung untuk menggunakan Keeper +. Buat dompet baru atau impor yang sudah ada.</string>
+    <string name="start_dialog_description">Anda memerlukan dompet yang terhubung untuk menggunakan Keeper+. Buat dompet baru atau impor yang sudah ada.</string>
     <string name="start_dialog_title">Mari atur dompet Anda</string>
     <string name="start_import_wallet">Impor dompet yang ada</string>
-    <string name="start_title">Keeper +</string>
+    <string name="start_title">Keeper+</string>
     <string name="step_1">Langkah 1</string>
     <string name="step_2">Langkah 2</string>
     <string name="step_3">Langkah 3</string>
@@ -1717,15 +1717,15 @@
     <string name="unverified_token_reason_3">Digunakan untuk spam. Digunakan untuk mengirim pesan yang tidak diinginkan dan sering kali tidak relevan dalam jumlah besar.</string>
     <string name="unverified_token_reason_4">Digunakan untuk penipuan. Nama atau gambar token dapat menyesatkan pengguna.</string>
     <string name="up_to_duration">Hingga %1$s %2$s</string>
-    <string name="update_tonkeeper">Perbarui Keeper +</string>
-    <string name="update_tonkeeper_subtitle">Versi baru Keeper + sudah tersedia. Anda dapat mengunduhnya sekarang.</string>
+    <string name="update_tonkeeper">Perbarui Keeper+</string>
+    <string name="update_tonkeeper_subtitle">Versi baru Keeper+ sudah tersedia. Anda dapat mengunduhnya sekarang.</string>
     <string name="updating">Memperbarui</string>
     <string name="use_biometric">Gunakan biometrik</string>
     <string name="v4r2_wallet">Dompet v4R2</string>
     <string name="value_difference">Selisih nilai</string>
     <string name="value_difference_info">Seberapa besar transaksi Anda menggeser harga: nilai positif memberi Anda lebih banyak, nilai negatif lebih sedikit.</string>
     <string name="verified_token">Token Terverifikasi</string>
-    <string name="verified_token_caption">Token ini aktif diperdagangkan dan dikenal luas. Verifikasi bukan dukungan dari Keeper +.</string>
+    <string name="verified_token_caption">Token ini aktif diperdagangkan dan dikenal luas. Verifikasi bukan dukungan dari Keeper+.</string>
     <string name="version">Versi %1$s (%2$d)</string>
     <string name="view_details">Lihat detail</string>
     <string name="view_in_explorer">Lihat di penjelajah</string>
@@ -1798,4 +1798,5 @@
     <string name="yesterday">Kemarin</string>
     <string name="your_address">Alamat Anda</string>
     <string name="your_balance">Saldo Anda</string>
+	<string name="theme_adaptive">Adaptif</string>
 </resources>

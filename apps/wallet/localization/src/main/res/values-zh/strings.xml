@@ -60,7 +60,7 @@
     <string name="backup_attention_description">在查看您的恢复短语之前，请仔细阅读以下内容。</string>
     <string name="backup_attention_line_1">切勿与任何人分享您的恢复短语。</string>
     <string name="backup_attention_line_2">如果有人获得您的恢复短语，他们可以访问您的钱包并提取资金。</string>
-    <string name="backup_attention_line_3">Keeper + 客服永远不会向您索要恢复短语。</string>
+    <string name="backup_attention_line_3">Keeper+ 客服永远不会向您索要恢复短语。</string>
     <string name="backup_attention_title">安全检查</string>
     <string name="backup_check">备份检查</string>
     <string name="backup_check_choose_subtitle">我们来检查一下您是否都记对了。请选择单词 %1$d、%2$d 和 %3$d。</string>
@@ -68,7 +68,7 @@
     <string name="backup_check_subtitle">我们来检查一下您是否都记对了。请输入单词 %1$d、%2$d 和 %3$d。</string>
     <string name="badge_new">NEW</string>
     <string name="balance_prefix">余额：%1$s</string>
-    <string name="banner_top">您当前正在使用 Keeper + 的实验版本。</string>
+    <string name="banner_top">您当前正在使用 Keeper+ 的实验版本。</string>
     <string name="banner_top_button">安装稳定版</string>
     <string name="battery">电池</string>
     <string name="battery_best_value">最划算</string>
@@ -109,15 +109,15 @@
     <string name="battery_refill_gift_subtitle">与朋友分享</string>
     <string name="battery_refill_negative_balance">由于购买已退款，您的电池已耗尽。请充值以继续使用。</string>
     <string name="battery_refill_subtitle">兑换和发送 GRAM 代币，并减少 TRC-20 手续费</string>
-    <string name="battery_refill_title">Keeper + 电池</string>
+    <string name="battery_refill_title">Keeper+ 电池</string>
     <string name="battery_refilled">电池已充满</string>
     <string name="battery_refund_subtitle">充值和退款</string>
     <string name="battery_refund_title">充电记录</string>
     <string name="battery_required_text">电池电量用于支付交易手续费，使转账更简单且更具性价比。</string>
-    <string name="battery_required_title">%1$s 需要 Keeper + 电池</string>
+    <string name="battery_required_title">%1$s 需要 Keeper+ 电池</string>
     <string name="battery_small_pack">小</string>
     <plurals name="battery_swap">
-        <item quantity="other">≈ %1$s 次通过 Keeper + 的兑换</item>
+        <item quantity="other">≈ %1$s 次通过 Keeper+ 的兑换</item>
     </plurals>
     <string name="battery_top_up_for">充值 %1$s</string>
     <string name="battery_topped_up">电池已充值</string>
@@ -125,7 +125,7 @@
     <string name="biometric_description">您始终可以使用密码解锁您的钱包。</string>
     <string name="biometric_enabled">已启用生物识别</string>
     <string name="blockchain_fees">区块链手续费</string>
-    <string name="blockchain_fees_desc">Keeper + 电池是支付区块链手续费的最简单方式。您也可以直接充值 GRAM 或 TRX。</string>
+    <string name="blockchain_fees_desc">Keeper+ 电池是支付区块链手续费的最简单方式。您也可以直接充值 GRAM 或 TRX。</string>
     <string name="bluetooth_permissions_alert_message">请在设置中启用蓝牙权限以使用此功能</string>
     <string name="bluetooth_permissions_alert_open_settings">打开设置</string>
     <string name="bluetooth_permissions_alert_title">蓝牙权限</string>
@@ -240,7 +240,7 @@
     <string name="connected_apps_empty">没有连接的应用程序</string>
     <string name="connected_apps_source_deeplink">外部链接</string>
     <string name="connected_apps_source_qr">其他设备</string>
-    <string name="connected_placeholder_subtitle">在 Keeper + 浏览器中探索应用和服务。</string>
+    <string name="connected_placeholder_subtitle">在 Keeper+ 浏览器中探索应用和服务。</string>
     <string name="connected_placeholder_title">已连接的应用程序将显示在此处</string>
     <string name="connecting">连接中</string>
     <string name="contact_delete_dialog">您确实要从地址簿中删除“%1$s”吗？</string>
@@ -267,13 +267,13 @@
     <string name="customize">自定义</string>
     <string name="customize_wallet_subtitle">钱包名称和图标存储在您的设备上。</string>
     <string name="customize_wallet_title">自定义您的钱包</string>
-    <string name="dapp_disclaimer">您正在打开一个非 Keeper + 运营的外部应用。只有在您信任该来源时才继续操作。</string>
+    <string name="dapp_disclaimer">您正在打开一个非 Keeper+ 运营的外部应用。只有在您信任该来源时才继续操作。</string>
     <string name="dapp_load_failed_subtitle">我们无法加载页面，请重试。</string>
     <string name="dapp_manifest_error">无法加载 dApp 清单，请重试。</string>
     <string name="dapp_safe_modal_subtitle">出于安全原因，我们没有打开它</string>
     <string name="dapp_safe_modal_title">该链接指向一个诈骗服务</string>
     <string name="dapp_safe_model_button">如何保证安全</string>
-    <string name="dapp_share_subtitle">此链接将在 Keeper + 中直接打开 %1$s。您可以稍后再次使用或根据需要分享它。</string>
+    <string name="dapp_share_subtitle">此链接将在 Keeper+ 中直接打开 %1$s。您可以稍后再次使用或根据需要分享它。</string>
     <string name="dapp_share_title">分享 %1$s</string>
     <string name="decrypt_comment">解密</string>
     <string name="decrypted_comment_action">解密备注</string>
@@ -456,7 +456,7 @@
     <string name="intro_line_2_title">端到端安全</string>
     <string name="intro_line_3_description">TON 订阅是点对点和无国界的，因此没有人可以限制提供者或客户。几乎为零的费用和完全的控制权为您提供。</string>
     <string name="intro_line_3_title">内置订阅</string>
-    <string name="intro_title">欢迎来到 <annotation colorAttr="textAccentColor">Keeper +</annotation></string>
+    <string name="intro_title">欢迎来到 <annotation colorAttr="textAccentColor">Keeper+</annotation></string>
     <string name="invalid_address">钱包地址无效。</string>
     <string name="invalid_link">链接无效</string>
     <string name="jetton_transfer">%1$s 转账</string>
@@ -514,7 +514,7 @@
     <string name="ledger_mc_comment_rules">Ledger 可显示最多 120 个字符的备注：拉丁字母、数字和标点符号。</string>
     <string name="ledger_mc_connection_allow">允许</string>
     <string name="ledger_mc_connection_bluetooth_off">蓝牙已关闭</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper + 通过蓝牙与 Ledger 通信</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper+ 通过蓝牙与 Ledger 通信</string>
     <string name="ledger_mc_connection_busy">使用中</string>
     <string name="ledger_mc_connection_check">检查</string>
     <string name="ledger_mc_connection_checked">Ledger 已连接</string>
@@ -525,9 +525,9 @@
     <string name="ledger_mc_connection_location_off">位置信息已关闭</string>
     <string name="ledger_mc_connection_location_off_hint">你的 Android 版本需要位置信息才能查找蓝牙设备</string>
     <string name="ledger_mc_connection_nearby">在附近</string>
-    <string name="ledger_mc_connection_nearby_hint">确认交易时 Keeper + 会连接它</string>
+    <string name="ledger_mc_connection_nearby_hint">确认交易时 Keeper+ 会连接它</string>
     <string name="ledger_mc_connection_no_permission">无法访问附近的设备</string>
-    <string name="ledger_mc_connection_no_permission_hint">请在应用设置中允许 Keeper + 查找附近的设备</string>
+    <string name="ledger_mc_connection_no_permission_hint">请在应用设置中允许 Keeper+ 查找附近的设备</string>
     <string name="ledger_mc_connection_not_found">附近未找到</string>
     <string name="ledger_mc_connection_not_found_hint">请开机、解锁并靠近手机。如果 Ledger Live 已打开，请关闭它。</string>
     <string name="ledger_mc_connection_searching">正在查找你的 Ledger…</string>
@@ -557,7 +557,7 @@
     <string name="ledger_mc_error_not_found">未找到 Ledger。请确保设备已开启、已解锁、就在附近，并且已启用蓝牙。</string>
     <string name="ledger_mc_error_pairing">配对被拒绝。请在手机和 Ledger 上接受配对请求。</string>
     <string name="ledger_mc_error_pairing_lost">你的 Ledger 已不再识别这部手机。请在手机的蓝牙设置中移除它，然后重新配对。</string>
-    <string name="ledger_mc_error_permission">Keeper + 需要蓝牙访问权限才能连接您的 Ledger。</string>
+    <string name="ledger_mc_error_permission">Keeper+ 需要蓝牙访问权限才能连接您的 Ledger。</string>
     <string name="ledger_mc_error_raw_messages">请在 Ledger 上的 %1$s 应用设置中开启“Blind signing”或“Raw messages”。</string>
     <string name="ledger_mc_error_refused">请求已在 Ledger 上被拒绝。</string>
     <string name="ledger_mc_error_scan_unavailable">Android 暂时暂停了蓝牙扫描。请稍等几秒后重试。</string>
@@ -574,7 +574,7 @@
     <string name="ledger_mc_item_subtitle">通过 USB 或蓝牙连接的硬件钱包。密钥永不离开设备</string>
     <string name="ledger_mc_item_title">连接 Ledger</string>
     <string name="ledger_mc_location_off">Android 需要开启位置信息才能查找蓝牙设备。</string>
-    <string name="ledger_mc_migrate_description">连接存有 %1$s 的 Ledger。Keeper + 会读取其 Ethereum、Bitcoin、Solana 和其他网络的地址，钱包将变为多链钱包，TON 地址保持不变。</string>
+    <string name="ledger_mc_migrate_description">连接存有 %1$s 的 Ledger。Keeper+ 会读取其 Ethereum、Bitcoin、Solana 和其他网络的地址，钱包将变为多链钱包，TON 地址保持不变。</string>
     <string name="ledger_mc_migrate_tooltip">为此 Ledger 钱包添加 Ethereum、Bitcoin、Solana 和其他网络</string>
     <string name="ledger_mc_networks_added">已添加网络</string>
     <string name="ledger_mc_nothing_to_add">所有支持的网络均已添加</string>
@@ -586,8 +586,8 @@
     <string name="ledger_mc_paired">Ledger 已连接</string>
     <string name="ledger_mc_permission_denied">蓝牙访问权限已关闭。请在“设置”中允许访问附近的设备，以连接您的 Ledger。</string>
     <string name="ledger_mc_permission_denied_location">位置权限已关闭。请在设置中允许，以便 Android 通过蓝牙找到你的 Ledger。</string>
-    <string name="ledger_mc_permission_description">允许 Keeper + 查找附近的设备，以便通过蓝牙连接您的 Ledger。</string>
-    <string name="ledger_mc_permission_description_location">Android 需要位置权限才能查找蓝牙设备。Keeper + 不会使用你的位置。</string>
+    <string name="ledger_mc_permission_description">允许 Keeper+ 查找附近的设备，以便通过蓝牙连接您的 Ledger。</string>
+    <string name="ledger_mc_permission_description_location">Android 需要位置权限才能查找蓝牙设备。Keeper+ 不会使用你的位置。</string>
     <string name="ledger_mc_progress_bitcoin_change">Ledger 还会显示退回到你自己地址的 %1$s，这是找零：</string>
     <string name="ledger_mc_progress_close_app">正在关闭 Ledger 上的 %1$s</string>
     <string name="ledger_mc_progress_confirm_account_step">第 %1$d 个账户，共 %2$d 个。Ledger 会显示应用域名“Keeper wallet”</string>
@@ -979,7 +979,7 @@
     <string name="perps_deposit_min_amount_usd">最低充值金额为 %1$s</string>
     <string name="perps_deposit_network_fee_line">网络费用 %1$s</string>
     <string name="perps_deposit_network_fees">网络费用</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper + 不从这些费用中收取任何部分。</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper+ 不从这些费用中收取任何部分。</string>
     <string name="perps_deposit_no_quote">无报价</string>
     <string name="perps_deposit_no_quote_change_amount">无法获取报价。请更改金额</string>
     <string name="perps_deposit_no_sources">没有可用于充值的支持资产</string>
@@ -1152,7 +1152,7 @@
     <string name="perps_reduce_margin_description">当仓位表现良好时，可取回部分保证金</string>
     <string name="perps_reduce_only_full">该仓位太小，无法减仓。请使用“平仓”。</string>
     <string name="perps_region_restricted_banner">您可以浏览市场，但充值和交易已关闭。</string>
-    <string name="perps_region_restricted_caption">您所在的位置已关闭充值和交易。如果您使用 VPN，请将其关闭并重新打开 Keeper +。</string>
+    <string name="perps_region_restricted_caption">您所在的位置已关闭充值和交易。如果您使用 VPN，请将其关闭并重新打开 Keeper+。</string>
     <string name="perps_region_restricted_title">您所在的地区不支持合约</string>
     <string name="perps_retry">重试</string>
     <string name="perps_review_add_long_title">加仓多单 %1$s</string>
@@ -1212,7 +1212,7 @@
     <string name="perps_risk_disclosure_footnote">风险披露 · 由 Lighter 提供支持</string>
     <string name="perps_risk_disclosure_keeper_terms">Keeper 使用条款</string>
     <string name="perps_risk_disclosure_lighter_terms">Lighter 条款</string>
-    <string name="perps_risk_disclosure_text">由于杠杆和市场波动，您可能会迅速损失全部投资。仓位可能被自动强平。价格取决于资金费率和流动性。合约及市场数据由第三方协议 Lighter 提供。Keeper + 提供非托管界面，不执行交易，也不提供投资建议。</string>
+    <string name="perps_risk_disclosure_text">由于杠杆和市场波动，您可能会迅速损失全部投资。仓位可能被自动强平。价格取决于资金费率和流动性。合约及市场数据由第三方协议 Lighter 提供。Keeper+ 提供非托管界面，不执行交易，也不提供投资建议。</string>
     <string name="perps_risk_disclosure_title">风险披露</string>
     <string name="perps_search_hint">按代码或名称搜索</string>
     <string name="perps_service_perps">合约</string>
@@ -1289,7 +1289,7 @@
     </plurals>
     <string name="raffle_ends_in">%1$s后结束</string>
     <string name="raffle_faq">常见问题</string>
-    <string name="raffle_faq_about_a">我们将于%1$s推出一场多链抽奖活动，赢家超过 2,000 名。奖券就是您的中奖机会。\n\n在此之前迁移到多链，即可获得 10 张奖券，以感谢您作为 Keeper + 的早期用户。\n\n奖品、赚取奖券的更多方式以及完整机制将于下周揭晓。</string>
+    <string name="raffle_faq_about_a">我们将于%1$s推出一场多链抽奖活动，赢家超过 2,000 名。奖券就是您的中奖机会。\n\n在此之前迁移到多链，即可获得 10 张奖券，以感谢您作为 Keeper+ 的早期用户。\n\n奖品、赚取奖券的更多方式以及完整机制将于下周揭晓。</string>
     <string name="raffle_faq_about_q">什么是 Mystery Raffle？</string>
     <string name="raffle_faq_earn_a">• 从 TON 钱包迁移到多链钱包可得 %1$s\n• 每 $100 跨链兑换可得 1 张奖券\n• 完成里程碑奖励最多可得 1000 张奖励奖券\n• 更多任务将在活动期间揭晓</string>
     <string name="raffle_faq_earn_q">如何赚取奖券？</string>
@@ -1337,7 +1337,7 @@
     <string name="ramp_withdrawal_fee">提现手续费</string>
     <string name="ramp_withdrawal_time">提现时间</string>
     <string name="rate">汇率</string>
-    <string name="rate_tonkeeper">评价 Keeper +</string>
+    <string name="rate_tonkeeper">评价 Keeper+</string>
     <string name="receive">接收</string>
     <string name="receive_asset_description">仅向此地址发送 %1$s（%2$s）和 %1$s 网络中的代币，否则您可能会丢失资金。</string>
     <string name="receive_asset_title">您的 %1$s 地址</string>
@@ -1358,9 +1358,9 @@
     <string name="refill">充值</string>
     <string name="refresh">刷新</string>
     <string name="refund">退款</string>
-    <string name="reinstall_description">此设备上缺少部分应用文件。请从 Google Play 安装 Keeper + 以解决此问题。</string>
+    <string name="reinstall_description">此设备上缺少部分应用文件。请从 Google Play 安装 Keeper+ 以解决此问题。</string>
     <string name="reinstall_open_google_play">打开 Google Play</string>
-    <string name="reinstall_title">Keeper + 无法启动</string>
+    <string name="reinstall_title">Keeper+ 无法启动</string>
     <string name="rejected">已拒绝</string>
     <string name="remaining_balance">剩余：%1$s</string>
     <string name="remind_me_later">稍后提醒我</string>
@@ -1459,7 +1459,7 @@
     <string name="sign_message_error_invalid_request">无效请求</string>
     <string name="sign_message_error_network_mismatch">该请求属于另一个网络</string>
     <string name="sign_message_error_not_supported">此钱包无法签署该请求</string>
-    <string name="sign_message_not_sent_warning">Keeper + 不会发送此交易。%1$s 将在现在或稍后发送该交易并支付网络费用。</string>
+    <string name="sign_message_not_sent_warning">Keeper+ 不会发送此交易。%1$s 将在现在或稍后发送该交易并支付网络费用。</string>
     <string name="sign_out">登出</string>
     <string name="sign_out_description">这将擦除您的钱包密钥。请确保您已备份恢复短语。</string>
     <string name="sign_out_title">🚧 🚨 退出？ 🚨 🚧</string>
@@ -1500,7 +1500,7 @@
     <string name="staking_current_round">当前周期</string>
     <string name="staking_deposit_wallet">充值钱包</string>
     <string name="staking_details">详情</string>
-    <string name="staking_details_description">质押基于第三方的智能合约。Keeper + 不对质押体验负责。</string>
+    <string name="staking_details_description">质押基于第三方的智能合约。Keeper+ 不对质押体验负责。</string>
     <string name="staking_first_reward">首次奖励</string>
     <string name="staking_get_withdraw">获取提款</string>
     <string name="staking_insufficient_required">操作所需：%1$s。</string>
@@ -1550,7 +1550,7 @@
     <string name="start_dialog_description">要使用Keeper，您需要连接一个钱包。您可以创建一个新钱包或导入现有的钱包。</string>
     <string name="start_dialog_title">让我们设置您的钱包</string>
     <string name="start_import_wallet">导入现有钱包</string>
-    <string name="start_title">Keeper +</string>
+    <string name="start_title">Keeper+</string>
     <string name="step_1">步骤 1</string>
     <string name="step_2">步骤 2</string>
     <string name="step_3">步骤 3</string>
@@ -1717,15 +1717,15 @@
     <string name="unverified_token_reason_3">用于垃圾信息。用于大规模发送不需要且通常无关的信息。</string>
     <string name="unverified_token_reason_4">用于诈骗。代币的名称或图像可能会误导用户。</string>
     <string name="up_to_duration">最多 %1$s %2$s</string>
-    <string name="update_tonkeeper">更新 Keeper +</string>
-    <string name="update_tonkeeper_subtitle">Keeper + 有新版本可用。您现在就可以下载。</string>
+    <string name="update_tonkeeper">更新 Keeper+</string>
+    <string name="update_tonkeeper_subtitle">Keeper+ 有新版本可用。您现在就可以下载。</string>
     <string name="updating">更新中</string>
     <string name="use_biometric">使用生物识别</string>
     <string name="v4r2_wallet">钱包 v4R2</string>
     <string name="value_difference">价差</string>
     <string name="value_difference_info">您的交易对价格的影响程度：正值时您获得更多，负值时您获得更少。</string>
     <string name="verified_token">已验证代币</string>
-    <string name="verified_token_caption">此代币交易活跃且被广泛认可。验证并不代表 Keeper + 的认可。</string>
+    <string name="verified_token_caption">此代币交易活跃且被广泛认可。验证并不代表 Keeper+ 的认可。</string>
     <string name="version">版本 %1$s (%2$d)</string>
     <string name="view_details">查看详情</string>
     <string name="view_in_explorer">在浏览器中查看</string>
@@ -1798,4 +1798,5 @@
     <string name="yesterday">昨天</string>
     <string name="your_address">您的地址</string>
     <string name="your_balance">您的余额</string>
+	<string name="theme_adaptive">自适应</string>
 </resources>

@@ -95,7 +95,7 @@ class ShelvesFeature(
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     val perpsShelfMarkets: StateFlow<List<PerpMarket>> = combine(
-        isPerpsVisible, settingsRepository.promotionsEnabledFlow,
+        isPerpsVisible, settingsRepository.recommendationsEnabledFlow,
     ) { visible, enabled -> visible && enabled }
         .flatMapLatest { visible ->
             if (visible) {

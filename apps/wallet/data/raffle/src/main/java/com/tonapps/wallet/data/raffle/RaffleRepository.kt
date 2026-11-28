@@ -63,7 +63,7 @@ class RaffleRepository(
         getEntities(walletId, forced = false).firstOrNull { it.ownsStoryId(storyId) }
 
     private suspend fun getEntities(walletId: String, forced: Boolean): List<RaffleEntity> = withContext(Dispatchers.IO) {
-        if (!settingsRepository.promotionsEnabled) return@withContext emptyList()
+        if (!settingsRepository.rewardsEnabled) return@withContext emptyList()
         val key = cacheKey(walletId)
         val raffles = if (forced) {
             loadRemote(walletId) ?: cached(key)
@@ -74,7 +74,7 @@ class RaffleRepository(
     }
 
     suspend fun prefetch(walletId: String) {
-        if (!settingsRepository.promotionsEnabled) return
+        if (!settingsRepository.rewardsEnabled) return
         val prefetch = Prefetch(SystemClock.elapsedRealtime())
         prefetches[cacheKey(walletId)] = prefetch
         try {
@@ -86,7 +86,7 @@ class RaffleRepository(
     }
 
     suspend fun reportImport(sourceWalletId: String, importedWalletId: String) = withContext(Dispatchers.IO) {
-        if (!settingsRepository.promotionsEnabled) return@withContext
+        if (!settingsRepository.rewardsEnabled) return@withContext
         try {
             api.multichain.raffles.markWalletRaffleImport(
                 sourceWalletId,
@@ -102,7 +102,7 @@ class RaffleRepository(
     }
 
     private fun remoteFlow(walletId: String, forced: Boolean, reusePrefetch: Boolean): Flow<List<Raffle>> =
-        settingsRepository.promotionsEnabledFlow.flatMapLatest { enabled ->
+        settingsRepository.rewardsEnabledFlow.flatMapLatest { enabled ->
             if (!enabled) flowOf(emptyList()) else enabledRemoteFlow(walletId, forced, reusePrefetch)
         }
 
@@ -144,7 +144,7 @@ class RaffleRepository(
     private fun cached(key: String): List<Raffle>? = memoryCache.value[key] ?: diskCache.getCache(key)
 
     private fun loadRemote(walletId: String): List<Raffle>? {
-        if (!settingsRepository.promotionsEnabled) return null
+        if (!settingsRepository.rewardsEnabled) return null
         val key = cacheKey(walletId)
         val isNew = !settingsRepository.hadWalletsOnMultichainRelease
         return try {

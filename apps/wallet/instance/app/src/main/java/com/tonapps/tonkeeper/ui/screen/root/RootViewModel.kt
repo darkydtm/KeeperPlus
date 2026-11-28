@@ -1471,7 +1471,7 @@ class RootViewModel(
     private suspend fun openDAppDeepLink(wallet: WalletEntity, dAppUri: Uri, utm: UtmParameters): BaseFragment {
         val app = dAppsRepository.getAppFixIcon(dAppUri, wallet, browserRepository, settingsRepository)
 
-        val isTrustedApp = settingsRepository.promotionsEnabled && browserRepository.isTrustedApp(
+        val isTrustedApp = browserRepository.isTrustedApp(
             country = settingsRepository.country,
             network = wallet.network,
             locale = settingsRepository.getLocale(),

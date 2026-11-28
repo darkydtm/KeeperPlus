@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="default_push_channel_id" translatable="false">default</string>
-    <string name="settings_promotions">Promotions, rewards and discovery</string>
+
+	<string name="settings_promotions">Promotions, rewards and recommendations</string>
     <string name="settings_click_haptics">Click vibration</string>
     <string name="settings_click_haptics_strength">Click vibration strength</string>
     <string name="settings_enabled">On</string>
     <string name="settings_disabled">Off</string>
+	<string name="settings_haptics">Haptic feedback</string>
+	<string name="settings_promotions_only">Promotions</string>
+	<string name="settings_rewards">Rewards</string>
+	<string name="settings_recommendations">Recommendations</string>
+	<string name="settings_haptics_level">Level %1$d of 3</string>
+	<string name="settings_haptics_strength_unavailable">Vibration strength control is not supported on this device.</string>
 </resources>

@@ -454,7 +454,7 @@ class MigrationRepository(
     }
 
     suspend fun completeRaffleMigration(mcWalletId: String) = withContext(Async.Io) {
-        if (!settingsRepository.promotionsEnabled) return@withContext
+        if (!settingsRepository.rewardsEnabled) return@withContext
         try {
             api.multichain.raffles.completeWalletRaffleMigration(mcWalletId, xWalletId = mcWalletId)
         } catch (e: CancellationException) {

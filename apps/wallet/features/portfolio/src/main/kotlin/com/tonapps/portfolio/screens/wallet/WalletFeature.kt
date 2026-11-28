@@ -417,7 +417,7 @@ class WalletFeature(
         .cacheState()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = settingsRepository.promotionsEnabledFlow
+    private val perpsShelfMarkets: StateFlow<List<PerpMarket>> = settingsRepository.recommendationsEnabledFlow
         .flatMapLatest { enabled ->
             if (!enabled) flowOf(emptyList()) else combine(
                 perpsSnapshot.map { it != null && !it.loading && it.displayPortfolio()?.positions?.isEmpty() == true }
@@ -481,7 +481,7 @@ class WalletFeature(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val earnVaults: StateFlow<List<EarnVaultUi>?> = combine(
-        multichainWalletId(Earn), settingsRepository.promotionsEnabledFlow,
+        multichainWalletId(Earn), settingsRepository.recommendationsEnabledFlow,
     ) { walletId, enabled -> walletId != null && enabled }
         .distinctUntilChanged()
         .flatMapLatest { enabled ->

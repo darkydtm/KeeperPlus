@@ -43,7 +43,7 @@ class LoyaltyRepository(
 
     private val referralCodeLock = Any()
 
-    fun entryFlow(walletId: String): Flow<LoyaltyEntry> = settingsRepository.promotionsEnabledFlow.flatMapLatest { enabled ->
+    fun entryFlow(walletId: String): Flow<LoyaltyEntry> = settingsRepository.rewardsEnabledFlow.flatMapLatest { enabled ->
         if (!enabled || !WalletFeature.Loyalty.isEnabled) {
             flowOf(LoyaltyEntry.Hidden)
         } else {
@@ -61,7 +61,7 @@ class LoyaltyRepository(
     }
 
     suspend fun showsSection(walletId: String): Boolean = withContext(Dispatchers.IO) {
-        if (!settingsRepository.promotionsEnabled || !WalletFeature.Loyalty.isEnabled) {
+        if (!settingsRepository.rewardsEnabled || !WalletFeature.Loyalty.isEnabled) {
             return@withContext false
         }
         val profile = cachedProfile(walletId) ?: loadProfile(walletId)
@@ -115,7 +115,7 @@ class LoyaltyRepository(
     }
 
     private fun loadProfile(walletId: String): LoyaltyProfileEntity? {
-        if (!settingsRepository.promotionsEnabled) return null
+        if (!settingsRepository.rewardsEnabled) return null
         return try {
             api.loyalty.getProfile(walletId).also { profile ->
                 profiles[walletId] = profile

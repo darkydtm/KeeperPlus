@@ -33,11 +33,17 @@ object ClickHaptics {
     internal fun clickHapticAllowed(enabled: Boolean, viewEnabled: Boolean, systemEnabled: Boolean): Boolean =
         enabled && viewEnabled && systemEnabled
 
-    internal fun clickHapticAmplitude(strength: Int): Int = when (strength.coerceIn(1, 3)) {
-        1 -> 50
-        3 -> 180
-        else -> 100
-    }
+	internal fun clickHapticAmplitude(strength: Int): Int = when (strength.coerceIn(1, 3)) {
+		1 -> 40
+		3 -> 255
+		else -> 130
+	}
+
+	internal fun clickHapticDuration(strength: Int): Long = when (strength.coerceIn(1, 3)) {
+		1 -> 8L
+		3 -> 24L
+		else -> 16L
+	}
 
     fun perform(view: View) {
         val context = view.context
@@ -52,8 +58,8 @@ object ClickHaptics {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator != null &&
             vibrator.hasVibrator() && vibrator.hasAmplitudeControl()
         ) {
-            val amplitude = clickHapticAmplitude(getStrength(context))
-            val effect = VibrationEffect.createOneShot(12, amplitude)
+			val strength = getStrength(context)
+			val effect = VibrationEffect.createOneShot(clickHapticDuration(strength), clickHapticAmplitude(strength))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 vibrator.vibrate(effect, VibrationAttributes.Builder().setUsage(VibrationAttributes.USAGE_TOUCH).build())
             } else {

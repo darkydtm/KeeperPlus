@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+	testImplementation(libs.junit)
+	testImplementation(libs.mockk)
     implementation(libs.koin.core)
 
     implementation(projects.lib.extensions)

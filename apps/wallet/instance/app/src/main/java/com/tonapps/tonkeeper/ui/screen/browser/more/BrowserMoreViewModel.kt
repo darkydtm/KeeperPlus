@@ -42,7 +42,7 @@ class BrowserMoreViewModel(
 
     private val isChainDependent = id !in BrowserCategoryEntity.CHAIN_INDEPENDENT_IDS
 
-    private val dataFlow = settingsRepository.promotionsEnabledFlow
+    private val dataFlow = settingsRepository.recommendationsEnabledFlow
         .flatMapLatest { enabled ->
             if (enabled) {
                 browserRepository.dataFlow(

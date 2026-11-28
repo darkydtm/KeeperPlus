@@ -48,7 +48,7 @@ class BrowserBaseViewModel(
     }
 
     suspend fun hasCategory(category: String): Boolean = withContext(Dispatchers.IO) {
-        if (!settingsRepository.promotionsEnabled) {
+        if (!settingsRepository.recommendationsEnabled) {
             return@withContext false
         }
         val categories = browserRepository.loadCategories(

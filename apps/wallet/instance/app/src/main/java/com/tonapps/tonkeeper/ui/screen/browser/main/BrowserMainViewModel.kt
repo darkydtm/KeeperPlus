@@ -83,7 +83,7 @@ class BrowserMainViewModel(
     private val _selectedChain = MutableStateFlow<Network.Type?>(null)
     val selectedChain: StateFlow<Network.Type?> = _selectedChain.asStateFlow()
 
-    private val browserDataFlow = settings.promotionsEnabledFlow.flatMapLatest { enabled ->
+    private val browserDataFlow = settings.recommendationsEnabledFlow.flatMapLatest { enabled ->
         if (!enabled) flowOf(BrowserDataEntity(emptyList(), emptyList())) else flow {
             if (!isDappsDisabled) {
                 emitAll(

@@ -30,6 +30,8 @@ class BannerRepositoryTest {
         val settings = mockk<SettingsRepository>()
         every { settings.promotionsEnabledFlow } returns enabled
         every { settings.promotionsEnabled } answers { enabled.value }
+		every { settings.rewardsEnabled } returns false
+		every { settings.recommendationsEnabled } returns false
         every { settings.hadWalletsOnMultichainRelease } returns true
         val prefs = mockk<SharedPreferences>()
         every { prefs.getStringSet(any(), any()) } returns emptySet()

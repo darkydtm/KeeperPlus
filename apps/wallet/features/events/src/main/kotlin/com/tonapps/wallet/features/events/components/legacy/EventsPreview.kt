@@ -62,7 +62,7 @@ fun EventItemWithBadgePreview() {
                 actions = persistentListOf(
                     UiEvent.Item.Action(
                         title = "Swap",
-                        subtitle = "Keeper +",
+                        subtitle = "Keeper+",
                         badge = "DeFi",
                         incomingAmount = "+100 USDT",
                         outgoingAmount = "−50 TON",

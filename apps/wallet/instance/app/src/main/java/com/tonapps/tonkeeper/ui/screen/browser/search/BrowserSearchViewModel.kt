@@ -88,16 +88,12 @@ class BrowserSearchViewModel(
             uri = null
         }
 
-        val apps = if (settingsRepository.promotionsEnabled) {
-            browserRepository.search(
-                country = settingsRepository.country,
-                query = query,
-                locale = settingsRepository.getLocale(),
-                walletId = unifiedAccountRepository.getSelectedWallet()?.multichainWalletId,
-            )
-        } else {
-            emptyList()
-        }
+		val apps = browserRepository.search(
+			country = settingsRepository.country,
+			query = query,
+			locale = settingsRepository.getLocale(),
+			walletId = unifiedAccountRepository.getSelectedWallet()?.multichainWalletId,
+		)
 
         val appsCount = if (uri == null) {
             apps.size

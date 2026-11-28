@@ -207,8 +207,8 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
             this,
             WcWalletConfig(
                 projectId = "d9e3b2252349d4b1f5b32d77c9c77082",
-                appName = "Keeper +",
-                appDescription = "Keeper + is a self-custody crypto wallet that supports 7+ networks. Buy, swap, send, trade and stake from one app, backed by a single recovery phrase that never leaves your device. Formerly Tonkeeper, with 77+ million downloads.",
+                appName = "Keeper+",
+                appDescription = "Keeper+ is a self-custody crypto wallet that supports 7+ networks. Buy, swap, send, trade and stake from one app, backed by a single recovery phrase that never leaves your device. Formerly Tonkeeper, with 77+ million downloads.",
                 appUrl = "https://keeperwallet.com/",
                 icon = "",
                 relayUrl = null,

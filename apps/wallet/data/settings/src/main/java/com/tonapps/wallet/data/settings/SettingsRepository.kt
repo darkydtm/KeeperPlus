@@ -2,6 +2,7 @@ package com.tonapps.wallet.data.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.icu.util.Currency
 import androidx.core.os.LocaleListCompat
@@ -41,6 +42,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
+
+internal fun migrateContentSettings(prefs: SharedPreferences) {
+	val legacyEnabled = prefs.getBoolean("promotions_enabled", true)
+	prefs.edit().apply {
+		if (!prefs.contains("rewards_enabled")) putBoolean("rewards_enabled", legacyEnabled)
+		if (!prefs.contains("recommendations_enabled")) putBoolean("recommendations_enabled", legacyEnabled)
+		apply()
+	}
+}
 
 // TODO need to be refactored
 class SettingsRepository(
@@ -104,10 +114,30 @@ class SettingsRepository(
             id
         }
 
-    // Optional promotional network activity only: banners, raffles (including import/migration
-    // reports), loyalty profiles/rewards, automatic stories and browser discovery. Explicit
-    // stories, connected dApps, wallet operations and user-initiated asset requests remain enabled.
-    private val _promotionsEnabledFlow = MutableStateFlow(prefs.getBoolean("promotions_enabled", true))
+	private val legacyPromotionsEnabled = prefs.getBoolean("promotions_enabled", true)
+	private val _rewardsEnabledFlow = MutableStateFlow(prefs.getBoolean("rewards_enabled", legacyPromotionsEnabled))
+	val rewardsEnabledFlow = _rewardsEnabledFlow.asStateFlow()
+	var rewardsEnabled: Boolean
+		get() = _rewardsEnabledFlow.value
+		set(value) {
+			prefs.putBoolean("rewards_enabled", value)
+			_rewardsEnabledFlow.value = value
+		}
+
+	private val _recommendationsEnabledFlow = MutableStateFlow(prefs.getBoolean("recommendations_enabled", legacyPromotionsEnabled))
+	val recommendationsEnabledFlow = _recommendationsEnabledFlow.asStateFlow()
+	var recommendationsEnabled: Boolean
+		get() = _recommendationsEnabledFlow.value
+		set(value) {
+			prefs.putBoolean("recommendations_enabled", value)
+			_recommendationsEnabledFlow.value = value
+		}
+
+	init {
+		migrateContentSettings(prefs)
+	}
+
+    private val _promotionsEnabledFlow = MutableStateFlow(legacyPromotionsEnabled)
     val promotionsEnabledFlow = _promotionsEnabledFlow.asStateFlow()
     var promotionsEnabled: Boolean
         get() = _promotionsEnabledFlow.value

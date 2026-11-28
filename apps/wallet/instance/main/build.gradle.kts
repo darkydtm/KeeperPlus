@@ -78,7 +78,7 @@ android {
             isShrinkResources = true
             isCrunchPngs = true
             
-            resValue("string", "app_name", "Keeper + Beta")
+            resValue("string", "app_name", "Keeper+ Beta")
             applicationIdSuffix = ".beta"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_beta")
@@ -91,7 +91,7 @@ android {
         debug {
             isMinifyEnabled = false
 
-            resValue("string", "app_name", "Keeper + Dev")
+            resValue("string", "app_name", "Keeper+ Dev")
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders += mapOf("build_type" to "internal_debug")

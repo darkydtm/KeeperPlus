@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Keeper +</string>
+    <string name="app_name" translatable="false">Keeper+</string>
     <string name="ton" translatable="false">TON</string>
     <string name="toncoin" translatable="false">Gram</string>
     <string name="bitcoin" translatable="false">Bitcoin</string>
@@ -43,6 +43,7 @@
     <string name="crypto">Crypto</string>
     <string name="provider">Provider</string>
     <string name="theme_deep_blue">Deep Blue</string>
+	<string name="theme_adaptive">Adaptive</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="payment_method">Payment Method</string>
@@ -60,8 +61,8 @@
     <string name="dapp_safe_model_button">How to stay safe</string>
     <string name="dapp_safe_modal_subtitle">We didn’t open it for safety reasons</string>
     <string name="emulation_failed_warning">After confirmation, anything can happen, including losing all your funds. All transactions are irreversible. We couldn’t emulate the transaction and don’t know what will happen next.</string>
-    <string name="update_tonkeeper">Update Keeper +</string>
-    <string name="update_tonkeeper_subtitle">A new version of Keeper + is available. You can download it now.</string>
+    <string name="update_tonkeeper">Update Keeper+</string>
+    <string name="update_tonkeeper_subtitle">A new version of Keeper+ is available. You can download it now.</string>
     <string name="download_error">Download error. Tap to retry.</string>
     <string name="downloading_app_update">Downloading app update</string>
     <string name="preparing_for_downloading">Preparing for downloading</string>
@@ -276,7 +277,7 @@
     <string name="staking_minimum_deposit">Minimum deposit %1$s.</string>
     <string name="staking_options">Options</string>
     <string name="staking_minimal_deposit">Minimal deposit</string>
-    <string name="staking_details_description">Staking is based on smart contracts by third parties. Keeper + is not responsible for staking experience.</string>
+    <string name="staking_details_description">Staking is based on smart contracts by third parties. Keeper+ is not responsible for staking experience.</string>
     <string name="staking_links">Links</string>
     <string name="links">Links</string>
     <string name="staking_choose">Choose</string>
@@ -309,7 +310,7 @@
     <string name="backup_attention_description">Please read the following carefully before viewing your recovery phrase.</string>
     <string name="backup_attention_line_1">Never share your Recovery Phrase with anyone.</string>
     <string name="backup_attention_line_2">If someone has your Recovery Phrase they can access your wallet and withdraw funds.</string>
-    <string name="backup_attention_line_3">Keeper + Support will never ask you for your Recovery Phrase.</string>
+    <string name="backup_attention_line_3">Keeper+ Support will never ask you for your Recovery Phrase.</string>
     <string name="backup_attention_checkbox_prefix">I understand that sharing my Recovery Phrase could result in </string>
     <string name="backup_attention_checkbox_highlight">permanent loss of funds.</string>
     <string name="backup_attention_checkbox_suffix"></string>
@@ -337,7 +338,7 @@
     <string name="faq" translatable="false">FAQ</string>
     <string name="failed">Failed</string>
     <string name="remove_dapp_confirm">Remove %1$s?</string>
-    <string name="rate_tonkeeper">Rate Keeper +</string>
+    <string name="rate_tonkeeper">Rate Keeper+</string>
     <string name="encrypted_comment">Encrypted comment</string>
     <string name="encrypted_comment_description">The comment is encrypted by sender and can only be decrypted by you. Please be careful with the content and beware of scams.</string>
     <string name="decrypted_comment_action">Decrypt the comment</string>
@@ -368,7 +369,7 @@
     <string name="watch_only">Watch only</string>
     <string name="unverified_token">Unverified Token</string>
     <string name="verified_token">Verified Token</string>
-    <string name="verified_token_caption">This token is actively traded and widely recognized. Verification is not an endorsement by Keeper +.</string>
+    <string name="verified_token_caption">This token is actively traded and widely recognized. Verification is not an endorsement by Keeper+.</string>
     <string name="wallet_initialized">Wallet Initialized</string>
     <string name="bid">Bid</string>
     <string name="theme">Theme</string>
@@ -401,7 +402,7 @@
     <string name="transfer">Transfer</string>
     <string name="jetton_transfer">Transfer %1$s</string>
     <string name="name_your_wallet">Name your wallet</string>
-    <string name="name_your_wallet_subtitle">Name your wallet to easily identify it while using the Keeper +. These names are stored locally, and can only be seen by you.</string>
+    <string name="name_your_wallet_subtitle">Name your wallet to easily identify it while using the Keeper+. These names are stored locally, and can only be seen by you.</string>
     <string name="open_anyway">Open anyway</string>
     <string name="nft_warning_buttton_title">Are you sure you want to open an external link?</string>
     <string name="nft_warning_buttton_subtitle">Visit this external link only if you trust the author of the collection.  %1$s</string>
@@ -449,12 +450,12 @@
     <string name="multichain">Multichain</string>
     <string name="country_title">Choose your country</string>
     <string name="intro_description">Create a new wallet\nor add\u00A0an existing one</string>
-    <string name="intro_title" formatted="true">Welcome to <annotation colorAttr="textAccentColor">Keeper +</annotation></string>
+    <string name="intro_title" formatted="true">Welcome to <annotation colorAttr="textAccentColor">Keeper+</annotation></string>
     <string name="intro_line_1_title">World-class speed</string>
     <string name="intro_line_1_description">TON is a network designed for speed and throughput. Fees are significantly lower than on other blockchains, and transactions are confirmed in a matter of seconds.</string>
 
     <string name="intro_line_2_title">End-to-end security</string>
-    <string name="intro_line_2_description">Keeper + stores your cryptographic keys on your device without requiring documents, personal information, contact details, or KYC.</string>
+    <string name="intro_line_2_description">Keeper+ stores your cryptographic keys on your device without requiring documents, personal information, contact details, or KYC.</string>
 
     <string name="intro_line_3_title">Built-in subscriptions</string>
     <string name="intro_line_3_description">TON subscriptions are peer-to-peer and borderless so that no one can restrict providers or customers. Near-zero fees and full control for you.</string>
@@ -542,7 +543,7 @@
     <string name="signature_allowed">Signature Allowed</string>
     <string name="signature_not_allowed">Signature Not Allowed</string>
 
-    <string name="start_title">Keeper +</string>
+    <string name="start_title">Keeper+</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="start_create_new_wallet">Create New Wallet</string>
     <string name="add_wallet_description">Create a new wallet or add\nan existing one.</string>
@@ -597,7 +598,7 @@
     <string name="import_wallet_description">To restore access to your wallet, enter the 24 or 12 secret recovery words given to you when you created your wallet.</string>
 
     <string name="start_dialog_title">Let’s set up your wallet</string>
-    <string name="start_dialog_description">You need a connected wallet to use Keeper +. Either create a new wallet or import an existing one.</string>
+    <string name="start_dialog_description">You need a connected wallet to use Keeper+. Either create a new wallet or import an existing one.</string>
 
     <string name="wallet_generating">Generating wallet…</string>
     <string name="wallet_created">Your wallet has just been created!</string>
@@ -618,7 +619,7 @@
     <string name="transaction_confirmed">Transaction confirmed</string>
 
     <string name="connected_placeholder_title">Connected apps will be shown here</string>
-    <string name="connected_placeholder_subtitle">Explore apps and services in the Keeper + browser.</string>
+    <string name="connected_placeholder_subtitle">Explore apps and services in the Keeper+ browser.</string>
     <string name="explore_apps">Explore Apps</string>
 
     <string name="send">Send</string>
@@ -750,7 +751,7 @@
     <string name="renewed_on">Renewed on %1$s</string>
     <string name="confirm">Confirm</string>
     <string name="send_request_comment">When sending, make sure to include the memo or tag from the exchange. Without it, the funds won’t be deposited and may be lost.</string>
-    <string name="banner_top">You currently using an experimental version of Keeper +.</string>
+    <string name="banner_top">You currently using an experimental version of Keeper+.</string>
     <string name="banner_top_button">Install stable version</string>
     <string name="signer_description">Open Signer » Select the required key » Scan QR code</string>
     <string name="keystone_description">Open Keystone » Connect Software Wallet » Keeper</string>
@@ -809,7 +810,7 @@
     <string name="ledger_mc_item_subtitle">Hardware wallet over USB or Bluetooth. Keys never leave the device</string>
     <string name="ledger_mc_intro_title">Connect your Ledger</string>
     <string name="ledger_mc_intro_description">Turn on your Ledger and unlock it. Connect it with a USB cable or turn on Bluetooth on it. Your keys never leave the device: you confirm every action on its screen.</string>
-    <string name="ledger_mc_permission_description">Allow Keeper + to find nearby devices to connect your Ledger over Bluetooth.</string>
+    <string name="ledger_mc_permission_description">Allow Keeper+ to find nearby devices to connect your Ledger over Bluetooth.</string>
     <string name="ledger_mc_permission_denied">Bluetooth access is off. Allow nearby devices in Settings to connect your Ledger.</string>
     <string name="ledger_mc_allow_access">Allow access</string>
     <string name="ledger_mc_open_settings">Open Settings</string>
@@ -863,7 +864,7 @@
     <string name="ledger_mc_error_title">Ledger could not finish the request</string>
     <string name="ledger_mc_error_bluetooth_unavailable">This phone does not support Bluetooth Low Energy.</string>
     <string name="ledger_mc_error_bluetooth_off">Bluetooth is off. Turn it on and try again.</string>
-    <string name="ledger_mc_error_permission">Keeper + needs Bluetooth access to reach your Ledger.</string>
+    <string name="ledger_mc_error_permission">Keeper+ needs Bluetooth access to reach your Ledger.</string>
     <string name="ledger_mc_error_not_found">Ledger not found. Make sure it is on, unlocked, nearby and Bluetooth is enabled on it.</string>
     <string name="ledger_mc_error_scan_unavailable">Android paused Bluetooth scanning for a moment. Wait a few seconds and try again.</string>
     <string name="ledger_mc_error_pairing">Pairing was declined. Accept the pairing request on your phone and on your Ledger.</string>
@@ -895,7 +896,7 @@
     <string name="ledger_mc_address_verified">The address on your Ledger matches</string>
     <string name="ledger_mc_add_networks">Add networks from Ledger</string>
     <string name="ledger_mc_add_networks_hint">Install the missing apps on your Ledger with Ledger Live first</string>
-    <string name="ledger_mc_migrate_description">Connect the Ledger that holds %1$s. Keeper + reads its Ethereum, Bitcoin, Solana and other addresses, and the wallet becomes multichain with the same TON address.</string>
+    <string name="ledger_mc_migrate_description">Connect the Ledger that holds %1$s. Keeper+ reads its Ethereum, Bitcoin, Solana and other addresses, and the wallet becomes multichain with the same TON address.</string>
     <string name="ledger_mc_migrate_tooltip">Add Ethereum, Bitcoin, Solana and other networks to this Ledger wallet</string>
     <string name="ledger_mc_networks_added">Networks added</string>
     <string name="ledger_mc_nothing_to_add">All supported networks are already added</string>
@@ -913,7 +914,7 @@
     <string name="ledger_mc_progress_message_hash_hint">If your Ledger shows a message hash, check that it matches:</string>
     <string name="ledger_mc_progress_bitcoin_change">Your Ledger also lists %1$s going back to your own address. This is your change:</string>
     <string name="ledger_mc_searching_help">Still not found? Unlock your Ledger, turn on Bluetooth in its settings and close Ledger Live on other devices. Nano S and Nano S Plus work over USB only.</string>
-    <string name="ledger_mc_permission_description_location">Android needs location access to find Bluetooth devices. Keeper + doesn’t use your location.</string>
+    <string name="ledger_mc_permission_description_location">Android needs location access to find Bluetooth devices. Keeper+ doesn’t use your location.</string>
     <string name="ledger_mc_permission_denied_location">Location access is off. Allow it in Settings so Android can find your Ledger over Bluetooth.</string>
     <string name="ledger_mc_comment_rules">Ledger shows comments of up to 120 characters: Latin letters, digits and punctuation.</string>
     <string name="ledger_mc_comment_not_shown">Ledger can’t show a comment on this network. Remove it to continue.</string>
@@ -923,15 +924,15 @@
     <string name="ledger_mc_connection_connected_app">%1$s app is open</string>
     <string name="ledger_mc_connection_connected_dashboard">Ready on the home screen</string>
     <string name="ledger_mc_connection_nearby">Nearby</string>
-    <string name="ledger_mc_connection_nearby_hint">Keeper + connects to it when you confirm a transaction</string>
+    <string name="ledger_mc_connection_nearby_hint">Keeper+ connects to it when you confirm a transaction</string>
     <string name="ledger_mc_connection_searching">Looking for your Ledger…</string>
     <string name="ledger_mc_connection_searching_hint">Keep it on, unlocked and close to the phone</string>
     <string name="ledger_mc_connection_not_found">Not found nearby</string>
     <string name="ledger_mc_connection_not_found_hint">Turn it on, unlock it and keep it close. If Ledger Live is open, close it.</string>
     <string name="ledger_mc_connection_bluetooth_off">Bluetooth is off</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper + reaches your Ledger over Bluetooth</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper+ reaches your Ledger over Bluetooth</string>
     <string name="ledger_mc_connection_no_permission">No access to nearby devices</string>
-    <string name="ledger_mc_connection_no_permission_hint">Allow Keeper + to find nearby devices in the app settings</string>
+    <string name="ledger_mc_connection_no_permission_hint">Allow Keeper+ to find nearby devices in the app settings</string>
     <string name="ledger_mc_connection_location_off">Location is off</string>
     <string name="ledger_mc_connection_location_off_hint">Your Android version needs location to find Bluetooth devices</string>
     <string name="ledger_mc_connection_unsupported">Bluetooth is not available on this phone</string>
@@ -963,7 +964,7 @@
     <string name="bluetooth_permissions_alert_open_settings">Open Settings</string>
 
     <string name="battery">Battery</string>
-    <string name="battery_refill_title">Keeper + Battery</string>
+    <string name="battery_refill_title">Keeper+ Battery</string>
     <string name="battery_refill_subtitle">Swap and send GRAM tokens and pay less in TRC-20 fees</string>
     <string name="battery_empty_caption_ledger">Pay network fees with charges on TRON</string>
     <string name="battery_empty_caption_multichain">Pay network fees with charges on TON, TRON and EVM networks</string>
@@ -985,10 +986,10 @@
         <item quantity="other">≈ %1$s NFT transfers</item>
     </plurals>
     <plurals name="battery_swap">
-        <item quantity="one">≈ %1$s swap via Keeper +</item>
-        <item quantity="few">≈ %1$s swaps via Keeper +</item>
-        <item quantity="many">≈ %1$s swaps via Keeper +</item>
-        <item quantity="other">≈ %1$s swaps via Keeper +</item>
+        <item quantity="one">≈ %1$s swap via Keeper+</item>
+        <item quantity="few">≈ %1$s swaps via Keeper+</item>
+        <item quantity="many">≈ %1$s swaps via Keeper+</item>
+        <item quantity="other">≈ %1$s swaps via Keeper+</item>
     </plurals>
     <plurals name="battery_jetton">
         <item quantity="one">≈ %1$s token transfer</item>
@@ -1033,7 +1034,7 @@
     <string name="disconnect_all_apps">Disconnect All Apps</string>
     <string name="disconnect_all_apps_confirm">Disconnect All Apps?</string>
     <string name="connected_apps_empty">No connected apps</string>
-    <string name="connected_apps_source_dapp" translatable="false">Keeper +</string>
+    <string name="connected_apps_source_dapp" translatable="false">Keeper+</string>
     <string name="connected_apps_source_deeplink">External link</string>
     <string name="connected_apps_source_qr">Another device</string>
     <string name="connected_apps_source_format" translatable="false">%1$s · %2$s</string>
@@ -1045,7 +1046,7 @@
     <string name="phrase_title_tron">TRC20 Wallet</string>
     <string name="phrase_description_tron">Write down these words with their numbers and store them in a safe place.</string>
     <string name="prhase_tron_warning">This phrase is for TRC20 only. It cannot restore your TON wallet. Use your TON recovery phrase for TON wallet recovery.</string>
-    <string name="battery_required_title">Keeper + Battery required for %1$s</string>
+    <string name="battery_required_title">Keeper+ Battery required for %1$s</string>
     <string name="battery_required_text">Battery charges are used to cover transaction fees, making transfers simpler and more cost-effective.</string>
     <string name="charge_battery">Charge Battery</string>
     <string name="send_wrong_blockchain">The address belongs to the %1$s network.</string>
@@ -1053,9 +1054,9 @@
     <string name="enable_usdt_tron">Enable USD₮ TRC20</string>
     <string name="tron" translatable="false">TRON</string>
     <string name="dapp_share_title">Share %1$s</string>
-    <string name="dapp_share_subtitle">This link opens %1$s directly in Keeper +. You can use it again later or share it if needed.</string>
+    <string name="dapp_share_subtitle">This link opens %1$s directly in Keeper+. You can use it again later or share it if needed.</string>
     <string name="copy_link">Copy Link</string>
-    <string name="dapp_disclaimer">You are opening an external app not operated by Keeper +. Proceed only if you trust the source.</string>
+    <string name="dapp_disclaimer">You are opening an external app not operated by Keeper+. Proceed only if you trust the source.</string>
     <string name="support_title">Need help?</string>
     <string name="support_subtitle">Ask us via Telegram or Email — we’ll do our best to help.</string>
     <string name="ask_question">Ask on Telegram</string>
@@ -1122,7 +1123,7 @@
     <string name="trx_balance">TRX Balance</string>
     <string name="trx_balance_desc">Top up your balance to pay network fees.</string>
     <string name="blockchain_fees">Blockchain Fees</string>
-    <string name="blockchain_fees_desc">Keeper + Battery is the easiest way to pay blockchain fees. You can also top up balance with GRAM and TRX coins directly.</string>
+    <string name="blockchain_fees_desc">Keeper+ Battery is the easiest way to pay blockchain fees. You can also top up balance with GRAM and TRX coins directly.</string>
     <string name="required_prefix">Required: %1$s</string>
     <string name="tron_fees_learn_more">Fees change in real time based on market conditions and other factors. <annotation colorAttr="textAccentColor">Learn more</annotation></string>
     <string name="other_options">Other options</string>
@@ -1237,7 +1238,7 @@
     <string name="perps_retry">Retry</string>
     <string name="perps_region_restricted_title">Perps aren’t available in your region</string>
     <string name="perps_region_restricted_banner">You can explore markets, but deposits and trading are turned off.</string>
-    <string name="perps_region_restricted_caption">Deposits and trading are turned off for your location. If you use a VPN, switch it off and reopen Keeper +.</string>
+    <string name="perps_region_restricted_caption">Deposits and trading are turned off for your location. If you use a VPN, switch it off and reopen Keeper+.</string>
     <string name="perps_chart_empty">No chart data</string>
     <string name="perps_chart_failed">Couldn’t load chart</string>
     <string name="perps_chart_open">Open</string>
@@ -1467,7 +1468,7 @@
     <string name="perps_deposit_you_send">You send</string>
     <string name="perps_deposit_to_perps_account">To perps account</string>
     <string name="perps_deposit_account_setup_note">Includes one-time Lighter account setup</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper + doesn’t take any part of these fees.</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper+ doesn’t take any part of these fees.</string>
     <string name="perps_deposit_fetching_quote">Fetching quote</string>
     <string name="perps_deposit_no_quote_change_amount">Couldn’t get a quote. Change amount</string>
     <string name="perps_deposit_quote_failed">Couldn’t price the deposit. Try again.</string>
@@ -1583,7 +1584,7 @@
     <string name="perps_share_close">Close</string>
     <string name="perps_risk_disclosure_footnote">Risk Disclosure · Powered by Lighter</string>
     <string name="perps_risk_disclosure_title">Risk Disclosure</string>
-    <string name="perps_risk_disclosure_text">You can lose your entire investment quickly due to leverage and market swings. Positions may be liquidated automatically. Prices depend on funding rates and liquidity. Perpetuals and market data are provided by Lighter, a third-party protocol. Keeper + provides a non-custodial interface and does not execute trades or give investment advice.</string>
+    <string name="perps_risk_disclosure_text">You can lose your entire investment quickly due to leverage and market swings. Positions may be liquidated automatically. Prices depend on funding rates and liquidity. Perpetuals and market data are provided by Lighter, a third-party protocol. Keeper+ provides a non-custodial interface and does not execute trades or give investment advice.</string>
     <string name="perps_risk_disclosure_lighter_terms">Lighter’s terms</string>
     <string name="perps_risk_disclosure_keeper_terms">Keeper Terms of Use</string>
     <string name="perps_skip_intro_title">Skip the intro?</string>
@@ -1831,7 +1832,7 @@
     <string name="raffle_zero_fee_swaps">Get 0% fee cross-chain swaps</string>
     <string name="raffle_faq">FAQ</string>
     <string name="raffle_faq_about_q">What’s the Mystery Raffle?</string>
-    <string name="raffle_faq_about_a">On %1$s we will launch a multichain giveaway with more than 2,000 winners. Tickets are your chances to win.\n\nMigrate to multichain before then and you get 10 tickets, our thank you for being an early Keeper + user.\n\nPrizes, extra ways to earn tickets, and the full mechanic all get revealed next week.</string>
+    <string name="raffle_faq_about_a">On %1$s we will launch a multichain giveaway with more than 2,000 winners. Tickets are your chances to win.\n\nMigrate to multichain before then and you get 10 tickets, our thank you for being an early Keeper+ user.\n\nPrizes, extra ways to earn tickets, and the full mechanic all get revealed next week.</string>
     <string name="raffle_faq_migrate_before_q">What do I get if I migrate before %1$s?</string>
     <string name="raffle_faq_migrate_before_a">• 10 tickets\n• 0% cross-chain fee</string>
     <string name="raffle_faq_migrate_after_q">What do I get if I migrate after %1$s?</string>
@@ -1865,15 +1866,15 @@
     <string name="new_networks_open_wallet">Open wallet</string>
     <string name="dev_menu_warning">Developer settings. Careless use may lead to losing your wallet.</string>
     <string name="signed">Signed</string>
-    <string name="sign_message_not_sent_warning">Keeper + won’t send this transaction. %1$s will send it now or later and pay the network fee.</string>
+    <string name="sign_message_not_sent_warning">Keeper+ won’t send this transaction. %1$s will send it now or later and pay the network fee.</string>
     <string name="sign_message_error_not_supported">This wallet can’t sign this request</string>
     <string name="sign_message_error_invalid_request">Invalid request</string>
     <string name="sign_message_error_expired">The request has expired</string>
     <string name="wallet_connect_request_expired">The request has expired. Return to the connected app.</string>
     <string name="sign_message_error_network_mismatch">The request is for a different network</string>
     <string name="sign_message_error_address_mismatch">The request is for a different wallet</string>
-    <string name="reinstall_title">Keeper + can’t start</string>
-    <string name="reinstall_description">Some app files are missing on this device. Install Keeper + from Google Play to fix this.</string>
+    <string name="reinstall_title">Keeper+ can’t start</string>
+    <string name="reinstall_description">Some app files are missing on this device. Install Keeper+ from Google Play to fix this.</string>
     <string name="reinstall_open_google_play">Open Google Play</string>
     <string name="perps_withdraw_rate_limited">You can make up to 3 withdrawals every 2 hours. Please try again later.</string>
     <string name="memo">Memo</string>

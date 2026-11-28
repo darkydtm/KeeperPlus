@@ -60,7 +60,7 @@
     <string name="backup_attention_description">Iltimos, tiklash iborangizni ko\'rishdan oldin quyidagilarni diqqat bilan o\'qing.</string>
     <string name="backup_attention_line_1">Hech qachon Tiklash iborangizni hech kim bilan ulashmang.</string>
     <string name="backup_attention_line_2">Agar kimdadir Tiklash iborangiz bo\'lsa, u hamyoningizga kira oladi va mablag\'larni yechib olishi mumkin.</string>
-    <string name="backup_attention_line_3">Keeper + qo\'llab-quvvatlash hech qachon Tiklash iborangizni so\'ramaydi.</string>
+    <string name="backup_attention_line_3">Keeper+ qo\'llab-quvvatlash hech qachon Tiklash iborangizni so\'ramaydi.</string>
     <string name="backup_attention_title">Xavfsizlik tekshiruvi</string>
     <string name="backup_check">Zaxira tekshiruvi</string>
     <string name="backup_check_choose_subtitle">Keling, hammasi to\'g\'ri ekanligini ko\'rib chiqamiz. %1$d, %2$d va %3$d so\'zlarni tanlang.</string>
@@ -68,7 +68,7 @@
     <string name="backup_check_subtitle">Keling, hammasi to\'g\'ri ekanligini ko\'rib chiqamiz. %1$d, %2$d va %3$d so\'zlarni kiriting.</string>
     <string name="badge_new">NEW</string>
     <string name="balance_prefix">Balans: %1$s</string>
-    <string name="banner_top">Siz hozirda Keeper +-ning tajribaviy versiyasidan foydalanmoqdasiz.</string>
+    <string name="banner_top">Siz hozirda Keeper+-ning tajribaviy versiyasidan foydalanmoqdasiz.</string>
     <string name="banner_top_button">Barqaror versiyani o\'rnating</string>
     <string name="battery">Batareya</string>
     <string name="battery_best_value">Eng foydali</string>
@@ -112,16 +112,16 @@
     <string name="battery_refill_gift_subtitle">Do‘stlar bilan ulashing</string>
     <string name="battery_refill_negative_balance">Qaytarilgan xaridlar tufayli batareyangiz tugadi. Davom etish uchun zaryadlarni to‘ldiring.</string>
     <string name="battery_refill_subtitle">GRAM tokenlarini almashtiring va yuboring hamda TRC-20 komissiyalarini kamroq to\'lang</string>
-    <string name="battery_refill_title">Keeper + Batareya</string>
+    <string name="battery_refill_title">Keeper+ Batareya</string>
     <string name="battery_refilled">Batareya qayta to\'ldirilgan</string>
     <string name="battery_refund_subtitle">To\'lovlar va to\'lovlarni qaytarish</string>
     <string name="battery_refund_title">Zaryad tarixi</string>
     <string name="battery_required_text">Tranzaksiya komissiyalarini qoplash uchun zaryadlar ishlatiladi, bu esa pul o‘tkazmalarini oson va arzon qiladi.</string>
-    <string name="battery_required_title">%1$s uchun Keeper + Batareya talab qilinadi</string>
+    <string name="battery_required_title">%1$s uchun Keeper+ Batareya talab qilinadi</string>
     <string name="battery_small_pack">Kichik</string>
     <plurals name="battery_swap">
-        <item quantity="one">≈ %1$s Keeper + orqali almashtirish</item>
-        <item quantity="other">≈ %1$s Keeper + orqali almashtirish</item>
+        <item quantity="one">≈ %1$s Keeper+ orqali almashtirish</item>
+        <item quantity="other">≈ %1$s Keeper+ orqali almashtirish</item>
     </plurals>
     <string name="battery_top_up_for">%1$s evaziga to\'ldirish</string>
     <string name="battery_topped_up">Batareya to\'ldirildi</string>
@@ -129,7 +129,7 @@
     <string name="biometric_description">Hamyoningizni har doim parol bilan ochishingiz mumkin.</string>
     <string name="biometric_enabled">Biometrik yoqilgan</string>
     <string name="blockchain_fees">Blokcheyn komissiyalari</string>
-    <string name="blockchain_fees_desc">Keeper + Batareya — blokcheyn komissiyalarini to‘lashning eng oson yo‘li. Siz GRAM yoki TRX bilan ham to‘ldirishingiz mumkin.</string>
+    <string name="blockchain_fees_desc">Keeper+ Batareya — blokcheyn komissiyalarini to‘lashning eng oson yo‘li. Siz GRAM yoki TRX bilan ham to‘ldirishingiz mumkin.</string>
     <string name="bluetooth_permissions_alert_message">Iltimos, ushbu funksiyani ishlatish uchun sozlamalaringizda Bluetooth ruxsatlarini yoqing</string>
     <string name="bluetooth_permissions_alert_open_settings">Sozlamalarni oching</string>
     <string name="bluetooth_permissions_alert_title">Bluetooth ruxsatnomalari</string>
@@ -245,7 +245,7 @@
     <string name="connected_apps_empty">Ulangan ilovalar yo‘q</string>
     <string name="connected_apps_source_deeplink">Tashqi havola</string>
     <string name="connected_apps_source_qr">Boshqa qurilma</string>
-    <string name="connected_placeholder_subtitle">Keeper + brauzerida ilovalar va xizmatlarni o\'rganing.</string>
+    <string name="connected_placeholder_subtitle">Keeper+ brauzerida ilovalar va xizmatlarni o\'rganing.</string>
     <string name="connected_placeholder_title">Bu yerda ulanilgan ilovalar ko\'rsatiladi</string>
     <string name="connecting">Ulanmoqda</string>
     <string name="contact_delete_dialog">Haqiqatan ham “%1$s” manzillar kitobingizdan o‘chirib tashlansinmi?</string>
@@ -272,13 +272,13 @@
     <string name="customize">Moslashtirish</string>
     <string name="customize_wallet_subtitle">Hamyon nomi va belgisi qurilmangizda mahalliy saqlanadi.</string>
     <string name="customize_wallet_title">Hamyoningizni sozlang</string>
-    <string name="dapp_disclaimer">Siz Keeper + tomonidan boshqarilmaydigan tashqi ilovani ochyapsiz. Faqat manbaga ishonsangiz davom eting.</string>
+    <string name="dapp_disclaimer">Siz Keeper+ tomonidan boshqarilmaydigan tashqi ilovani ochyapsiz. Faqat manbaga ishonsangiz davom eting.</string>
     <string name="dapp_load_failed_subtitle">Sahifani yuklab bo‘lmadi. Qayta urinib ko‘ring.</string>
     <string name="dapp_manifest_error">dApp manifestini yuklab bo‘lmadi. Iltimos, qaytadan urinib ko‘ring.</string>
     <string name="dapp_safe_modal_subtitle">Biz uni xavfsizlik nuqtai nazaridan ochmadik</string>
     <string name="dapp_safe_modal_title">Havola firibgarlik xizmatiga olib keladi</string>
     <string name="dapp_safe_model_button">Qanday qilib xavfsiz bo\'lish kerak</string>
-    <string name="dapp_share_subtitle">Ushbu havola %1$s ni bevosita Keeper +’da ochadi. Keyinroq yana foydalanishingiz yoki kerak bo‘lsa, boshqalar bilan ulashishingiz mumkin.</string>
+    <string name="dapp_share_subtitle">Ushbu havola %1$s ni bevosita Keeper+’da ochadi. Keyinroq yana foydalanishingiz yoki kerak bo‘lsa, boshqalar bilan ulashishingiz mumkin.</string>
     <string name="dapp_share_title">%1$s ulashish</string>
     <string name="decrypt_comment">Shifrdan chiqarish</string>
     <string name="decrypted_comment_action">Izohni shifrdan chiqarish</string>
@@ -457,11 +457,11 @@
     <string name="intro_description">Yangi hamyon yarating yoki mavjudini qo‘shing</string>
     <string name="intro_line_1_description">TON tarmog\'i tezlik va o\'tkazuvchanlik uchun mo\'ljallangan. Komissiyalar boshqa blokcheynlarga qaraganda ancha past, va tranzaksiyalar bir necha soniya ichida tasdiqlanadi.</string>
     <string name="intro_line_1_title">Dunyo darajasidagi tezlik</string>
-    <string name="intro_line_2_description">Keeper + sizning kriptografik kalitlaringizni qurilmangizda hujjatlar, shaxsiy ma\'lumotlar, aloqa ma\'lumotlari yoki KYC talab qilmasdan saqlaydi.</string>
+    <string name="intro_line_2_description">Keeper+ sizning kriptografik kalitlaringizni qurilmangizda hujjatlar, shaxsiy ma\'lumotlar, aloqa ma\'lumotlari yoki KYC talab qilmasdan saqlaydi.</string>
     <string name="intro_line_2_title">Oxiridan oxirigacha xavfsizlik</string>
     <string name="intro_line_3_description">TON obunalar peer-to-peer va chegarasiz bo\'lib, hech kim provayderlar yoki mijozlarni cheklay olmaydi. Deyarli nol komissiyalar va to\'liq nazorat siz uchun.</string>
     <string name="intro_line_3_title">Ichki obunalar</string>
-    <string name="intro_title"><annotation colorAttr="textAccentColor">Keeper +</annotation>ga xush kelibsiz</string>
+    <string name="intro_title"><annotation colorAttr="textAccentColor">Keeper+</annotation>ga xush kelibsiz</string>
     <string name="invalid_address">Hamyon manzili noto‘g‘ri.</string>
     <string name="invalid_link">Noto\'g\'ri havola</string>
     <string name="jetton_transfer">%1$s transferi</string>
@@ -519,7 +519,7 @@
     <string name="ledger_mc_comment_rules">Ledger 120 belgigacha bo‘lgan izohlarni ko‘rsatadi: lotin harflari, raqamlar va tinish belgilari.</string>
     <string name="ledger_mc_connection_allow">Ruxsat berish</string>
     <string name="ledger_mc_connection_bluetooth_off">Bluetooth oʻchiq</string>
-    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper + Ledger bilan Bluetooth orqali bogʻlanadi</string>
+    <string name="ledger_mc_connection_bluetooth_off_hint">Keeper+ Ledger bilan Bluetooth orqali bogʻlanadi</string>
     <string name="ledger_mc_connection_busy">Foydalanilmoqda</string>
     <string name="ledger_mc_connection_check">Tekshirish</string>
     <string name="ledger_mc_connection_checked">Ledger ulangan</string>
@@ -530,7 +530,7 @@
     <string name="ledger_mc_connection_location_off">Joylashuv oʻchiq</string>
     <string name="ledger_mc_connection_location_off_hint">Android versiyangiz Bluetooth qurilmalarini topish uchun joylashuvni talab qiladi</string>
     <string name="ledger_mc_connection_nearby">Yaqinda</string>
-    <string name="ledger_mc_connection_nearby_hint">Tranzaksiyani tasdiqlaganingizda Keeper + unga ulanadi</string>
+    <string name="ledger_mc_connection_nearby_hint">Tranzaksiyani tasdiqlaganingizda Keeper+ unga ulanadi</string>
     <string name="ledger_mc_connection_no_permission">Yaqin atrofdagi qurilmalarga ruxsat yoʻq</string>
     <string name="ledger_mc_connection_no_permission_hint">Ilova sozlamalarida Keeperga yaqin atrofdagi qurilmalarni topishga ruxsat bering</string>
     <string name="ledger_mc_connection_not_found">Yaqin atrofda topilmadi</string>
@@ -562,7 +562,7 @@
     <string name="ledger_mc_error_not_found">Ledger topilmadi. U yoqilgan, qulfi ochiq va yaqin joyda ekanini hamda unda Bluetooth yoqilganini tekshiring.</string>
     <string name="ledger_mc_error_pairing">Juftlashtirish rad etildi. Telefoningizda va Ledger’da juftlashtirish soʻrovini qabul qiling.</string>
     <string name="ledger_mc_error_pairing_lost">Ledger bu telefonni endi tanimaydi. Uni telefonning Bluetooth sozlamalaridan o‘chiring va qayta ulang.</string>
-    <string name="ledger_mc_error_permission">Ledger’ga ulanish uchun Keeper +’ga Bluetooth’ga kirish ruxsati kerak.</string>
+    <string name="ledger_mc_error_permission">Ledger’ga ulanish uchun Keeper+’ga Bluetooth’ga kirish ruxsati kerak.</string>
     <string name="ledger_mc_error_raw_messages">Ledger’dagi %1$s ilovasi sozlamalarida «Blind signing» yoki «Raw messages» parametrini yoqing.</string>
     <string name="ledger_mc_error_refused">Soʻrov Ledger’da rad etildi.</string>
     <string name="ledger_mc_error_scan_unavailable">Android Bluetooth qidiruvini qisqa vaqtga to\'xtatdi. Bir necha soniya kuting va qayta urinib ko\'ring.</string>
@@ -579,7 +579,7 @@
     <string name="ledger_mc_item_subtitle">USB yoki Bluetooth orqali apparat hamyoni. Kalitlar hech qachon qurilmadan chiqmaydi</string>
     <string name="ledger_mc_item_title">Ledger’ni ulash</string>
     <string name="ledger_mc_location_off">Bluetooth qurilmalarini topish uchun Android’da joylashuv yoqilgan boʻlishi kerak.</string>
-    <string name="ledger_mc_migrate_description">%1$s saqlangan Ledger\'ni ulang. Keeper + Ethereum, Bitcoin, Solana va boshqa tarmoqlar manzillarini o\'qiydi va hamyon o\'sha TON manzili bilan multichain bo\'ladi.</string>
+    <string name="ledger_mc_migrate_description">%1$s saqlangan Ledger\'ni ulang. Keeper+ Ethereum, Bitcoin, Solana va boshqa tarmoqlar manzillarini o\'qiydi va hamyon o\'sha TON manzili bilan multichain bo\'ladi.</string>
     <string name="ledger_mc_migrate_tooltip">Bu Ledger hamyoniga Ethereum, Bitcoin, Solana va boshqa tarmoqlarni qo\'shing</string>
     <string name="ledger_mc_networks_added">Tarmoqlar qoʻshildi</string>
     <string name="ledger_mc_nothing_to_add">Barcha qoʻllab-quvvatlanadigan tarmoqlar allaqachon qoʻshilgan</string>
@@ -591,8 +591,8 @@
     <string name="ledger_mc_paired">Ledger ulandi</string>
     <string name="ledger_mc_permission_denied">Bluetooth’ga kirish oʻchirilgan. Ledger’ni ulash uchun Sozlamalarda yaqin atrofdagi qurilmalarga ruxsat bering.</string>
     <string name="ledger_mc_permission_denied_location">Joylashuvga ruxsat o‘chiq. Android Ledger’ni Bluetooth orqali topishi uchun Sozlamalarda ruxsat bering.</string>
-    <string name="ledger_mc_permission_description">Ledger’ni Bluetooth orqali ulash uchun Keeper +’ga yaqin atrofdagi qurilmalarni qidirishga ruxsat bering.</string>
-    <string name="ledger_mc_permission_description_location">Android Bluetooth qurilmalarini topishi uchun joylashuvga ruxsat kerak. Keeper + joylashuvingizdan foydalanmaydi.</string>
+    <string name="ledger_mc_permission_description">Ledger’ni Bluetooth orqali ulash uchun Keeper+’ga yaqin atrofdagi qurilmalarni qidirishga ruxsat bering.</string>
+    <string name="ledger_mc_permission_description_location">Android Bluetooth qurilmalarini topishi uchun joylashuvga ruxsat kerak. Keeper+ joylashuvingizdan foydalanmaydi.</string>
     <string name="ledger_mc_progress_bitcoin_change">Ledger o‘z manzilingizga qaytadigan %1$s ni ham ko‘rsatadi. Bu qaytim:</string>
     <string name="ledger_mc_progress_close_app">Ledger’da %1$s ilovasi yopilmoqda</string>
     <string name="ledger_mc_progress_confirm_account_step">Hisob %1$d / %2$d. Ledger ilova domeni sifatida “Keeper wallet” ni ko‘rsatadi</string>
@@ -986,7 +986,7 @@
     <string name="perps_deposit_min_amount_usd">Minimal to‘ldirish miqdori — %1$s</string>
     <string name="perps_deposit_network_fee_line">Tarmoq komissiyasi %1$s</string>
     <string name="perps_deposit_network_fees">Tarmoq komissiyalari</string>
-    <string name="perps_deposit_no_keeper_fee">Keeper + bu komissiyalarning hech bir qismini olmaydi.</string>
+    <string name="perps_deposit_no_keeper_fee">Keeper+ bu komissiyalarning hech bir qismini olmaydi.</string>
     <string name="perps_deposit_no_quote">Narx yo‘q</string>
     <string name="perps_deposit_no_quote_change_amount">Narxni olib bo‘lmadi. Summani o‘zgartiring</string>
     <string name="perps_deposit_no_sources">To‘ldirish uchun qo‘llab-quvvatlanadigan aktivlar yo‘q</string>
@@ -1159,7 +1159,7 @@
     <string name="perps_reduce_margin_description">Pozitsiya kuchli bo‘lganda marjaning bir qismini qaytarib oling</string>
     <string name="perps_reduce_only_full">Bu pozitsiya kamaytirish uchun juda kichik. «Yopish» tugmasidan foydalaning.</string>
     <string name="perps_region_restricted_banner">Bozorlarni ko‘rishingiz mumkin, lekin to‘ldirish va savdo o‘chirilgan.</string>
-    <string name="perps_region_restricted_caption">Joylashuvingiz uchun to‘ldirish va savdo o‘chirilgan. VPN ishlatsangiz, uni o‘chiring va Keeper +’ni qayta oching.</string>
+    <string name="perps_region_restricted_caption">Joylashuvingiz uchun to‘ldirish va savdo o‘chirilgan. VPN ishlatsangiz, uni o‘chiring va Keeper+’ni qayta oching.</string>
     <string name="perps_region_restricted_title">Fyucherslar hududingizda mavjud emas</string>
     <string name="perps_retry">Qayta urinish</string>
     <string name="perps_review_add_long_title">Long %1$s pozitsiyasiga qo‘shish</string>
@@ -1219,7 +1219,7 @@
     <string name="perps_risk_disclosure_footnote">Xatarlar haqida ogohlantirish · Lighter asosida</string>
     <string name="perps_risk_disclosure_keeper_terms">Keeper foydalanish shartlari</string>
     <string name="perps_risk_disclosure_lighter_terms">Lighter shartlari</string>
-    <string name="perps_risk_disclosure_text">Kredit yelkasi va bozor tebranishlari tufayli butun sarmoyangizni tezda yo‘qotishingiz mumkin. Pozitsiyalar avtomatik ravishda likvidatsiya qilinishi mumkin. Narxlar fanding stavkalari va likvidlikka bog‘liq. Fyucherslar va bozor ma’lumotlarini uchinchi tomon protokoli Lighter taqdim etadi. Keeper + kastodial bo‘lmagan interfeysni taqdim etadi, savdolarni amalga oshirmaydi va investitsiya bo‘yicha maslahat bermaydi.</string>
+    <string name="perps_risk_disclosure_text">Kredit yelkasi va bozor tebranishlari tufayli butun sarmoyangizni tezda yo‘qotishingiz mumkin. Pozitsiyalar avtomatik ravishda likvidatsiya qilinishi mumkin. Narxlar fanding stavkalari va likvidlikka bog‘liq. Fyucherslar va bozor ma’lumotlarini uchinchi tomon protokoli Lighter taqdim etadi. Keeper+ kastodial bo‘lmagan interfeysni taqdim etadi, savdolarni amalga oshirmaydi va investitsiya bo‘yicha maslahat bermaydi.</string>
     <string name="perps_risk_disclosure_title">Xatarlar haqida ogohlantirish</string>
     <string name="perps_search_hint">Tiker yoki nom bo‘yicha qidiring</string>
     <string name="perps_service_perps">Fyucherslar</string>
@@ -1297,7 +1297,7 @@
     </plurals>
     <string name="raffle_ends_in">%1$s ichida tugaydi</string>
     <string name="raffle_faq">FAQ</string>
-    <string name="raffle_faq_about_a">%1$s kuni 2 000 dan ortiq g\'olibli multichain o\'yinini ishga tushiramiz. Chiptalar — yutuq imkoniyatingiz.\n\nUngacha multichainga o\'ting va 10 ta chipta oling — bu Keeper +\'ning ilk foydalanuvchisi bo\'lganingiz uchun minnatdorchiligimiz.\n\nSovg\'alar, chipta yig\'ishning qo\'shimcha yo\'llari va to\'liq mexanika keyingi haftada ochiladi.</string>
+    <string name="raffle_faq_about_a">%1$s kuni 2 000 dan ortiq g\'olibli multichain o\'yinini ishga tushiramiz. Chiptalar — yutuq imkoniyatingiz.\n\nUngacha multichainga o\'ting va 10 ta chipta oling — bu Keeper+\'ning ilk foydalanuvchisi bo\'lganingiz uchun minnatdorchiligimiz.\n\nSovg\'alar, chipta yig\'ishning qo\'shimcha yo\'llari va to\'liq mexanika keyingi haftada ochiladi.</string>
     <string name="raffle_faq_about_q">Mystery Raffle nima?</string>
     <string name="raffle_faq_earn_a">• TON hamyonidan multichain hamyoniga migratsiya uchun %1$s\n• Har $100 cross-chain svop uchun 1 ta chipta\n• Hajm bonuslarini bajarganlik uchun 1000 tagacha bonus chipta\n• Kampaniya davomida qo\'shimcha topshiriqlar ochiladi</string>
     <string name="raffle_faq_earn_q">Chiptalarni qanday yig\'ish mumkin?</string>
@@ -1369,9 +1369,9 @@
     <string name="refill">To‘ldirish</string>
     <string name="refresh">Yangilash</string>
     <string name="refund">To\'lovni qaytarish</string>
-    <string name="reinstall_description">Bu qurilmada ilovaning ayrim fayllari yetishmayapti. Tuzatish uchun Keeper +-ni Google Play-dan o‘rnating.</string>
+    <string name="reinstall_description">Bu qurilmada ilovaning ayrim fayllari yetishmayapti. Tuzatish uchun Keeper+-ni Google Play-dan o‘rnating.</string>
     <string name="reinstall_open_google_play">Google Play-ni ochish</string>
-    <string name="reinstall_title">Keeper + ishga tushmayapti</string>
+    <string name="reinstall_title">Keeper+ ishga tushmayapti</string>
     <string name="rejected">Rad etilgan</string>
     <string name="remaining_balance">Qoldiq: %1$s</string>
     <string name="remind_me_later">Keyinroq eslating</string>
@@ -1470,7 +1470,7 @@
     <string name="sign_message_error_invalid_request">Noto‘g‘ri so‘rov</string>
     <string name="sign_message_error_network_mismatch">So‘rov boshqa tarmoq uchun</string>
     <string name="sign_message_error_not_supported">Bu hamyon bu so‘rovni imzolay olmaydi</string>
-    <string name="sign_message_not_sent_warning">Keeper + bu tranzaksiyani yubormaydi. %1$s uni hozir yoki keyinroq yuboradi va tarmoq komissiyasini to‘laydi.</string>
+    <string name="sign_message_not_sent_warning">Keeper+ bu tranzaksiyani yubormaydi. %1$s uni hozir yoki keyinroq yuboradi va tarmoq komissiyasini to‘laydi.</string>
     <string name="sign_out">Chiqish</string>
     <string name="sign_out_description">Bu sizning hamyon kalitingizni o\'chiradi. Qayta tiklash iborangizni zaxira qilganingizga ishonch hosil qiling.</string>
     <string name="sign_out_title">🚧 🚨 Chiqish? 🚨 🚧</string>
@@ -1511,7 +1511,7 @@
     <string name="staking_current_round">Joriy tsikl</string>
     <string name="staking_deposit_wallet">Hamyonni to\'ldirish</string>
     <string name="staking_details">Tafsilotlar</string>
-    <string name="staking_details_description">Steyking uchinchi tomonlarning aqlli shartnomalariga asoslangan. Keeper + steyking tajribasi uchun javobgar emas.</string>
+    <string name="staking_details_description">Steyking uchinchi tomonlarning aqlli shartnomalariga asoslangan. Keeper+ steyking tajribasi uchun javobgar emas.</string>
     <string name="staking_first_reward">Birinchi mukofot</string>
     <string name="staking_get_withdraw">Yechib olish</string>
     <string name="staking_insufficient_required">Amal uchun kerak: %1$s.</string>
@@ -1560,10 +1560,10 @@
     <string name="staking_withdrawal_amount">Yechib olish miqdori</string>
     <string name="start_agree">Davom etib, siz <annotation colorAttr="textAccentColor">Foydalanish shartlari</annotation>mizga rozilik bildirasiz</string>
     <string name="start_create_new_wallet">Yangi hamyon yaratish</string>
-    <string name="start_dialog_description">Keeper +’dan foydalanish uchun sizga ulangan hamyon kerak. Yangi hamyon yarating yoki mavjudini import qiling.</string>
+    <string name="start_dialog_description">Keeper+’dan foydalanish uchun sizga ulangan hamyon kerak. Yangi hamyon yarating yoki mavjudini import qiling.</string>
     <string name="start_dialog_title">Keling, hamyoningizni sozlaymiz</string>
     <string name="start_import_wallet">Mavjud hamyonni import qilish</string>
-    <string name="start_title">Keeper +</string>
+    <string name="start_title">Keeper+</string>
     <string name="step_1">1-qadam</string>
     <string name="step_2">2-qadam</string>
     <string name="step_3">3-qadam</string>
@@ -1730,15 +1730,15 @@
     <string name="unverified_token_reason_3">Spam uchun ishlatiladi. Ko\'p miqdorda keraksiz va ko\'pincha ahamiyatsiz xabarlarni yuborish uchun foydalaniladi.</string>
     <string name="unverified_token_reason_4">Firibgarlik uchun ishlatiladi. Tokenning nomi yoki tasviri foydalanuvchilarni aldashga olib kelishi mumkin.</string>
     <string name="up_to_duration">%1$s %2$s gacha</string>
-    <string name="update_tonkeeper">Keeper +-ni yangilang</string>
-    <string name="update_tonkeeper_subtitle">Keeper + ilovasining yangi versiyasi mavjud. Uni hozir yuklab olishingiz mumkin.</string>
+    <string name="update_tonkeeper">Keeper+-ni yangilang</string>
+    <string name="update_tonkeeper_subtitle">Keeper+ ilovasining yangi versiyasi mavjud. Uni hozir yuklab olishingiz mumkin.</string>
     <string name="updating">Yangilanmoqda</string>
     <string name="use_biometric">Biometrikadan foydalaning</string>
     <string name="v4r2_wallet">Hamyon v4R2</string>
     <string name="value_difference">Qiymat farqi</string>
     <string name="value_difference_info">Savdongiz narxni qancha o‘zgartiradi: ijobiy qiymatda ko‘proq olasiz, salbiyda esa kamroq.</string>
     <string name="verified_token">Tasdiqlangan token</string>
-    <string name="verified_token_caption">Bu token faol savdo qilinadi va keng tanilgan. Tasdiqlash Keeper + tomonidan ma\'qullashni anglatmaydi.</string>
+    <string name="verified_token_caption">Bu token faol savdo qilinadi va keng tanilgan. Tasdiqlash Keeper+ tomonidan ma\'qullashni anglatmaydi.</string>
     <string name="version">Versiya %1$s (%2$d)</string>
     <string name="view_details">Tafsilotlarni ko\'rish</string>
     <string name="view_in_explorer">Explorerda ko\'rish</string>
@@ -1811,4 +1811,5 @@
     <string name="yesterday">Kecha</string>
     <string name="your_address">Sizning manzilingiz</string>
     <string name="your_balance">Balansingiz</string>
+	<string name="theme_adaptive">Moslashuvchan</string>
 </resources>

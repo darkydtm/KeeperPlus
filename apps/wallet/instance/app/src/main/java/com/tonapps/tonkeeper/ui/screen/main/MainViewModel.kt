@@ -54,7 +54,7 @@ class MainViewModel(
     private fun prefetchTabs(wallet: WalletEntity, itemId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             async { eventsRepository.get(wallet.accountId, wallet.network) }
-            if (itemId != R.id.browser && settingsRepository.promotionsEnabled) {
+            if (itemId != R.id.browser && settingsRepository.recommendationsEnabled) {
                 async { prefetchBrowser(wallet) }
             }
             async {

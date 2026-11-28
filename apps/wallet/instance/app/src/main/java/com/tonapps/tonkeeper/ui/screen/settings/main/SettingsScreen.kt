@@ -31,6 +31,8 @@ import com.tonapps.tonkeeper.ui.screen.settings.legal.LegalScreen
 import com.tonapps.tonkeeper.ui.screen.settings.main.list.Adapter
 import com.tonapps.tonkeeper.ui.screen.settings.main.list.Item
 import com.tonapps.tonkeeper.ui.screen.settings.security.SecurityScreen
+import com.tonapps.tonkeeper.ui.screen.settings.preferences.PromotionsScreen
+import com.tonapps.tonkeeper.ui.screen.settings.preferences.HapticsScreen
 import com.tonapps.tonkeeper.ui.screen.settings.theme.ThemeScreen
 import com.tonapps.tonkeeper.ui.screen.stories.w5.W5StoriesScreen
 import com.tonapps.tonkeeper.ui.screen.support.SupportScreen
@@ -66,18 +68,11 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
     }
 
     private fun onClickItem(item: Item) {
-        if (item is Item.Promotions) {
-            viewModel.togglePromotions()
-            return
-        }
-        if (item is Item.ClickHaptics) {
-            viewModel.toggleClickHaptics()
-            return
-        }
-        if (item is Item.ClickHapticsStrength) {
-            viewModel.cycleClickHapticsStrength()
-            return
-        }
+		when (item) {
+			is Item.Promotions -> { navigation?.add(PromotionsScreen()); return }
+			is Item.ClickHaptics -> { navigation?.add(HapticsScreen()); return }
+			else -> Unit
+		}
         val wallet = navigationWalletForScreens() ?: return
         when (item) {
             is Item.Backup -> navigation?.add(BackupScreen.newInstance(WalletFlowSource.Settings))

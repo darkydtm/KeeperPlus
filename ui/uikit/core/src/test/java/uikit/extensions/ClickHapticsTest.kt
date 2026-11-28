@@ -22,12 +22,17 @@ class ClickHapticsTest {
         assertTrue(ClickHaptics.clickHapticAllowed(true, true, true))
     }
 
-    @Test
-    fun strengthMapsToAmplitudeAndClamps() {
-        assertEquals(50, ClickHaptics.clickHapticAmplitude(0))
-        assertEquals(50, ClickHaptics.clickHapticAmplitude(1))
-        assertEquals(100, ClickHaptics.clickHapticAmplitude(2))
-        assertEquals(180, ClickHaptics.clickHapticAmplitude(3))
-        assertEquals(180, ClickHaptics.clickHapticAmplitude(99))
-    }
+	@Test
+	fun strengthMapsToDistinctEffectsAndClamps() {
+		assertEquals(40, ClickHaptics.clickHapticAmplitude(0))
+		assertEquals(40, ClickHaptics.clickHapticAmplitude(1))
+		assertEquals(130, ClickHaptics.clickHapticAmplitude(2))
+		assertEquals(255, ClickHaptics.clickHapticAmplitude(3))
+		assertEquals(255, ClickHaptics.clickHapticAmplitude(99))
+		assertEquals(8L, ClickHaptics.clickHapticDuration(0))
+		assertEquals(8L, ClickHaptics.clickHapticDuration(1))
+		assertEquals(16L, ClickHaptics.clickHapticDuration(2))
+		assertEquals(24L, ClickHaptics.clickHapticDuration(3))
+		assertEquals(24L, ClickHaptics.clickHapticDuration(99))
+	}
 }

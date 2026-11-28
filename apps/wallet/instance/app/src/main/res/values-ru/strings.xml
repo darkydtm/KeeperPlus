@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="settings_promotions">Акции, награды и рекомендации</string>
+
+	<string name="settings_promotions">Акции, награды и рекомендации</string>
     <string name="settings_click_haptics">Вибрация при нажатии</string>
     <string name="settings_click_haptics_strength">Сила вибрации</string>
     <string name="settings_enabled">Вкл.</string>
     <string name="settings_disabled">Выкл.</string>
+	<string name="settings_haptics">Виброотклик</string>
+	<string name="settings_promotions_only">Акции</string>
+	<string name="settings_rewards">Награды</string>
+	<string name="settings_recommendations">Рекомендации</string>
+	<string name="settings_haptics_level">Уровень %1$d из 3</string>
+	<string name="settings_haptics_strength_unavailable">Регулировка силы вибрации не поддерживается на этом устройстве.</string>
 </resources>

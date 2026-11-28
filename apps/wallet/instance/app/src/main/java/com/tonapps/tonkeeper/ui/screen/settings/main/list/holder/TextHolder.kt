@@ -17,10 +17,6 @@ class TextHolder(
         itemTextView.background = item.position.drawable(context)
         itemTextView.setMoonOnClickListener { onClick.invoke(item) }
         itemTextView.text = getString(item.titleRes)
-        itemTextView.data = when (item) {
-            is Item.Promotions -> getString(if (item.enabled) com.tonapps.tonkeeperx.R.string.settings_enabled else com.tonapps.tonkeeperx.R.string.settings_disabled)
-            is Item.ClickHaptics -> getString(if (item.enabled) com.tonapps.tonkeeperx.R.string.settings_enabled else com.tonapps.tonkeeperx.R.string.settings_disabled)
-            else -> item.value
-        }
+		itemTextView.data = item.value
     }
 }

@@ -19,8 +19,10 @@ class RaffleRepositoryTest {
     @Test fun disabledBlocksCachePrefetchAndImportReport() = runBlocking {
         val enabled = MutableStateFlow(false)
         val settings = mockk<SettingsRepository>()
-        every { settings.promotionsEnabledFlow } returns enabled
-        every { settings.promotionsEnabled } answers { enabled.value }
+        every { settings.rewardsEnabledFlow } returns enabled
+        every { settings.rewardsEnabled } answers { enabled.value }
+		every { settings.promotionsEnabled } returns true
+		every { settings.recommendationsEnabled } returns true
         val api = mockk<API>()
         val repository = RaffleRepository(mockk<Context>(), api, settings)
 
