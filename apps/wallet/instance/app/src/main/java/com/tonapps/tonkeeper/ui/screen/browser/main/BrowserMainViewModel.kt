@@ -169,7 +169,6 @@ class BrowserMainViewModel(
         }
 
         val categories = data.categories.filter { it.id != "featured" }
-        val adsItem = resolveGlobalAds(categories, isMultichain)
         val nomadsIndex = categories.indexOfFirst { it.id == "digital_nomads" }
         val beforeNomadsEnd = if (nomadsIndex >= 0) {
             nomadsIndex
@@ -230,29 +229,7 @@ class BrowserMainViewModel(
             }
         }
 
-        adsItem?.let { ads ->
-            val index = minOf(1, items.size)
-            items.add(index, ads)
-        }
-
         return items
-    }
-
-    private fun resolveGlobalAds(
-        categories: List<BrowserCategoryEntity>,
-        isMultichain: Boolean,
-    ): ExploreItem.Ads? {
-        val adsCategory = categories.find { it.id == "ads" } ?: return null
-        val ads = adsCategory.apps.firstOrNull() ?: return null
-        if (ads.button == null) {
-            return null
-        }
-        return ExploreItem.Ads(
-            app = ads,
-            wallet = wallet,
-            country = environment.deviceCountry,
-            multichain = isMultichain,
-        )
     }
 
     private fun hasChainCategoryContent(
