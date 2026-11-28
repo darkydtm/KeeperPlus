@@ -18,6 +18,60 @@ jobs:
       - name: Validate Android localization resources
         run: python3 tools/locales.py --platform android --res apps/wallet/localization/src/main/res validate
 
+  host-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        with:
+          cache-read-only: true
+      - name: Configure package access
+        env:
+          PACKAGE_TOKEN: ${{ github.token }}
+        run: |
+          umask 077
+          printf 'GITHUB_USER=%s\nGITHUB_TOKEN=%s\n' "$GITHUB_ACTOR" "$PACKAGE_TOKEN" > local.properties
+      - name: Run Android host tests
+        env:
+          ANDROID_USER_HOME: ${{ runner.temp }}/android-untrusted
+        run: |
+          ./gradlew -q --no-configuration-cache :kmp:mvi:testAndroidHostTest || {
+            echo '::error::Gradle failed; GitHub Packages dependencies require access to both configured repositories.'
+            exit 1
+          }
+      - name: Require executed host tests
+        run: |
+          python3 - <<'PYTEST'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          reports = list(Path('kmp/mvi/build/test-results/testAndroidHostTest').glob('TEST-*.xml'))
+          executed = 0
+          for report in reports:
+              root = ET.parse(report).getroot()
+              executed += sum(1 for case in root.iter('testcase') if case.find('skipped') is None)
+          if executed == 0:
+              raise SystemExit('::error::No executed Android host tests found in JUnit XML reports')
+          print(f'Android host tests executed: {executed}')
+          PYTEST
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: junit-results
+          path: '**/build/test-results/**/*.xml'
+          if-no-files-found: warn
+      - name: Remove credentials
+        if: always()
+        run: rm -f local.properties
+
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -59,7 +113,7 @@ jobs:
           done
           printf 'GITHUB_USER=%s\nGITHUB_TOKEN=%s\n' "$GITHUB_ACTOR" "$PACKAGE_TOKEN" > local.properties
           printf '%s' "$ANDROID_DEBUG_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/debug-signing-key"
-      - name: Run tests and assemble trusted debug APK
+      - name: Assemble trusted debug APK
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           ANDROID_DEBUG_KEYSTORE: ${{ runner.temp }}/debug-signing-key
@@ -67,34 +121,19 @@ jobs:
           ANDROID_DEBUG_KEY_ALIAS: ${{ secrets.DEBUG_KEY_ALIAS }}
           ANDROID_DEBUG_KEY_PASSWORD: ${{ secrets.DEBUG_KEY_PASSWORD }}
         run: |
-          ./gradlew -q --no-configuration-cache :kmp:mvi:testAndroidHostTest :apps:wallet:instance:main:assembleSiteDebug || {
+          ./gradlew -q --no-configuration-cache :apps:wallet:instance:main:assembleSiteDebug || {
             echo '::error::Gradle failed; GitHub Packages dependencies require access to both configured repositories.'
             exit 1
           }
-      - name: Run tests and assemble untrusted debug APK
+      - name: Assemble untrusted debug APK
         if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         env:
           ANDROID_USER_HOME: ${{ runner.temp }}/android-untrusted
         run: |
-          ./gradlew -q --no-configuration-cache :kmp:mvi:testAndroidHostTest :apps:wallet:instance:main:assembleSiteDebug || {
+          ./gradlew -q --no-configuration-cache :apps:wallet:instance:main:assembleSiteDebug || {
             echo '::error::Gradle failed; GitHub Packages dependencies require access to both configured repositories.'
             exit 1
           }
-      - name: Require executed host tests
-        run: |
-          python3 - <<'PYTEST'
-          from pathlib import Path
-          import xml.etree.ElementTree as ET
-
-          reports = list(Path('kmp/mvi/build/test-results/testAndroidHostTest').glob('TEST-*.xml'))
-          executed = 0
-          for report in reports:
-              root = ET.parse(report).getroot()
-              executed += sum(1 for case in root.iter('testcase') if case.find('skipped') is None)
-          if executed == 0:
-              raise SystemExit('::error::No executed Android host tests found in JUnit XML reports')
-          print(f'Android host tests executed: {executed}')
-          PYTEST
       - name: Verify debug APK identity and signing certificate
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
@@ -126,28 +165,22 @@ jobs:
           name: site-debug-apk
           path: apps/wallet/instance/main/build/outputs/apk/site/debug/*.apk
           if-no-files-found: error
-      - name: Upload JUnit results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: junit-results
-          path: '**/build/test-results/**/*.xml'
-          if-no-files-found: warn
       - name: Remove credentials
         if: always()
         run: rm -f local.properties "$RUNNER_TEMP/debug-signing-key"
 
   gate:
     if: always()
-    needs: [quality, android]
+    needs: [quality, host-tests, android]
     runs-on: ubuntu-latest
     steps:
       - name: Require Android verification
         env:
           QUALITY_RESULT: ${{ needs.quality.result }}
+          HOST_TESTS_RESULT: ${{ needs.host-tests.result }}
           ANDROID_RESULT: ${{ needs.android.result }}
         run: |
-          if [ "$QUALITY_RESULT" != success ] || [ "$ANDROID_RESULT" != success ]; then
-            echo "::error::Verification results: quality=$QUALITY_RESULT android=$ANDROID_RESULT"
+          if [ "$QUALITY_RESULT" != success ] || [ "$HOST_TESTS_RESULT" != success ] || [ "$ANDROID_RESULT" != success ]; then
+            echo "::error::Verification results: quality=$QUALITY_RESULT host-tests=$HOST_TESTS_RESULT android=$ANDROID_RESULT"
             exit 1
           fi
