@@ -38,8 +38,8 @@ import uikit.navigation.Navigation
 import uikit.widget.TextHeaderView
 import uikit.extensions.setMoonOnClickListener
 
-internal fun showFundingAction(isBattery: Boolean, isTon: Boolean, fiatEnabled: Boolean): Boolean =
-	!isBattery && (!isTon || fiatEnabled)
+internal fun fundingActionLabel(isTon: Boolean, fiatEnabled: Boolean): Int =
+	if (isTon && !fiatEnabled) Localization.deposit_asset else Localization.buy_ton
 
 class InsufficientFundsDialog(
     private val fragment: BaseFragment,
@@ -74,7 +74,7 @@ class InsufficientFundsDialog(
 
         val isBattery = e.type == InsufficientBalanceType.InsufficientBatteryChargesForFee
 
-		tonButton.visibility = if (showFundingAction(isBattery, e.currency == WalletCurrency.TON, context.settingsRepository?.fiatEnabled != false)) {
+		tonButton.visibility = if (!isBattery) {
 			View.VISIBLE
 		} else {
 			View.GONE
@@ -91,7 +91,7 @@ class InsufficientFundsDialog(
             View.GONE
         }
 
-        tonButton.text = context.getString(Localization.buy_ton, e.currency.code)
+		tonButton.text = context.getString(fundingActionLabel(e.currency == WalletCurrency.TON, context.settingsRepository?.fiatEnabled != false), e.currency.code)
         tonButton.setMoonOnClickListener {
             if (e.currency == WalletCurrency.TON) {
                 openBuyTon(wallet)
@@ -129,7 +129,7 @@ class InsufficientFundsDialog(
 
         val isBattery = type == InsufficientBalanceType.InsufficientBatteryChargesForFee
 
-		tonButton.visibility = if (showFundingAction(isBattery, required.isTon, context.settingsRepository?.fiatEnabled != false)) {
+		tonButton.visibility = if (!isBattery) {
 			View.VISIBLE
 		} else {
 			View.GONE
@@ -149,7 +149,7 @@ class InsufficientFundsDialog(
         tonButton.text = if (required.isTrx) {
             context.getString(Localization.get_token, TokenEntity.TRX.symbol)
         } else {
-            context.getString(Localization.buy_ton, required.symbol)
+			context.getString(fundingActionLabel(required.isTon, context.settingsRepository?.fiatEnabled != false), required.symbol)
         }
         tonButton.setMoonOnClickListener {
             if (required.isTon) {
@@ -261,9 +261,11 @@ class InsufficientFundsDialog(
         return if (wallet.type == WalletType.Multichain) {
             DepositMulticoinFragment.create(
                 walletId = wallet.id,
-                initial = DepositMulticoinRoutes.Buy(Chain.Ton.Mainnet.coinAssetId),
+                initial = DepositMulticoinRoutes.TopUp(Chain.Ton.Mainnet.coinAssetId),
                 analyticsFrom = depositFrom,
             )
+		} else if (context.settingsRepository?.fiatEnabled == false) {
+			QrAssetFragment.newInstance(TokenEntity.TON, walletId = wallet.id, analyticsFrom = depositFrom)
         } else {
             DepositFragment.create(
                 DepositRoutes.Buy(RampAsset.Currency(WalletCurrency.TON)),

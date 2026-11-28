@@ -1,6 +1,8 @@
 package com.tonapps.deposit.multicoin.screens.confirm.base.operation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.ionspin.kotlin.bignum.integer.BigInteger
@@ -9,6 +11,9 @@ import com.tonapps.chainkit.core.chain.model.num.Formatter
 import com.tonapps.core.components.InsufficientFundsAction
 import com.tonapps.core.components.InsufficientFundsDialog
 import com.tonapps.deposit.multicoin.screens.confirm.formatAmountWithBalance
+import com.tonapps.deposit.multicoin.screens.confirm.topUpLabel
+import com.tonapps.wallet.data.settings.SettingsRepository
+import org.koin.compose.koinInject
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.data.multichain.account.AccountWithDetails
 import com.tonapps.wallet.localization.Localization
@@ -61,6 +66,7 @@ private fun BalanceShortfallDialog(
     onClose: () -> Unit,
 ) {
     val asset = shortfall.account.asset
+	val fiatEnabled by koinInject<SettingsRepository>().fiatEnabledFlow.collectAsState()
     val required = shortfall.required
     val message = if (required == null) {
         stringResource(Localization.insufficient_balance)
@@ -79,7 +85,7 @@ private fun BalanceShortfallDialog(
         tintIcon = false,
         actions = listOf(
             InsufficientFundsAction(
-                text = stringResource(Localization.buy_ton, asset.symbol),
+				text = stringResource(topUpLabel(fiatEnabled), asset.symbol),
                 primary = true,
                 onClick = { onTopUp(asset.id) },
             ),
