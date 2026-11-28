@@ -1647,6 +1647,7 @@
     <string name="tokenized_etfs">此资产为代币化 ETF</string>
     <string name="tokenized_stocks">此资产为代币化股票</string>
     <string name="tokens">代币</string>
+    <string name="wallet_assets_tokens">代币</string>
     <string name="ton_assets">GRAM 资产</string>
     <string name="ton_connect_description">%1$s 正在请求访问您的钱包地址 %2$s</string>
     <string name="ton_connect_subtitle">在连接钱包之前，请务必检查服务地址。</string>

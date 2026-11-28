@@ -1686,6 +1686,7 @@
     <string name="tokenized_etfs">Токенизированные ETF</string>
     <string name="tokenized_stocks">Токенизированные акции</string>
     <string name="tokens">Токены</string>
+    <string name="wallet_assets_tokens">Токены</string>
     <string name="ton_assets">Активы GRAM</string>
     <string name="ton_connect_description">%1$s запрашивает доступ к адресу вашего кошелька %2$s</string>
     <string name="ton_connect_subtitle">Обязательно проверьте адрес сервиса перед подключением кошелька.</string>

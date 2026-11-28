@@ -1660,6 +1660,7 @@
     <string name="tokenized_etfs">Bu aktiv tokenlashtirilgan ETF</string>
     <string name="tokenized_stocks">Bu aktiv tokenlashtirilgan aksiya</string>
     <string name="tokens">Tokenlar</string>
+    <string name="wallet_assets_tokens">Tokenlar</string>
     <string name="ton_assets">GRAM aktivlari</string>
     <string name="ton_connect_description">%1$s sizning hamyon manzilingiz %2$s ga kirishni so\'ramoqda</string>
     <string name="ton_connect_subtitle">Hamyonni ulashdan oldin xizmat manzilini tekshirishni unutmang.</string>

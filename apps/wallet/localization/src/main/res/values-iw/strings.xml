@@ -1686,6 +1686,7 @@
     <string name="tokenized_etfs">נכס זה הוא קרן סל מטוקנת (ETF)</string>
     <string name="tokenized_stocks">נכס זה הוא מניה מטוקנת</string>
     <string name="tokens">טוקנים</string>
+    <string name="wallet_assets_tokens">טוקנים</string>
     <string name="ton_assets">נכסי GRAM</string>
     <string name="ton_connect_description">%1$s מבקש גישה לכתובת הארנק שלך %2$s</string>
     <string name="ton_connect_subtitle">הקפד לבדוק את כתובת השירות לפני חיבור הארנק.</string>
