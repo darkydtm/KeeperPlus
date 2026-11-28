@@ -62,6 +62,7 @@ class GaslessSenderSolanaTest : BaseUnitTest() {
         gaslessRelayer = gaslessRelayer,
         timeProvider = FakeTimeProvider(),
         ledgerSigner = mockk(),
+		settingsRepository = mockk { every { isBatteryFeeEnabled } returns true },
     )
 
     private val chain = Chain.Solana.Mainnet

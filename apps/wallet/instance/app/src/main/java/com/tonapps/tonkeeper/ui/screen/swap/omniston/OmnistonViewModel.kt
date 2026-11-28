@@ -823,7 +823,7 @@ class OmnistonViewModel(
     }
 
     private suspend fun isBatteryIsEnabledTx(): Boolean {
-        if (twinInput.state.sendCurrency == WalletCurrency.TON) {
+        if (!settingsRepository.isBatteryFeeEnabled || twinInput.state.sendCurrency == WalletCurrency.TON) {
             return false
         }
         return BatteryHelper.isBatteryIsEnabledTx(

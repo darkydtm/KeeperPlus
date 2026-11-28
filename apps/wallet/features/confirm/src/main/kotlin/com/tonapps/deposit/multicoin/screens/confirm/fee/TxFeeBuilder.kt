@@ -1147,9 +1147,9 @@ class TxFeeBuilder(
         charges: Int,
         chargeCost: String,
     ): TxFee? {
-        if (charges <= 0) {
-            return null
-        }
+		if (!settingsRepository.isBatteryFeeEnabled || charges <= 0) {
+			return null
+		}
         return TxFee(
             account = batteryAccount(wallet, chargeCost),
             // Battery is not on-chain: its charges are counted against the transaction's own chain.
@@ -1164,6 +1164,9 @@ class TxFeeBuilder(
      * is missing, and there is nothing to list.
      */
     private suspend fun unpricedBattery(wallet: WalletEntity, chain: Chain, chargeCost: String): TxFee? {
+		if (!settingsRepository.isBatteryFeeEnabled) {
+			return null
+		}
         val account = batteryAccount(wallet, chargeCost)
         val balance = account.balance ?: return null
         if (balance > BigInteger.ZERO) {
@@ -1187,6 +1190,9 @@ class TxFeeBuilder(
      * the battery does not relay this kind of message.
      */
     private suspend fun emulateBattery(wallet: WalletEntity, boc: Cell): EmulateWithBatteryResult? {
+		if (!settingsRepository.isBatteryFeeEnabled) {
+			return null
+		}
         return batteryRepository.emulate(
             wallet = wallet,
             boc = boc,

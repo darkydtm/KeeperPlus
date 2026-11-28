@@ -65,6 +65,7 @@ class GaslessSenderEvmTest : BaseUnitTest() {
         gaslessRelayer = gaslessRelayer,
         timeProvider = serverTime,
         ledgerSigner = mockk(),
+		settingsRepository = mockk { every { isBatteryFeeEnabled } returns true },
     )
 
     private val chain = Chain.Ethereum.Mainnet

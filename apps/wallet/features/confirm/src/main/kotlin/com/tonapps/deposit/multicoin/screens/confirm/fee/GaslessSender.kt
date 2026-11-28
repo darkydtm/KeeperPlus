@@ -37,6 +37,7 @@ import com.tonapps.wallet.api.AuthorizationProvider
 import com.tonapps.wallet.api.entity.Authorization
 import com.tonapps.wallet.api.tron.entity.TronResourcesEntity
 import com.tonapps.wallet.data.battery.BatteryRepository
+import com.tonapps.wallet.data.settings.SettingsRepository
 import com.tonapps.wallet.data.core.entity.RawMessageEntity
 import com.tonapps.ledgerkit.LedgerFailure
 import com.tonapps.ledgerkit.LedgerFailureException
@@ -98,6 +99,7 @@ class GaslessSender(
     private val gaslessRelayer: GaslessRelayer,
     private val timeProvider: TimeProvider,
     private val ledgerSigner: LedgerSigningInteractor,
+	private val settingsRepository: SettingsRepository,
 ) {
 
     suspend fun sendOperation(
@@ -151,6 +153,7 @@ class GaslessSender(
         }
         val operation = SignedOperation(emulation.operation.id, payloads)
 
+		requireBatteryEnabled(option)
         val response = try {
             broadcast { gaslessRelayer.send(auth, operation) }
         } catch (e: BatteryClientException) {
@@ -291,6 +294,7 @@ class GaslessSender(
             is RelayerSigner.Ledger -> ledgerSigner.signTronTransaction(signer.walletId, transaction)
         }
 
+		requireBatteryEnabled(option)
         // A TRON transaction's id is fixed once it is signed: an unknown outcome is one under that id.
         try {
             broadcast {
@@ -359,6 +363,7 @@ class GaslessSender(
 
         val keyPair = authorizationProvider.getWalletKeyPair(wallet.id)
         try {
+			requireBatteryEnabled(option)
             broadcast {
                 api.sendToBlockchainWithBattery(
                     boc = boc.base64(),
@@ -390,6 +395,7 @@ class GaslessSender(
 
         val keyPair = authorizationProvider.getWalletKeyPair(wallet.id)
         try {
+			requireBatteryEnabled(option)
             broadcast {
                 api.sendToBlockchainWithBattery(
                     boc = boc.base64(),
@@ -486,10 +492,15 @@ class GaslessSender(
 
     // The estimate can be minutes old by the time the user confirms; re-read the balance so the
     // relayer isn't asked to sponsor a transaction the wallet can no longer pay for.
+	private fun requireBatteryEnabled(option: TxFee) {
+		check(!option.isBattery || settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
+	}
+
     private suspend fun requireCharges(wallet: WalletEntity, option: TxFee) {
         if (!option.isBattery) {
             return
         }
+		requireBatteryEnabled(option)
         val charges = option.fee.amount
         val balance = BigInteger.fromInt(batteryRepository.getCharges(wallet, ignoreCache = true))
         if (charges > balance) {

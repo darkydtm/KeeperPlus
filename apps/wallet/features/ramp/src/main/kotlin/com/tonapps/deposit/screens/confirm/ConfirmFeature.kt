@@ -286,8 +286,9 @@ class ConfirmFeature(
                 val batteryFeeDeferred = async { getTronBatteryFee(transfer, resources) }
                 val trxFeeDeferred = async { getTronTrxFee(resources) }
 
-                batteryFee = batteryFeeDeferred.await()
-                tronTonFee = getTronTonFee(batteryFee?.estimatedTron)
+				val batteryEstimate = batteryFeeDeferred.await()
+				tronTonFee = getTronTonFee(batteryEstimate?.estimatedTron)
+				batteryFee = batteryEstimate.takeIf { settingsRepository.isBatteryFeeEnabled }
                 tronTrxFee = trxFeeDeferred.await()
             }
 
@@ -558,6 +559,7 @@ class ConfirmFeature(
 
         // Battery charge validation
         if (fee is SendFee.Battery) {
+			check(settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
             val batteryCharges = getBatteryCharges()
             val batteryConfig = batteryRepository.getConfig(wallet.network)
             val txCharges = BatteryMapper.calculateChargesAmount(
@@ -638,7 +640,7 @@ class ConfirmFeature(
             ledgerTransaction = transfer.getLedgerTransaction(jettonTransferAmount),
         )
 
-        send(boc, internalMessage)
+        send(boc, fee is SendFee.Battery, internalMessage)
     }
 
     private suspend fun signTron(context: Context) {
@@ -676,6 +678,7 @@ class ConfirmFeature(
 
         when (fee) {
             is SendFee.Battery -> {
+				check(settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
                 api.tron.sendWithBattery(
                     transaction = signedTransaction,
                     resources = resources,
@@ -723,13 +726,15 @@ class ConfirmFeature(
         }
     }
 
-    private suspend fun send(message: Cell, withBattery: Boolean) {
+    private suspend fun send(message: Cell, withBattery: Boolean, viaBattery: Boolean) {
         transactionManager.send(
             wallet = wallet,
             boc = message,
             withBattery = withBattery,
             source = "",
             confirmationTime = 0.0,
+			viaBattery = viaBattery,
+			requireBatteryAuth = viaBattery,
         )
     }
 
@@ -843,7 +848,7 @@ class ConfirmFeature(
                     }
                 }
                 val batteryDeferred = async {
-                    if (withRelayer && !auth.isEmpty && excessesAddress != null) {
+                    if (settingsRepository.isBatteryFeeEnabled && withRelayer && !auth.isEmpty && excessesAddress != null) {
                         calculateFeeBattery(transfer, excessesAddress)
                     } else {
                         null
