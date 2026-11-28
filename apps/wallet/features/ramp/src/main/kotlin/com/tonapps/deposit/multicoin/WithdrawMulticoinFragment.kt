@@ -45,7 +45,7 @@ class WithdrawMulticoinFragment : ComposableFragment(), BaseFragment.BottomSheet
                         DepositMulticoinFragment.create(
                             walletId = walletId,
                             rampType = RampType.RampOn,
-                            initial = DepositMulticoinRoutes.Buy(assetId),
+                            initial = DepositMulticoinRoutes.TopUp(assetId),
                             analyticsFrom = analyticsFrom.asDepositFlowFrom(),
                         )
                     )

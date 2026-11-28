@@ -52,7 +52,7 @@ class StakingInsufficientFundsDialog(
     private fun depositScreen(): BaseFragment {
         return if (wallet.type == WalletType.Multichain) {
             // The flag opens «Buy crypto» on TON, the coin short; without it Add Funds keeps Receive in reach.
-            val initial = DepositMulticoinRoutes.Buy(Chain.Ton.Mainnet.coinAssetId).takeIf { MoonPayRamp.isEnabled }
+            val initial = DepositMulticoinRoutes.TopUp(Chain.Ton.Mainnet.coinAssetId).takeIf { MoonPayRamp.isEnabled }
             DepositMulticoinFragment.create(walletId = wallet.id, initial = initial, analyticsFrom = DepositFlowFrom.Staking)
         } else {
             DepositFragment.create(walletId = wallet.id, analyticsFrom = DepositFlowFrom.Staking)

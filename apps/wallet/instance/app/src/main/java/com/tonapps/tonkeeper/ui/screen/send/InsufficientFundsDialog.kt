@@ -25,6 +25,7 @@ import com.tonapps.icu.CurrencyFormatter
 import com.tonapps.icu.CurrencyFormatter.withCustomSymbol
 import com.tonapps.tonkeeper.extensions.getTitle
 import com.tonapps.tonkeeper.koin.api
+import com.tonapps.tonkeeper.koin.settingsRepository
 import com.tonapps.bus.generated.Events.BatteryNative.BatteryNativeFrom
 import com.tonapps.tonkeeper.ui.screen.battery.BatteryScreen
 import com.tonapps.tonkeeper.ui.screen.browser.more.BrowserMoreScreen
@@ -36,6 +37,9 @@ import uikit.dialog.modal.ModalDialog
 import uikit.navigation.Navigation
 import uikit.widget.TextHeaderView
 import uikit.extensions.setMoonOnClickListener
+
+internal fun showFundingAction(isBattery: Boolean, isTon: Boolean, fiatEnabled: Boolean): Boolean =
+	!isBattery && (!isTon || fiatEnabled)
 
 class InsufficientFundsDialog(
     private val fragment: BaseFragment,
@@ -70,11 +74,11 @@ class InsufficientFundsDialog(
 
         val isBattery = e.type == InsufficientBalanceType.InsufficientBatteryChargesForFee
 
-        tonButton.visibility = if (isBattery) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
+		tonButton.visibility = if (showFundingAction(isBattery, e.currency == WalletCurrency.TON, context.settingsRepository?.fiatEnabled != false)) {
+			View.VISIBLE
+		} else {
+			View.GONE
+		}
         iconView.visibility = if (isBattery) {
             View.GONE
         } else {
@@ -125,11 +129,11 @@ class InsufficientFundsDialog(
 
         val isBattery = type == InsufficientBalanceType.InsufficientBatteryChargesForFee
 
-        tonButton.visibility = if (isBattery) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
+		tonButton.visibility = if (showFundingAction(isBattery, required.isTon, context.settingsRepository?.fiatEnabled != false)) {
+			View.VISIBLE
+		} else {
+			View.GONE
+		}
         iconView.visibility = if (isBattery) {
             View.GONE
         } else {

@@ -9,6 +9,15 @@ import org.junit.Test
 class BuyCryptoEntryTest {
 
 	@Test
+	fun `top up opens receive when fiat is disabled`() {
+		val topUp = DepositMulticoinRoutes.TopUp("ton/mainnet/coin")
+		assertEquals(DepositMulticoinRoutes.Receive, startRoute(topUp, buyCrypto = false, fiatEnabled = false))
+		assertEquals(DepositMulticoinRoutes.Buy("ton/mainnet/coin"), startRoute(topUp, buyCrypto = false, fiatEnabled = true))
+		val buy = startRoute(topUp, buyCrypto = true, fiatEnabled = true) as DepositMulticoinRoutes.BuyCrypto
+		assertEquals("ton/mainnet/coin", buy.assetId)
+	}
+
+	@Test
 	fun `fiat setting blocks purchases but keeps receive available`() {
 		assertTrue(isMulticoinRouteAllowed(DepositMulticoinRoutes.Ramp, false))
 		assertTrue(isMulticoinRouteAllowed(DepositMulticoinRoutes.Receive, false))
