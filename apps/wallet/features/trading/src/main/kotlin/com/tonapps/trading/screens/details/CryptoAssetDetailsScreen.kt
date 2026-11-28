@@ -52,6 +52,7 @@ import uikit.chart.ChartPoint
 @Composable
 internal fun CryptoAssetDetailsScreen(
     assetId: String,
+	fiatEnabled: Boolean,
     state: AssetDetailsState,
     previewName: String,
     previewImageUrl: String,
@@ -162,8 +163,8 @@ internal fun CryptoAssetDetailsScreen(
                         assetSymbol = asset?.symbol.orEmpty(),
                         apyBadge = data?.apyBadge,
                         showSend = hasBalance,
-                        showCashBuy = data?.buyWithCardAvailable == true,
-                        showCashSell = hasBalance && data?.sellToCardAvailable == true,
+                        showCashBuy = fiatEnabled && data?.buyWithCardAvailable == true,
+                        showCashSell = fiatEnabled && hasBalance && data?.sellToCardAvailable == true,
                         onOpenToken = onOpenToken,
                         onOpenUrl = onOpenUrl,
                         onChartPeriodChange = onChartPeriodChange,

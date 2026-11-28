@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,8 @@ import com.tonapps.deposit.screens.method.RampAsset
 import com.tonapps.mvi.props.observeSafeState
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.localization.Localization
+import com.tonapps.wallet.data.settings.SettingsRepository
+import org.koin.compose.koinInject
 import io.exchangeapi.models.ExchangeLayoutItem
 import io.exchangeapi.models.ExchangeMerchantInfo
 import ui.components.moon.MoonCircleIcon
@@ -48,8 +51,11 @@ fun RampScreen(
     onBuyStablecoins: () -> Unit,
 ) {
     val state by feature.state.global.observeSafeState()
+	val settings = koinInject<SettingsRepository>()
+	val fiatEnabled by settings.fiatEnabledFlow.collectAsState()
 
     RampScreenContent(
+		fiatEnabled = fiatEnabled,
         state = state,
         rampType = rampType,
         onClose = onClose,
@@ -63,6 +69,7 @@ fun RampScreen(
 
 @Composable
 private fun RampScreenContent(
+	fiatEnabled: Boolean,
     state: RampState,
     rampType: RampType,
     onClose: () -> Unit,
@@ -108,7 +115,7 @@ private fun RampScreenContent(
                 is RampState.Loading -> MoonLoaderCell()
                 is RampState.Empty -> MoonLoaderCell()
                 is RampState.Data -> {
-                    state.fiatItem?.let { item ->
+                    state.fiatItem?.takeIf { fiatEnabled }?.let { item ->
                         LayoutItemCell(
                             item = item,
                             onClick = { onBuyCash(item.preferredCurrency) },

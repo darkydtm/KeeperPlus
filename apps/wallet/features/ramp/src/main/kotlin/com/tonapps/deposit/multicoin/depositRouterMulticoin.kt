@@ -2,6 +2,7 @@ package com.tonapps.deposit.multicoin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import com.tonapps.deposit.screens.currency.SelectCurrencyScreen
 import com.tonapps.deposit.screens.method.KEY_CURRENCY_SELECTION_RESULT
 import com.tonapps.deposit.screens.ramp.RampType
 import kotlinx.serialization.Serializable
+import com.tonapps.wallet.data.settings.SettingsRepository
+import org.koin.compose.koinInject
 import ui.theme.UIKit
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -115,6 +118,10 @@ sealed interface DepositMulticoinRoutes : NavKey {
     ) : DepositMulticoinRoutes
 }
 
+internal fun isMulticoinRouteAllowed(route: NavKey, fiatEnabled: Boolean): Boolean =
+	fiatEnabled || route is DepositMulticoinRoutes.Ramp || route is DepositMulticoinRoutes.Receive ||
+		route is DepositMulticoinRoutes.BuyCryptoReceive
+
 @Composable
 fun DepositMulticoinRouter(
     // Keeps the state of «Buy crypto», shared by its screens: it saves it as long as the flow lives.
@@ -130,7 +137,9 @@ fun DepositMulticoinRouter(
     paymentEnded: BuyCryptoAction.PaymentEnded?,
     onPaymentEndedTaken: () -> Unit,
 ) {
-    val buyCrypto = remember { buyCryptoEnabled(rampType, WalletFeature.MoonPayRamp.isEnabled) }
+	val settings = koinInject<SettingsRepository>()
+	val fiatEnabled by settings.fiatEnabledFlow.collectAsState()
+	val buyCrypto = fiatEnabled && buyCryptoEnabled(rampType, WalletFeature.MoonPayRamp.isEnabled)
     val backStack = rememberNestedNavBackStack(startRoute(initial, buyCrypto), onBack)
     val buyCryptoStores = rememberViewModelStoreProvider(key = KEY_BUY_CRYPTO_STORES)
     val entryDecorators = listOf(
@@ -159,7 +168,9 @@ fun DepositMulticoinRouter(
             backStack = backStack,
             entryDecorators = entryDecorators,
         ) { key ->
-            when (key) {
+			if (!isMulticoinRouteAllowed(key, fiatEnabled)) {
+				NavEntry(key) { LaunchedEffect(key) { onBack() } }
+			} else when (key) {
                 is DepositMulticoinRoutes.Ramp -> NavEntry(key) {
                     val feature = koinViewModel<RampFeature> {
                         parametersOf(walletId, rampType, analyticsFrom, utm)
@@ -167,6 +178,7 @@ fun DepositMulticoinRouter(
                     RampScreen(
                         feature = feature,
                         rampType = rampType,
+						fiatEnabled = fiatEnabled,
                         onClose = onBack,
                         onReceive = {
                             backStack.add(DepositMulticoinRoutes.Receive)

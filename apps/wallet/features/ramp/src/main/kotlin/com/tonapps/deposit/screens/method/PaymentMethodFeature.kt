@@ -155,6 +155,7 @@ class PaymentMethodFeature(
             is PaymentMethodAction.Init -> loadData()
             is PaymentMethodAction.SelectCurrency -> applyCurrencySelection(action.currency)
             is PaymentMethodAction.OpenP2PMethod -> {
+				if (!settingsRepository.fiatEnabled) return
                 val wallet = resolveWallet() ?: return
                 try {
                     val url = createP2PSession(wallet.address)
@@ -239,7 +240,7 @@ class PaymentMethodFeature(
         if (data.tt != null) {
             val targetCurrency = layout.resolveAssetFromDeeplink(data.tt, data.fn) ?: return
             relay.emit(PaymentMethodEvent.AutoNavigateCrypto(asset, targetCurrency))
-        } else if (data.cm != null && fiatCurrency != null) {
+        } else if (data.cm != null && fiatCurrency != null && settingsRepository.fiatEnabled) {
             relay.emit(PaymentMethodEvent.AutoNavigateCash(asset, data.cm, fiatCurrency))
         }
     }
@@ -286,7 +287,7 @@ class PaymentMethodFeature(
                     && it.network.equals(asset.network ?: "native", ignoreCase = true)
         }
 
-        val paymentMethods = layoutAsset?.cashMethods?.map { method ->
+        val paymentMethods = layoutAsset?.cashMethods?.takeIf { settingsRepository.fiatEnabled }?.map { method ->
             PaymentMethodItem(
                 type = method.type.value,
                 title = method.name,

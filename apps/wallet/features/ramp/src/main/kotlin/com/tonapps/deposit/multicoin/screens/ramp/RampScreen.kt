@@ -29,6 +29,7 @@ import ui.painterResource
 fun RampScreen(
     feature: RampFeature,
     rampType: RampType,
+	fiatEnabled: Boolean,
     onClose: () -> Unit,
     onReceive: () -> Unit,
     onSend: () -> Unit,
@@ -73,9 +74,11 @@ fun RampScreen(
 
             when (val current = state) {
                 is RampState.Loading -> MoonLoaderCell()
-                is RampState.Data -> current.cards.forEach { card ->
-                    LayoutCardCell(card = card, onClick = { onCardClick(card) })
-                }
+                is RampState.Data -> {
+					if (fiatEnabled) current.cards.forEach { card ->
+						LayoutCardCell(card = card, onClick = { onCardClick(card) })
+					}
+				}
             }
         }
     }

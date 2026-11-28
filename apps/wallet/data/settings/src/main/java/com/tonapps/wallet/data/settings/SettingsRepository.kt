@@ -125,6 +125,15 @@ class SettingsRepository(
 			_batteryFeeEnabledFlow.value = value
 		}
 
+	private val _fiatEnabledFlow = MutableStateFlow(prefs.getBoolean("fiat_enabled", true))
+	val fiatEnabledFlow = _fiatEnabledFlow.asStateFlow()
+	var fiatEnabled: Boolean
+		get() = _fiatEnabledFlow.value
+		set(value) {
+			prefs.putBoolean("fiat_enabled", value)
+			_fiatEnabledFlow.value = value
+		}
+
 	private val legacyPromotionsEnabled = prefs.getBoolean("promotions_enabled", true)
 	private val _adsEnabledFlow = MutableStateFlow(prefs.getBoolean("ads_enabled", legacyPromotionsEnabled))
 	val adsEnabledFlow = _adsEnabledFlow.asStateFlow()

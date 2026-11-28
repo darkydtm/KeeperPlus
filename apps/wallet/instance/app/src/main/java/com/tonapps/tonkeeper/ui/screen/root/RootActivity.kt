@@ -548,6 +548,7 @@ class RootActivity : BaseWalletActivity(),
     }
 
     private fun openCashRamp(assetId: String, rampType: RampType, legacyScreen: () -> BaseFragment) {
+		if (!settingsRepository.fiatEnabled) return
         lifecycleScope.launch {
             val wallet = unifiedAccountRepository.getSelectedWallet() ?: return@launch
             when {
