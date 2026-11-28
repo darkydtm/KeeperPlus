@@ -149,12 +149,26 @@ jobs:
             exit 1
           fi
           tools="$ANDROID_HOME/build-tools/37.0.0"
-          package=$("$tools/aapt" dump badging "${apks[0]}" | grep -o "^package: name='[^']*'" | cut -d "'" -f 2)
+          if ! badging=$("$tools/aapt" dump badging "${apks[0]}"); then
+            echo '::error::Failed to read APK package information'
+            exit 1
+          fi
+          if ! package=$(printf '%s\n' "$badging" | grep -o "^package: name='[^']*'" | cut -d "'" -f 2); then
+            echo '::error::APK package name missing from aapt output'
+            exit 1
+          fi
           if [ "$package" != com.ton_keeper.debug ]; then
             echo '::error::Unexpected APK package name'
             exit 1
           fi
-          fingerprint=$("$tools/apksigner" verify --print-certs "${apks[0]}" | grep '^Signer #1 certificate SHA-256 digest:' | cut -d: -f2- | tr -d ':[:space:]' | tr '[:lower:]' '[:upper:]')
+          if ! certificates=$("$tools/apksigner" verify --print-certs "${apks[0]}"); then
+            echo '::error::APK signature verification failed'
+            exit 1
+          fi
+          if ! fingerprint=$(printf '%s\n' "$certificates" | grep '^Signer #1 certificate SHA-256 digest:' | cut -d: -f2- | tr -d ':[:space:]' | tr '[:lower:]' '[:upper:]'); then
+            echo '::error::APK signing certificate digest missing from apksigner output'
+            exit 1
+          fi
           expected=$(printf '%s' "$DEBUG_CERT_SHA256" | tr -d ':[:space:]' | tr '[:lower:]' '[:upper:]')
           if [[ ! "$expected" =~ ^[0-9A-F]{64}$ ]] || [ "$fingerprint" != "$expected" ]; then
             echo '::error::APK signing certificate does not match DEBUG_CERT_SHA256'
