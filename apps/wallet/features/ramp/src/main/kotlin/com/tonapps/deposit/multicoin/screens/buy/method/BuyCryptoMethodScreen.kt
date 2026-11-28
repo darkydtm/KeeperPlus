@@ -240,7 +240,7 @@ private fun BuyCryptoMethodContent(
                     }
                 }
             }
-            MoonBundleTitleCell(title = stringResource(Localization.crypto))
+            MoonBundleTitleCell(title = stringResource(Localization.tokens))
             MoonBundleCell {
                 TextCell(
                     title = stringResource(Localization.buy_crypto_crypto_deposit),
