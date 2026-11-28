@@ -13,6 +13,7 @@ captures
 .build-cache
 tools/build/
 mavenLocal
+.keystore
 
 # Maestro QA: local-only material, never pushed (see .agents/skills/tk-qa-verify)
 maestro_ui_tests/flows/*_local/
