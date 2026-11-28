@@ -408,6 +408,7 @@
     <string name="nft_warning_buttton_subtitle">Visit this external link only if you trust the author of the collection.  %1$s</string>
 
     <string name="tokens">Tokens</string>
+    <string name="wallet_assets_tokens">Tokens</string>
     <string name="today">Today</string>
     <string name="address">Address</string>
     <string name="yesterday">Yesterday</string>

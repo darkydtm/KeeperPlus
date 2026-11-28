@@ -1660,6 +1660,7 @@
     <string name="tokenized_etfs">این دارایی یک ETF توکنیزه‌شده است</string>
     <string name="tokenized_stocks">این دارایی یک سهم توکنیزه‌شده است</string>
     <string name="tokens">توکن‌ها</string>
+    <string name="wallet_assets_tokens">توکن‌ها</string>
     <string name="ton_assets">دارایی‌های GRAM</string>
     <string name="ton_connect_description">%1$s درخواست دسترسی به آدرس کیف پول شما %2$s را دارد</string>
     <string name="ton_connect_subtitle">پیش از اتصال کیف پول، حتماً آدرس سرویس را بررسی کنید.</string>

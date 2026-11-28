@@ -1666,6 +1666,7 @@
     <string name="tokenized_etfs">Този актив е токенизиран ETF</string>
     <string name="tokenized_stocks">Този актив е токенизирана акция</string>
     <string name="tokens">Токени</string>
+    <string name="wallet_assets_tokens">Токени</string>
     <string name="ton_assets">Активи на GRAM</string>
     <string name="ton_connect_description">%1$s иска достъп до адреса на вашия портфейл %2$s</string>
     <string name="ton_connect_subtitle">Уверете се, че сте проверили адреса на услугата преди да свържете портфейла.</string>

@@ -1662,6 +1662,7 @@
     <string name="tokenized_etfs">Este activo es un ETF tokenizado</string>
     <string name="tokenized_stocks">Este activo es una acción tokenizada</string>
     <string name="tokens">Tokens</string>
+    <string name="wallet_assets_tokens">Tokens</string>
     <string name="ton_assets">Activos de GRAM</string>
     <string name="ton_connect_description">%1$s está solicitando acceso a tu dirección de billetera %2$s</string>
     <string name="ton_connect_subtitle">Asegúrate de verificar la dirección del servicio antes de conectar la billetera.</string>

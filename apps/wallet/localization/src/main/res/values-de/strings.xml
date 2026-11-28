@@ -1661,6 +1661,7 @@
     <string name="tokenized_etfs">Dieses Asset ist ein tokenisierter ETF</string>
     <string name="tokenized_stocks">Dieses Asset ist eine tokenisierte Aktie</string>
     <string name="tokens">Token</string>
+    <string name="wallet_assets_tokens">Token</string>
     <string name="ton_assets">GRAM-Assets</string>
     <string name="ton_connect_description">%1$s fordert Zugriff auf Ihre Wallet-Adresse %2$s an</string>
     <string name="ton_connect_subtitle">Prüfen Sie unbedingt die Adresse des Dienstes, bevor Sie die Wallet verbinden.</string>

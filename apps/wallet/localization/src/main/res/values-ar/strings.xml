@@ -1717,6 +1717,7 @@
     <string name="tokenized_etfs">هذا الأصل صندوق ETF مرمّز</string>
     <string name="tokenized_stocks">هذا الأصل سهم مرمّز</string>
     <string name="tokens">التوكنات</string>
+    <string name="wallet_assets_tokens">التوكنات</string>
     <string name="ton_assets">أصول GRAM</string>
     <string name="ton_connect_description">يطلب %1$s الوصول إلى عنوان محفظتك %2$s</string>
     <string name="ton_connect_subtitle">تأكد من التحقق من عنوان الخدمة قبل ربط المحفظة.</string>
