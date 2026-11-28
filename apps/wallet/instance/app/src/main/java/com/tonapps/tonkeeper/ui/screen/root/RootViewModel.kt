@@ -1375,7 +1375,7 @@ class RootViewModel(
             if (walletId != null && loyaltyRepository.showsSection(walletId)) {
                 val loyaltyUrl = loyaltyUrlOf(referralCode)
                 processDeepLink(wallet, deeplink.copy(route = DeepLinkRoute.DApp(loyaltyUrl)), fromPackageName, fromBrowser)
-            } else if (walletId == null && referralCode != null && WalletFeature.Loyalty.isEnabled) {
+			} else if (walletId == null && referralCode != null && settingsRepository.rewardsEnabled) {
                 val loyaltyLink = DeepLinkBuilder.dApp(loyaltyUrlOf(referralCode))
                 pickOrCreateWallet(
                     PickerMode.Multichain(loyaltyLink, subtitleResId = Localization.wallets_list_loyalty_subtitle),

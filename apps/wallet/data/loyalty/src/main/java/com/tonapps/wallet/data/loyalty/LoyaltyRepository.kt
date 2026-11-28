@@ -2,7 +2,6 @@ package com.tonapps.wallet.data.loyalty
 
 import android.content.Context
 import androidx.core.content.edit
-import com.tonapps.core.flags.WalletFeature
 import com.tonapps.log.L
 import com.tonapps.wallet.api.API
 import com.tonapps.wallet.api.entity.LoyaltyProfileEntity
@@ -44,7 +43,7 @@ class LoyaltyRepository(
     private val referralCodeLock = Any()
 
     fun entryFlow(walletId: String): Flow<LoyaltyEntry> = settingsRepository.rewardsEnabledFlow.flatMapLatest { enabled ->
-        if (!enabled || !WalletFeature.Loyalty.isEnabled) {
+		if (!enabled) {
             flowOf(LoyaltyEntry.Hidden)
         } else {
             combine(profileFlow(walletId), bannerHiddenWallets) { profile, hiddenWallets ->
@@ -61,7 +60,7 @@ class LoyaltyRepository(
     }
 
     suspend fun showsSection(walletId: String): Boolean = withContext(Dispatchers.IO) {
-        if (!settingsRepository.rewardsEnabled || !WalletFeature.Loyalty.isEnabled) {
+		if (!settingsRepository.rewardsEnabled) {
             return@withContext false
         }
         val profile = cachedProfile(walletId) ?: loadProfile(walletId)
