@@ -1,6 +1,7 @@
 package com.tonapps.trading.screens.details
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -31,6 +32,7 @@ fun AssetDetailsScreen(
     onBack: () -> Unit,
 ) {
     val state by feature.state.global.observeSafeState()
+	val fiatEnabled by feature.fiatEnabledFlow.collectAsState()
 
     LaunchedEffect(feature) {
         feature.events.collect { event ->
@@ -55,6 +57,7 @@ fun AssetDetailsScreen(
     if (asset?.isTokenized() == true) {
         StockAssetDetailsScreen(
             assetId = feature.assetId,
+			fiatEnabled = fiatEnabled,
             state = state,
             previewName = previewName,
             previewImageUrl = previewImageUrl,
@@ -78,6 +81,7 @@ fun AssetDetailsScreen(
     } else {
         CryptoAssetDetailsScreen(
             assetId = feature.assetId,
+			fiatEnabled = fiatEnabled,
             state = state,
             previewName = previewName,
             previewImageUrl = previewImageUrl,

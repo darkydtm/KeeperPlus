@@ -180,6 +180,8 @@ class AssetDetailsFeature(
     initAction = AssetDetailsAction.Init,
 ) {
 
+	val fiatEnabledFlow = settingsRepository.fiatEnabledFlow
+
     private val relay = MviRelay<AssetDetailsEvent>()
     val events: Flow<AssetDetailsEvent> = relay.events
 

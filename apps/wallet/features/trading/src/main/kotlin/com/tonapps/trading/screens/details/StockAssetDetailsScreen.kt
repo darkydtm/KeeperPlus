@@ -51,6 +51,7 @@ import uikit.chart.ChartPoint
 @Composable
 internal fun StockAssetDetailsScreen(
     assetId: String,
+	fiatEnabled: Boolean,
     state: AssetDetailsState,
     previewName: String,
     previewImageUrl: String,
@@ -141,8 +142,8 @@ internal fun StockAssetDetailsScreen(
                         perps = data?.perps ?: AssetPerpsState.Hidden,
                         assetSymbol = asset?.symbol.orEmpty(),
                         showSend = hasBalance,
-                        showCashBuy = isMultichainWallet && data?.buyWithCardAvailable == true,
-                        showCashSell = isMultichainWallet && hasBalance && data?.sellToCardAvailable == true,
+                        showCashBuy = fiatEnabled && isMultichainWallet && data?.buyWithCardAvailable == true,
+                        showCashSell = fiatEnabled && isMultichainWallet && hasBalance && data?.sellToCardAvailable == true,
                         onOpenToken = onOpenToken,
                         onOpenUrl = onOpenUrl,
                         onChartPeriodChange = onChartPeriodChange,

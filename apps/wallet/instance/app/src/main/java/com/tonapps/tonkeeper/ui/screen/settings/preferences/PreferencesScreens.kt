@@ -38,13 +38,13 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 		super.onViewCreated(view, savedInstanceState)
 		setTitle(getString(R.string.settings_promotions))
 		setAdapter(object : RecyclerView.Adapter<SwitchHolder>() {
-			override fun getItemCount() = 5
+			override fun getItemCount() = 6
 			override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SwitchHolder(ItemSwitchView(parent.context))
 			override fun onBindViewHolder(holder: SwitchHolder, position: Int) {
 				val item = holder.item
 				item.position = when (position) {
 					0 -> ListCell.Position.FIRST
-					1, 2, 3 -> ListCell.Position.MIDDLE
+					1, 2, 3, 4 -> ListCell.Position.MIDDLE
 					else -> ListCell.Position.LAST
 				}
 				item.text = getString(when (position) {
@@ -52,7 +52,8 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 					1 -> R.string.settings_rewards
 					2 -> R.string.settings_recommendations
 					3 -> R.string.settings_ads
-					else -> R.string.settings_battery_fees
+					4 -> R.string.settings_battery_fees
+					else -> R.string.settings_fiat
 				})
 				item.doOnCheckedChanged = null
 				item.setChecked(when (position) {
@@ -60,7 +61,8 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 					1 -> settings.rewardsEnabled
 					2 -> settings.recommendationsEnabled
 					3 -> settings.adsEnabled
-					else -> settings.isBatteryFeeEnabled
+					4 -> settings.isBatteryFeeEnabled
+					else -> settings.fiatEnabled
 				}, false)
 				item.doOnCheckedChanged = { checked, byUser ->
 					if (byUser) when (position) {
@@ -68,7 +70,8 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 						1 -> settings.rewardsEnabled = checked
 						2 -> settings.recommendationsEnabled = checked
 						3 -> settings.adsEnabled = checked
-						else -> settings.isBatteryFeeEnabled = checked
+						4 -> settings.isBatteryFeeEnabled = checked
+						else -> settings.fiatEnabled = checked
 					}
 				}
 			}

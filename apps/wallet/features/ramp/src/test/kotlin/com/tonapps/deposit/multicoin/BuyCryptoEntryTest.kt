@@ -8,6 +8,17 @@ import org.junit.Test
 
 class BuyCryptoEntryTest {
 
+	@Test
+	fun `fiat setting blocks purchases but keeps receive available`() {
+		assertTrue(isMulticoinRouteAllowed(DepositMulticoinRoutes.Ramp, false))
+		assertTrue(isMulticoinRouteAllowed(DepositMulticoinRoutes.Receive, false))
+		assertTrue(isMulticoinRouteAllowed(DepositMulticoinRoutes.BuyCryptoReceive, false))
+		val buy = DepositMulticoinRoutes.Buy(assetId = "ton/mainnet/coin")
+		assertFalse(isMulticoinRouteAllowed(buy, false))
+		assertFalse(isMulticoinRouteAllowed(DepositMulticoinRoutes.BuyCrypto(), false))
+		assertTrue(isMulticoinRouteAllowed(buy, true))
+	}
+
     @Test
     fun `selling to a card never opens the buying screen`() {
         assertFalse(buyCryptoEnabled(RampType.RampOff, flagEnabled = true))

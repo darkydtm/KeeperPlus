@@ -11,6 +11,7 @@
 	<string name="settings_rewards">Награды</string>
 	<string name="settings_recommendations">Рекомендации</string>
 	<string name="settings_battery_fees">Оплата комиссий батарейкой</string>
+	<string name="settings_fiat">Фиат</string>
 	<string name="settings_haptics_level">Уровень %1$d из 3</string>
 	<string name="settings_haptics_strength_unavailable">Регулировка силы вибрации не поддерживается на этом устройстве.</string>
 </resources>

@@ -1345,6 +1345,7 @@ class RootViewModel(
                 }
             }
         } else if (route is DeepLinkRoute.Exchange && !wallet.isWatchOnly) {
+			if (!settingsRepository.fiatEnabled) return
             val method = purchaseRepository.getMethod(
                 id = route.methodName,
                 network = wallet.network,

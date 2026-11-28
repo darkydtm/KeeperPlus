@@ -2,6 +2,9 @@ package com.tonapps.deposit
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -39,6 +42,8 @@ import com.tonapps.deposit.screens.ramp.amount.DepositAmountScreen
 import com.tonapps.deposit.screens.ramp.amount.RampAmountData
 import com.tonapps.wallet.localization.Localization
 import kotlinx.serialization.Serializable
+import com.tonapps.wallet.data.settings.SettingsRepository
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ui.moon.MoonNav
@@ -98,13 +103,19 @@ fun DepositRouter(
     onBack: () -> Unit,
     openProvider: (String) -> Unit,
 ) {
+	val settings = koinInject<SettingsRepository>()
+	val fiatEnabled by settings.fiatEnabledFlow.collectAsState()
     val backStack = rememberNestedNavBackStack(initial, onBack)
     val resultStore = rememberResultStore()
     CompositionLocalProvider(LocalResultStore provides resultStore) {
         MoonNav(
             backStack = backStack,
         ) { key ->
-            when (key) {
+			if (!fiatEnabled && (key is DepositRoutes.Amount ||
+				key is DepositRoutes.ExtendedCryptoList && key.filter == AssetFilter.Cash ||
+				key is DepositRoutes.Buy && key.sectionFilter == PaymentMethodSectionFilter.CashOnly)) {
+				NavEntry(key) { LaunchedEffect(key) { onBack() } }
+			} else when (key) {
                 is DepositRoutes.Ramp -> NavEntry(key) {
                     val viewModel = koinViewModel<RampFeature> { parametersOf(RampType.RampOn, analyticsFrom, utm) }
                     RampScreen(
