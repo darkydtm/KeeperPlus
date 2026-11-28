@@ -17,6 +17,8 @@ jobs:
           persist-credentials: false
       - name: Validate Android localization resources
         run: python3 tools/locales.py --platform android --res apps/wallet/localization/src/main/res validate
+      - name: Test release artifact verification
+        run: python3 -B -m unittest discover -s tools/ci -p 'test_verify_release_artifact.py'
 
   host-tests:
     runs-on: ubuntu-latest
@@ -31,7 +33,7 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
         with:
-          cache-read-only: true
+          cache-read-only: ${{ github.event_name != 'push' || github.ref != 'refs/heads/main' }}
       - name: Configure package access
         env:
           PACKAGE_TOKEN: ${{ github.token }}
