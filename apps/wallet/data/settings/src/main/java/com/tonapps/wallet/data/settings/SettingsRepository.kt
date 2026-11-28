@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal fun migrateContentSettings(prefs: SharedPreferences) {
 	val legacyEnabled = prefs.getBoolean("promotions_enabled", true)
 	prefs.edit().apply {
+		if (!prefs.contains("ads_enabled")) putBoolean("ads_enabled", legacyEnabled)
 		if (!prefs.contains("rewards_enabled")) putBoolean("rewards_enabled", legacyEnabled)
 		if (!prefs.contains("recommendations_enabled")) putBoolean("recommendations_enabled", legacyEnabled)
 		apply()
@@ -125,6 +126,15 @@ class SettingsRepository(
 		}
 
 	private val legacyPromotionsEnabled = prefs.getBoolean("promotions_enabled", true)
+	private val _adsEnabledFlow = MutableStateFlow(prefs.getBoolean("ads_enabled", legacyPromotionsEnabled))
+	val adsEnabledFlow = _adsEnabledFlow.asStateFlow()
+	var adsEnabled: Boolean
+		get() = _adsEnabledFlow.value
+		set(value) {
+			prefs.putBoolean("ads_enabled", value)
+			_adsEnabledFlow.value = value
+		}
+
 	private val _rewardsEnabledFlow = MutableStateFlow(prefs.getBoolean("rewards_enabled", legacyPromotionsEnabled))
 	val rewardsEnabledFlow = _rewardsEnabledFlow.asStateFlow()
 	var rewardsEnabled: Boolean

@@ -38,19 +38,20 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 		super.onViewCreated(view, savedInstanceState)
 		setTitle(getString(R.string.settings_promotions))
 		setAdapter(object : RecyclerView.Adapter<SwitchHolder>() {
-			override fun getItemCount() = 4
+			override fun getItemCount() = 5
 			override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SwitchHolder(ItemSwitchView(parent.context))
 			override fun onBindViewHolder(holder: SwitchHolder, position: Int) {
 				val item = holder.item
 				item.position = when (position) {
 					0 -> ListCell.Position.FIRST
-					1, 2 -> ListCell.Position.MIDDLE
+					1, 2, 3 -> ListCell.Position.MIDDLE
 					else -> ListCell.Position.LAST
 				}
 				item.text = getString(when (position) {
 					0 -> R.string.settings_promotions_only
 					1 -> R.string.settings_rewards
 					2 -> R.string.settings_recommendations
+					3 -> R.string.settings_ads
 					else -> R.string.settings_battery_fees
 				})
 				item.doOnCheckedChanged = null
@@ -58,6 +59,7 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 					0 -> settings.promotionsEnabled
 					1 -> settings.rewardsEnabled
 					2 -> settings.recommendationsEnabled
+					3 -> settings.adsEnabled
 					else -> settings.isBatteryFeeEnabled
 				}, false)
 				item.doOnCheckedChanged = { checked, byUser ->
@@ -65,6 +67,7 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 						0 -> settings.promotionsEnabled = checked
 						1 -> settings.rewardsEnabled = checked
 						2 -> settings.recommendationsEnabled = checked
+						3 -> settings.adsEnabled = checked
 						else -> settings.isBatteryFeeEnabled = checked
 					}
 				}

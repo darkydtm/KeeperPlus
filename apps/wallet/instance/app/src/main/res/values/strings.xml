@@ -11,6 +11,7 @@
 	<string name="settings_promotions_only">Promotions</string>
 	<string name="settings_rewards">Rewards</string>
 	<string name="settings_recommendations">Recommendations</string>
+	<string name="settings_ads">Advertising</string>
 	<string name="settings_battery_fees">Pay fees with Battery</string>
 	<string name="settings_haptics_level">Level %1$d of 3</string>
 	<string name="settings_haptics_strength_unavailable">Vibration strength control is not supported on this device.</string>

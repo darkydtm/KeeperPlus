@@ -35,13 +35,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,7 +83,9 @@ class BrowserMainViewModel(
     private val _selectedChain = MutableStateFlow<Network.Type?>(null)
     val selectedChain: StateFlow<Network.Type?> = _selectedChain.asStateFlow()
 
-    private val browserDataFlow = settings.recommendationsEnabledFlow.flatMapLatest { enabled ->
+	private val browserDataFlow = combine(settings.recommendationsEnabledFlow, settings.adsEnabledFlow) { recommendations, ads ->
+		recommendations || ads
+	}.distinctUntilChanged().flatMapLatest { enabled ->
         if (!enabled) flowOf(BrowserDataEntity(emptyList(), emptyList())) else flow {
             if (!isDappsDisabled) {
                 emitAll(
@@ -100,11 +102,14 @@ class BrowserMainViewModel(
 
     val uiExploreItemsFlow: StateFlow<List<ExploreItem>> = combine(
         browserDataFlow,
-        _selectedChain,
-    ) { data, chain -> data to chain }.mapLatest { (data, chain) ->
-        val isMultichain = mcAccountRepository.getWallet(wallet.id) != null
-        buildExploreItems(data, isMultichain, chain?.id)
-    }.flowOn(Dispatchers.IO).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+		_selectedChain,
+		settings.recommendationsEnabledFlow,
+		settings.adsEnabledFlow,
+	) { data, chain, recommendations, ads ->
+		val isMultichain = mcAccountRepository.getWallet(wallet.id) != null
+		val visibleData = if (recommendations) data else BrowserDataEntity(emptyList(), data.categories.filter { it.id == "ads" })
+		buildExploreItems(visibleData, isMultichain, chain?.id, ads)
+	}.flowOn(Dispatchers.IO).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun applyChainFromDeepLink(network: Network.Type, onResult: (applied: Boolean) -> Unit) {
         if (isDappsDisabled) {
@@ -154,6 +159,7 @@ class BrowserMainViewModel(
         data: BrowserDataEntity,
         isMultichain: Boolean,
         selectedChainId: String?,
+		adsEnabled: Boolean,
     ): List<ExploreItem> {
         val items = mutableListOf<ExploreItem>()
         if (data.apps.isNotEmpty()) {
@@ -228,6 +234,14 @@ class BrowserMainViewModel(
                 )
             }
         }
+
+		if (adsEnabled) {
+			val ad = categories.find { it.id == "ads" }?.apps?.firstOrNull()
+			if (ad?.button != null) {
+				val index = items.indexOf(ExploreItem.ChainFilter).takeIf { it >= 0 } ?: minOf(1, items.size)
+				items.add(index, ExploreItem.Ads(ad, wallet, environment.deviceCountry, isMultichain))
+			}
+		}
 
         return items
     }
