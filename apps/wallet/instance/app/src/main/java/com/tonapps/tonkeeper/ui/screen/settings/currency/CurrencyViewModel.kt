@@ -12,6 +12,7 @@ import com.tonapps.wallet.api.entity.CurrencyEntity
 import com.tonapps.wallet.data.settings.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
@@ -19,68 +20,77 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 
 class CurrencyViewModel(
-    app: Application,
-    private val settings: SettingsRepository,
-    private val api: API,
+	app: Application,
+	private val settings: SettingsRepository,
+	private val api: API,
 ): BaseWalletVM(app) {
 
-    private val remoteCurrenciesFlow: Flow<List<CurrencyEntity>> = flow {
-        emit(api.getCurrencies(TonNetwork.MAINNET, settings.getLocale(), null))
-    }.catch {
-        emit(emptyList())
-    }.onStart {
-        emit(emptyList())
-    }.flowOn(Dispatchers.IO)
+	private val remoteCurrenciesFlow: Flow<List<CurrencyEntity>> = flow {
+		emit(api.getCurrencies(TonNetwork.MAINNET, settings.getLocale(), null))
+	}.catch {
+		emit(emptyList())
+	}.onStart {
+		emit(emptyList())
+	}.flowOn(Dispatchers.IO)
 
-    val uiItemsFlow: Flow<List<Item>> = combine(
-        remoteCurrenciesFlow,
-        settings.currencyFlow,
-        ::buildUiItems
-    )
+	val searchQuery = MutableStateFlow("")
 
-    fun selectCurrency(entity: CurrencyEntity) {
-        val currency = entity.asWalletCurrency() ?: return
-        settings.currency = currency
-        TotalBalancesWorker.run(context)
-    }
+	val uiItemsFlow: Flow<List<Item>> = combine(
+		remoteCurrenciesFlow,
+		settings.currencyFlow,
+		searchQuery,
+		::buildUiItems
+	)
 
-    private fun buildUiItems(
-        currencies: List<CurrencyEntity>,
-        selected: WalletCurrency,
-    ): List<Item> {
-        val rows = currencies.mapNotNull { entity ->
-            entity.asWalletCurrency()?.let { currency -> entity to currency }
-        }.toMutableList()
-        if (rows.none { (_, currency) -> currency == selected }) {
-            rows.add(0, selected.asCurrencyEntity() to selected)
-        }
-        return rows.mapIndexed { index, (entity, currency) ->
-            Item(
-                currency = entity,
-                selected = currency == selected,
-                position = ListCell.getPosition(rows.size, index)
-            )
-        }
-    }
+	fun selectCurrency(entity: CurrencyEntity) {
+		val currency = entity.asWalletCurrency() ?: return
+		settings.currency = currency
+		TotalBalancesWorker.run(context)
+	}
+
+	private fun buildUiItems(
+		currencies: List<CurrencyEntity>,
+		selected: WalletCurrency,
+		query: String,
+	): List<Item> {
+		val rows = currencies.mapNotNull { entity ->
+			entity.asWalletCurrency()?.let { currency -> entity to currency }
+		}.toMutableList()
+		if (rows.none { (_, currency) -> currency == selected }) {
+			rows.add(0, selected.asCurrencyEntity() to selected)
+		}
+		val filtered = rows.filter { (entity, _) ->
+			entity.code.contains(query, ignoreCase = true) ||
+				entity.name.contains(query, ignoreCase = true) ||
+				entity.symbol?.contains(query, ignoreCase = true) == true
+		}
+		return filtered.mapIndexed { index, (entity, currency) ->
+			Item(
+				currency = entity,
+				selected = currency == selected,
+				position = ListCell.getPosition(filtered.size, index)
+			)
+		}
+	}
 }
 
 private fun CurrencyEntity.asWalletCurrency(): WalletCurrency? {
-    return if (isFiat) {
-        WalletCurrency.fiatOrNull(code)
-    } else {
-        WalletCurrency.of(code)
-    }
+	return if (isFiat) {
+		WalletCurrency.fiatOrNull(code)
+	} else {
+		WalletCurrency.of(code)
+	}
 }
 
 private fun WalletCurrency.asCurrencyEntity(): CurrencyEntity {
-    return CurrencyEntity(
-        code = code,
-        name = title,
-        image = null,
-        symbol = null,
-        type = when {
-            isFiat -> CurrencyEntity.TYPE_FIAT
-            else -> CurrencyEntity.TYPE_CRYPTO
-        },
-    )
+	return CurrencyEntity(
+		code = code,
+		name = title,
+		image = null,
+		symbol = null,
+		type = when {
+			isFiat -> CurrencyEntity.TYPE_FIAT
+			else -> CurrencyEntity.TYPE_CRYPTO
+		},
+	)
 }
