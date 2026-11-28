@@ -2,6 +2,8 @@ package com.tonapps.deposit.multicoin.screens.confirm
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.ionspin.kotlin.bignum.integer.BigInteger
@@ -19,9 +21,14 @@ import com.tonapps.deposit.multicoin.screens.confirm.fee.TxFeeLogic
 import com.tonapps.uikit.icon.UIKitIcon
 import com.tonapps.wallet.data.multichain.account.AccountWithDetails
 import com.tonapps.wallet.localization.Localization
+import com.tonapps.wallet.data.settings.SettingsRepository
+import org.koin.compose.koinInject
 import ui.preview.ThemedPreview
 
 private val BatteryIllustration = UIKitIcon.ic_empty_battery_accent_flash_128
+
+internal fun topUpLabel(fiatEnabled: Boolean): Int =
+	if (fiatEnabled) Localization.buy_ton else Localization.deposit_asset
 
 @Composable
 fun PendingTransaction.InsufficientFundsDialog(
@@ -42,6 +49,7 @@ private fun PendingTransaction.BalanceShortageDialog(
     onClose: () -> Unit,
 ) {
     val shortfall = insufficientFunds()
+	val fiatEnabled by koinInject<SettingsRepository>().fiatEnabledFlow.collectAsState()
     SharedInsufficientFundsDialog(
         title = stringResource(Localization.insufficient_balance_title),
         messages = listOf(shortfall.description),
@@ -49,7 +57,7 @@ private fun PendingTransaction.BalanceShortageDialog(
         tintIcon = false,
         actions = listOf(
             InsufficientFundsAction(
-                text = stringResource(Localization.buy_ton, shortfall.buySymbol),
+				text = stringResource(topUpLabel(fiatEnabled), shortfall.buySymbol),
                 primary = true,
                 onClick = { onTopUp(shortfall.buyAssetId) },
             ),
