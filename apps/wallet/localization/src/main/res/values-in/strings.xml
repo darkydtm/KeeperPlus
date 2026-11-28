@@ -1634,6 +1634,7 @@
     <string name="testnet_wallet">Akun TON Testnet</string>
     <string name="testnet_wallet_subtitle">Impor dompet dengan 24 atau 12 kata pemulihan rahasia ke Testnet</string>
     <string name="theme">Tema</string>
+	<string name="theme_adaptive">Adaptif</string>
     <string name="theme_dark">Gelap</string>
     <string name="theme_deep_blue">Biru Tua</string>
     <string name="theme_light">Terang</string>
@@ -1798,5 +1799,4 @@
     <string name="yesterday">Kemarin</string>
     <string name="your_address">Alamat Anda</string>
     <string name="your_balance">Saldo Anda</string>
-	<string name="theme_adaptive">Adaptif</string>
 </resources>

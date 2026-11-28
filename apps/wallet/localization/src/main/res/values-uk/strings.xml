@@ -1673,6 +1673,7 @@
     <string name="testnet_wallet">Акаунт TON Testnet</string>
     <string name="testnet_wallet_subtitle">Імпортуйте гаманець із 24 або 12 секретними словами відновлення в Testnet</string>
     <string name="theme">Тема</string>
+	<string name="theme_adaptive">Адаптивна</string>
     <string name="theme_dark">Темна</string>
     <string name="theme_deep_blue">Темно-синя</string>
     <string name="theme_light">Світла</string>
@@ -1837,5 +1838,4 @@
     <string name="yesterday">Вчора</string>
     <string name="your_address">Ваша адреса</string>
     <string name="your_balance">Ваш баланс</string>
-	<string name="theme_adaptive">Адаптивна</string>
 </resources>

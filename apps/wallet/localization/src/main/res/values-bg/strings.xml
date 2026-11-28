@@ -1653,6 +1653,7 @@
     <string name="testnet_wallet">TON Testnet акаунт</string>
     <string name="testnet_wallet_subtitle">Импортирайте портфейл с 24 или 12 тайни думи за възстановяване в Testnet</string>
     <string name="theme">Тема</string>
+	<string name="theme_adaptive">Адаптивна</string>
     <string name="theme_dark">Тъмно</string>
     <string name="theme_deep_blue">Deep Blue</string>
     <string name="theme_light">Светло</string>
@@ -1817,5 +1818,4 @@
     <string name="yesterday">Вчера</string>
     <string name="your_address">Вашият адрес</string>
     <string name="your_balance">Вашият баланс</string>
-	<string name="theme_adaptive">Адаптивна</string>
 </resources>

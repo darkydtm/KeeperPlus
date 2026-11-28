@@ -1647,6 +1647,7 @@
     <string name="testnet_wallet">TON Testnet hisobi</string>
     <string name="testnet_wallet_subtitle">24 yoki 12 maxfiy soʻzli hamyonni Testnet’ga import qiling</string>
     <string name="theme">Mavzu</string>
+	<string name="theme_adaptive">Moslashuvchan</string>
     <string name="theme_dark">Qorong\'i</string>
     <string name="theme_deep_blue">Chuqur moviy</string>
     <string name="theme_light">Yorug\'</string>
@@ -1811,5 +1812,4 @@
     <string name="yesterday">Kecha</string>
     <string name="your_address">Sizning manzilingiz</string>
     <string name="your_balance">Balansingiz</string>
-	<string name="theme_adaptive">Moslashuvchan</string>
 </resources>

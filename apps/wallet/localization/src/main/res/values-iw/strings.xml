@@ -1673,6 +1673,7 @@
     <string name="testnet_wallet">חשבון TON Testnet</string>
     <string name="testnet_wallet_subtitle">ייבא ארנק עם 24 או 12 מילות שחזור סודיות ל-Testnet</string>
     <string name="theme">ערכת נושא</string>
+	<string name="theme_adaptive">מותאמת</string>
     <string name="theme_dark">כהה</string>
     <string name="theme_deep_blue">כחול עמוק</string>
     <string name="theme_light">בהיר</string>
@@ -1837,5 +1838,4 @@
     <string name="yesterday">אתמול</string>
     <string name="your_address">הכתובת שלך</string>
     <string name="your_balance">היתרה שלך</string>
-	<string name="theme_adaptive">מותאמת</string>
 </resources>

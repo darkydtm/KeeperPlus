@@ -1647,6 +1647,7 @@
     <string name="testnet_wallet">حساب TON Testnet</string>
     <string name="testnet_wallet_subtitle">وارد کردن کیف پول با ۲۴ یا ۱۲ کلمه بازیابی محرمانه در تست‌نت</string>
     <string name="theme">تم</string>
+	<string name="theme_adaptive">تطبیقی</string>
     <string name="theme_dark">تیره</string>
     <string name="theme_deep_blue">آبی تیره</string>
     <string name="theme_light">روشن</string>
@@ -1807,5 +1808,4 @@
     <string name="yesterday">دیروز</string>
     <string name="your_address">آدرس شما</string>
     <string name="your_balance">موجودی شما</string>
-	<string name="theme_adaptive">تطبیقی</string>
 </resources>

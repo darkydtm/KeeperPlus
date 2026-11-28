@@ -1649,6 +1649,7 @@
     <string name="testnet_wallet">Cuenta de TON Testnet</string>
     <string name="testnet_wallet_subtitle">Importar billetera con 24 o 12 palabras de recuperación secretas a Testnet</string>
     <string name="theme">Tema</string>
+	<string name="theme_adaptive">Adaptable</string>
     <string name="theme_dark">Oscuro</string>
     <string name="theme_deep_blue">Azul profundo</string>
     <string name="theme_light">Claro</string>
@@ -1813,5 +1814,4 @@
     <string name="yesterday">Ayer</string>
     <string name="your_address">Tu dirección</string>
     <string name="your_balance">Tu saldo</string>
-	<string name="theme_adaptive">Adaptable</string>
 </resources>

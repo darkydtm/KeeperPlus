@@ -1704,6 +1704,7 @@
     <string name="testnet_wallet_subtitle">استورد محفظة بـ 24 أو 12 كلمة استرداد سرّية إلى Testnet</string>
     <string name="tetra_subtitle">الاتصال بشبكة Tetra L2</string>
     <string name="theme">السمة</string>
+	<string name="theme_adaptive">متكيف</string>
     <string name="theme_dark">داكن</string>
     <string name="theme_deep_blue">أزرق داكن</string>
     <string name="theme_light">فاتح</string>
@@ -1872,5 +1873,4 @@
     <string name="yesterday">أمس</string>
     <string name="your_address">عنوانك</string>
     <string name="your_balance">رصيدك</string>
-	<string name="theme_adaptive">متكيف</string>
 </resources>

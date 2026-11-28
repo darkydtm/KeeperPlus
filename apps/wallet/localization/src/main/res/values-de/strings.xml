@@ -1648,6 +1648,7 @@
     <string name="testnet_wallet">TON-Testnet-Konto</string>
     <string name="testnet_wallet_subtitle">Wallet mit 24 oder 12 geheimen Wiederherstellungswörtern ins Testnet importieren</string>
     <string name="theme">Design</string>
+	<string name="theme_adaptive">Adaptiv</string>
     <string name="theme_dark">Dunkel</string>
     <string name="theme_deep_blue">Tiefblau</string>
     <string name="theme_light">Hell</string>
@@ -1808,5 +1809,4 @@
     <string name="yesterday">Gestern</string>
     <string name="your_address">Ihre Adresse</string>
     <string name="your_balance">Ihr Guthaben</string>
-	<string name="theme_adaptive">Adaptiv</string>
 </resources>

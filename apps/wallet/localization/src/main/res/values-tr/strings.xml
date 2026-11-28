@@ -1647,6 +1647,7 @@
     <string name="testnet_wallet">TON Testnet Hesabı</string>
     <string name="testnet_wallet_subtitle">24 veya 12 gizli kurtarma sözcüğü içeren cüzdanı Testnet\'e aktarın</string>
     <string name="theme">Tema</string>
+	<string name="theme_adaptive">Uyarlanabilir</string>
     <string name="theme_dark">Koyu</string>
     <string name="theme_deep_blue">Derin Mavi</string>
     <string name="theme_light">Açık</string>
@@ -1811,5 +1812,4 @@
     <string name="yesterday">Dün</string>
     <string name="your_address">Adresiniz</string>
     <string name="your_balance">Bakiyeniz</string>
-	<string name="theme_adaptive">Uyarlanabilir</string>
 </resources>

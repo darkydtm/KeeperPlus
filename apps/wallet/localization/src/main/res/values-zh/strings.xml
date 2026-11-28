@@ -1634,6 +1634,7 @@
     <string name="testnet_wallet">TON 测试网账户</string>
     <string name="testnet_wallet_subtitle">将带有 24 或 12 个秘密恢复词的钱包导入测试网</string>
     <string name="theme">主题</string>
+	<string name="theme_adaptive">自适应</string>
     <string name="theme_dark">深色</string>
     <string name="theme_deep_blue">深蓝</string>
     <string name="theme_light">浅色</string>
@@ -1798,5 +1799,4 @@
     <string name="yesterday">昨天</string>
     <string name="your_address">您的地址</string>
     <string name="your_balance">您的余额</string>
-	<string name="theme_adaptive">自适应</string>
 </resources>
