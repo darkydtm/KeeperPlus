@@ -102,10 +102,7 @@ jobs:
           apksigner="$ANDROID_HOME/build-tools/$build_tools/apksigner"
           aapt="$ANDROID_HOME/build-tools/$build_tools/aapt"
           "$apksigner" verify --verbose --print-certs "${apks[0]}" > "$RUNNER_TEMP/apk-signature.txt"
-          fingerprint=$(grep '^Signer #1 certificate SHA-256 digest: ' "$RUNNER_TEMP/apk-signature.txt" | cut -d ' ' -f 6 | tr -d ':' | tr '[:lower:]' '[:upper:]')
-          expected=$(printf '%s' "$CERT_SHA256" | tr -d ':' | tr '[:lower:]' '[:upper:]')
-          [[ "$expected" =~ ^[0-9A-F]{64}$ && "$fingerprint" == "$expected" ]]
-          [[ $(grep -c '^Signer #[0-9]* certificate SHA-256 digest:' "$RUNNER_TEMP/apk-signature.txt") -eq 1 ]]
+          python3 -B tools/ci/verify_apk_certificate.py CERT_SHA256 --single-signer < "$RUNNER_TEMP/apk-signature.txt"
           package_info=$("$aapt" dump badging "${apks[0]}" | grep '^package: ')
           [[ "$package_info" == "package: name='com.ton_keeper' versionCode='$VERSION_CODE' versionName='$VERSION_NAME'"* ]]
           mapping=apps/wallet/instance/main/build/outputs/mapping/siteRelease/mapping.txt
