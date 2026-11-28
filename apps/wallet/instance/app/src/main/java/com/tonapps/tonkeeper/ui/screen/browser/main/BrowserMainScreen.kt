@@ -205,23 +205,23 @@ class BrowserMainScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
             collectFlow(baseVM.pendingChainFlow.filterNotNull()) { network ->
                 viewModel.applyChainFromDeepLink(network) { applied ->
                     baseVM.consumePendingChain()
-                    if (applied && getView() != null) {
+                    if (applied && getView() != null && exploreTabView.isVisible) {
                         clickTab(exploreTabView)
                     }
                 }
             }
         }
 
-        exploreTabView.isVisible = !viewModel.isDappsDisabled
-
-        clickTab(
-            if (viewModel.isDappsDisabled) {
-                connectedTabView
-            } else {
-                exploreTabView
-            },
-            animated = false,
-        )
+		val showExplore = viewModel.recommendationsEnabled && !viewModel.isDappsDisabled
+		exploreTabView.isVisible = showExplore
+		clickTab(if (showExplore) exploreTabView else connectedTabView, animated = false)
+		collectFlow(viewModel.recommendationsEnabledFlow) { enabled ->
+			val visible = enabled && !viewModel.isDappsDisabled
+			exploreTabView.isVisible = visible
+			if (!visible) {
+				clickTab(connectedTabView, animated = false)
+			}
+		}
     }
 
     private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
@@ -291,7 +291,7 @@ class BrowserMainScreen(wallet: WalletEntity): WalletContextScreen(R.layout.frag
 
     private fun clickTab(
         view: AppCompatTextView,
-        animated: Boolean = true,
+        animated: Boolean = false,
     ) {
         val isActive = view.background != null
         if (isActive) {
