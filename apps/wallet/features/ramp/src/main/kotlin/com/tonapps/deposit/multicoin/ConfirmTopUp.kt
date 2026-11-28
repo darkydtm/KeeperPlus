@@ -36,7 +36,7 @@ suspend fun confirmTopUpScreen(
         DepositMulticoinFragment.create(
             walletId = request.data.walletId,
             rampType = RampType.RampOn,
-            initial = DepositMulticoinRoutes.Buy(assetId),
+            initial = DepositMulticoinRoutes.TopUp(assetId),
             analyticsFrom = request.topUpFrom(),
         )
     }

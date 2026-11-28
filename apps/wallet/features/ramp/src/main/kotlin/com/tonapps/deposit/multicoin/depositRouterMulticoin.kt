@@ -84,6 +84,9 @@ sealed interface DepositMulticoinRoutes : NavKey {
         val preferredCurrency: String? = null,
     ) : DepositMulticoinRoutes
 
+	@Serializable
+	data class TopUp(val assetId: String) : DepositMulticoinRoutes
+
     @Serializable
     data class Buy(
         val assetId: String,
@@ -140,7 +143,7 @@ fun DepositMulticoinRouter(
 	val settings = koinInject<SettingsRepository>()
 	val fiatEnabled by settings.fiatEnabledFlow.collectAsState()
 	val buyCrypto = fiatEnabled && buyCryptoEnabled(rampType, WalletFeature.MoonPayRamp.isEnabled)
-    val backStack = rememberNestedNavBackStack(startRoute(initial, buyCrypto), onBack)
+    val backStack = rememberNestedNavBackStack(startRoute(initial, buyCrypto, fiatEnabled), onBack)
     val buyCryptoStores = rememberViewModelStoreProvider(key = KEY_BUY_CRYPTO_STORES)
     val entryDecorators = listOf(
         rememberSaveableStateHolderNavEntryDecorator(),

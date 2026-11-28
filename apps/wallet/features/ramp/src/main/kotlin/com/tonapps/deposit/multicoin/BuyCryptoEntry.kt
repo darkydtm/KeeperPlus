@@ -7,10 +7,15 @@ internal fun buyCryptoEnabled(rampType: RampType, flagEnabled: Boolean): Boolean
     return rampType == RampType.RampOn && flagEnabled
 }
 
-internal fun startRoute(initial: DepositMulticoinRoutes?, buyCrypto: Boolean): DepositMulticoinRoutes {
-    return when {
-        initial is DepositMulticoinRoutes.Buy && buyCrypto -> DepositMulticoinRoutes.BuyCrypto(initial.assetId, initial.preferredCurrency)
-        initial == null && buyCrypto -> DepositMulticoinRoutes.BuyCrypto()
-        else -> initial ?: DepositMulticoinRoutes.Ramp
-    }
+internal fun startRoute(initial: DepositMulticoinRoutes?, buyCrypto: Boolean, fiatEnabled: Boolean = true): DepositMulticoinRoutes {
+	val route = if (initial is DepositMulticoinRoutes.TopUp) {
+		if (fiatEnabled) DepositMulticoinRoutes.Buy(initial.assetId) else DepositMulticoinRoutes.Receive
+	} else {
+		initial
+	}
+	return when {
+		route is DepositMulticoinRoutes.Buy && buyCrypto -> DepositMulticoinRoutes.BuyCrypto(route.assetId, route.preferredCurrency)
+		route == null && buyCrypto -> DepositMulticoinRoutes.BuyCrypto()
+		else -> route ?: DepositMulticoinRoutes.Ramp
+	}
 }
