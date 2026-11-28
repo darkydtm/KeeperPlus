@@ -31,7 +31,7 @@ internal fun AssetsHeader(
 ) {
     MoonBundleTitleCell(
         modifier = modifier,
-        title = stringResource(RStr.crypto),
+        title = stringResource(RStr.tokens),
         onClick = onClick,
         content = {
             SettingsButton(onManageClick)
