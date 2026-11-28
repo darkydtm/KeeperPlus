@@ -72,7 +72,6 @@ def main():
 		verify_metadata("release/metadata.txt", {
 			"commit": env["GITHUB_SHA"],
 			"version_name": env["VERSION_NAME"],
-			"version_code": env["VERSION_CODE"],
 			"run_id": env["GITHUB_RUN_ID"],
 			"run_attempt": env["BUILD_ATTEMPT"],
 		})
