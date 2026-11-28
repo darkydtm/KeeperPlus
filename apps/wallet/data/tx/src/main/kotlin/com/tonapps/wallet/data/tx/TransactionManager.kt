@@ -367,18 +367,22 @@ class TransactionManager(
         confirmationTime: Double,
         headers: Map<String, String>,
         viaBattery: Boolean = withBattery,
+		requireBatteryAuth: Boolean = withBattery,
     ) {
-        val auth = if (withBattery || viaBattery) {
+		if (withBattery && !settingsRepository.isBatteryFeeEnabled) {
+			throw SendBlockchainException.SendBlockchainUnknownException
+		}
+        val auth = if (withBattery || viaBattery || requireBatteryAuth) {
             authorizationProvider.getAuthBy(wallet.id)
         } else {
             Authorization.Empty
         }
 
-        if (withBattery && auth.isEmpty) {
+        if ((withBattery || requireBatteryAuth) && auth.isEmpty) {
             throw SendBlockchainException.SendBlockchainUnknownException
         }
 
-        if (auth.isEmpty) {
+        if (auth.isEmpty || (!withBattery && !viaBattery)) {
             api.sendToBlockchain(boc, wallet.network, source, confirmationTime, headers)
         } else {
             sendWithBattery(wallet, boc, source, confirmationTime, auth, headers)
@@ -393,6 +397,7 @@ class TransactionManager(
         source: String,
         confirmationTime: Double,
         viaBattery: Boolean = withBattery,
+		requireBatteryAuth: Boolean = withBattery,
     ) = send(
         wallet = wallet,
         boc = boc,
@@ -401,6 +406,7 @@ class TransactionManager(
         confirmationTime = confirmationTime,
         headers = emptyMap(),
         viaBattery = viaBattery,
+		requireBatteryAuth = requireBatteryAuth,
     )
 
     suspend fun send(
@@ -410,6 +416,7 @@ class TransactionManager(
         source: String,
         confirmationTime: Double,
         viaBattery: Boolean = withBattery,
+		requireBatteryAuth: Boolean = withBattery,
     ) = send(
         wallet = wallet,
         boc = boc.base64(),
@@ -417,5 +424,6 @@ class TransactionManager(
         source = source,
         confirmationTime = confirmationTime,
         viaBattery = viaBattery,
+		requireBatteryAuth = requireBatteryAuth,
     )
 }

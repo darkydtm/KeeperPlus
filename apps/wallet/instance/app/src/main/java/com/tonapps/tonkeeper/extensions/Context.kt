@@ -252,6 +252,27 @@ fun Context.debugToast(text: String) {
     }
 }
 
+fun Context.openLanguageSettings() {
+	val packageUri = Uri.fromParts("package", packageName, null)
+	val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+	val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+		Intent(Settings.ACTION_APP_LOCALE_SETTINGS, packageUri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+	} else {
+		fallback
+	}
+	try {
+		startActivity(intent)
+	} catch (_: android.content.ActivityNotFoundException) {
+		if (intent !== fallback) {
+			try {
+				startActivity(fallback)
+			} catch (_: android.content.ActivityNotFoundException) {
+				return
+			}
+		}
+	}
+}
+
 fun Context.openAppSettings() {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
     intent.setData(Uri.fromParts("package", packageName, null))

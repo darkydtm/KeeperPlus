@@ -972,6 +972,7 @@ class RootActivity : BaseWalletActivity(),
 
     override fun onResume() {
         super.onResume()
+		viewModel.refreshPushLocale()
         viewModel.connectTonConnectBridge()
         if (pushSettingsOpened) {
             pushSettingsOpened = false

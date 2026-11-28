@@ -38,31 +38,34 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 		super.onViewCreated(view, savedInstanceState)
 		setTitle(getString(R.string.settings_promotions))
 		setAdapter(object : RecyclerView.Adapter<SwitchHolder>() {
-			override fun getItemCount() = 3
+			override fun getItemCount() = 4
 			override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SwitchHolder(ItemSwitchView(parent.context))
 			override fun onBindViewHolder(holder: SwitchHolder, position: Int) {
 				val item = holder.item
 				item.position = when (position) {
 					0 -> ListCell.Position.FIRST
-					1 -> ListCell.Position.MIDDLE
+					1, 2 -> ListCell.Position.MIDDLE
 					else -> ListCell.Position.LAST
 				}
 				item.text = getString(when (position) {
 					0 -> R.string.settings_promotions_only
 					1 -> R.string.settings_rewards
-					else -> R.string.settings_recommendations
+					2 -> R.string.settings_recommendations
+					else -> R.string.settings_battery_fees
 				})
 				item.doOnCheckedChanged = null
 				item.setChecked(when (position) {
 					0 -> settings.promotionsEnabled
 					1 -> settings.rewardsEnabled
-					else -> settings.recommendationsEnabled
+					2 -> settings.recommendationsEnabled
+					else -> settings.isBatteryFeeEnabled
 				}, false)
 				item.doOnCheckedChanged = { checked, byUser ->
 					if (byUser) when (position) {
 						0 -> settings.promotionsEnabled = checked
 						1 -> settings.rewardsEnabled = checked
-						else -> settings.recommendationsEnabled = checked
+						2 -> settings.recommendationsEnabled = checked
+						else -> settings.isBatteryFeeEnabled = checked
 					}
 				}
 			}
@@ -72,6 +75,7 @@ class PromotionsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.
 
 private class SwitchHolder(val item: ItemSwitchView) : RecyclerView.ViewHolder(item) {
 	init {
+		item.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 		item.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
 		for (index in 0 until item.childCount) {
 			item.getChildAt(index).importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -101,6 +105,7 @@ class HapticsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.Non
 			override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 				if (viewType == 0) return SwitchHolder(ItemSwitchView(parent.context))
 				val layout = LinearLayout(parent.context).apply {
+					layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 					orientation = LinearLayout.VERTICAL
 					setPadding(16.dp, 16.dp, 16.dp, 16.dp)
 					background = ListCell.Position.LAST.drawable(context)
@@ -144,7 +149,6 @@ class HapticsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.Non
 					val supportsStrength = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
 						vibrator != null && vibrator.hasVibrator() && vibrator.hasAmplitudeControl()
 					slider.isEnabled = supportsStrength && ClickHaptics.getEnabled(requireContext())
-					slider.visibility = if (supportsStrength) View.VISIBLE else View.GONE
 					holder.explanation.visibility = if (supportsStrength) View.GONE else View.VISIBLE
 					slider.contentDescription = getString(R.string.settings_click_haptics_strength)
 					fun updateLevel(progress: Int) {

@@ -653,7 +653,7 @@ class SendViewModel(
     ) {
         val batteryBalance = getBatteryBalance()
         // The battery pays an NFT or a token transfer, never a TON one.
-        val batteryEnabled = !isBatteryDisabled && wallet.supportsBattery && (nftAddress.isNotBlank() || !type.isTON())
+        val batteryEnabled = settingsRepository.isBatteryFeeEnabled && !isBatteryDisabled && wallet.supportsBattery && (nftAddress.isNotBlank() || !type.isTON())
 
         var withRechargeBattery = batteryEnabled && batteryBalance.balance.value == BigDecimal.ZERO
         if (withRechargeBattery && type.isEmptyBalance()) {
@@ -813,8 +813,9 @@ class SendViewModel(
             val batteryFeeDeferred = async { getTronBatteryFee(transfer, resources) }
             val trxFeeDeferred = async { getTronTrxFee(resources) }
 
-            batteryFee = batteryFeeDeferred.await()
-            tronTonFee = getTronTonFee(batteryFee?.estimatedTron)
+			val batteryEstimate = batteryFeeDeferred.await()
+			tronTonFee = getTronTonFee(batteryEstimate?.estimatedTron)
+			batteryFee = batteryEstimate.takeIf { settingsRepository.isBatteryFeeEnabled }
             tronTrxFee = trxFeeDeferred.await()
         }
 
@@ -1025,7 +1026,7 @@ class SendViewModel(
             }
         }
         val batteryDeferred = async {
-            if (withRelayer && !auth.isEmpty && excessesAddress != null) {
+            if (settingsRepository.isBatteryFeeEnabled && withRelayer && !auth.isEmpty && excessesAddress != null) {
                 calculateFeeBattery(transfer, excessesAddress)
             } else {
                 null
@@ -1398,6 +1399,7 @@ class SendViewModel(
         _uiEventFlow.tryEmit(SendEvent.Loading)
 
         if (fee is SendFee.Battery) {
+			check(settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
             val batteryCharges = getBatteryCharges()
             val batteryConfig = batteryRepository.getConfig(wallet.network)
             val txCharges = BatteryMapper.calculateChargesAmount(
@@ -1492,7 +1494,7 @@ class SendViewModel(
         _uiEventFlow.tryEmit(SendEvent.Loading)
         Triple(boc, transfer.wallet, internalMessage)
 
-        send(boc, wallet, internalMessage)
+        send(boc, wallet, fee is SendFee.Battery, internalMessage)
     }
 
     private fun sendRedMetadata(): String? {
@@ -1574,6 +1576,7 @@ class SendViewModel(
 
         when (fee) {
             is SendFee.Battery -> {
+				check(settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
                 api.tron.sendWithBattery(
                     transaction = signedTransaction,
                     resources = resources,
@@ -1626,6 +1629,7 @@ class SendViewModel(
         message: Cell,
         wallet: WalletEntity,
         withBattery: Boolean,
+		viaBattery: Boolean,
     ) {
         transactionManager.send(
             wallet = wallet,
@@ -1633,6 +1637,8 @@ class SendViewModel(
             withBattery = withBattery,
             source = "",
             confirmationTime = 0.0,
+			viaBattery = viaBattery,
+			requireBatteryAuth = viaBattery,
         )
     }
 

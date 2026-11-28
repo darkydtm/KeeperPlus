@@ -59,7 +59,6 @@ import com.tonapps.extensions.MutableEffectFlow
 import com.tonapps.extensions.bestMessage
 import com.tonapps.extensions.currentTimeSeconds
 import com.tonapps.extensions.getStringValue
-import com.tonapps.extensions.setLocales
 import com.tonapps.extensions.toUriOrNull
 import com.tonapps.icu.Coins
 import com.tonapps.ledger.ton.LedgerConnectData
@@ -78,6 +77,7 @@ import com.tonapps.tonkeeper.core.history.ActionOptions
 import com.tonapps.tonkeeper.core.history.HistoryHelper
 import com.tonapps.tonkeeper.core.history.list.item.HistoryItem
 import com.tonapps.tonkeeper.extensions.getAppFixIcon
+import com.tonapps.tonkeeper.extensions.openLanguageSettings
 import com.tonapps.tonkeeper.extensions.hasRefer
 import com.tonapps.tonkeeper.extensions.hasUtmSource
 import com.tonapps.tonkeeper.extensions.safeExternalOpenUri
@@ -121,7 +121,6 @@ import com.tonapps.tonkeeper.ui.screen.send.main.SendScreen
 import com.tonapps.tonkeeper.ui.screen.send.transaction.SendTransactionScreen
 import com.tonapps.tonkeeper.ui.screen.settings.currency.CurrencyScreen
 import com.tonapps.tonkeeper.ui.screen.settings.extensions.ExtensionsScreen
-import com.tonapps.tonkeeper.ui.screen.settings.language.LanguageScreen
 import com.tonapps.tonkeeper.ui.screen.settings.main.SettingsScreen
 import com.tonapps.tonkeeper.ui.screen.settings.security.SecurityScreen
 import com.tonapps.tonkeeper.ui.screen.sign.SignDataScreen
@@ -269,6 +268,16 @@ class RootViewModel(
     private var walletAwaitingLinkJob: Job? = null
     private var latestExternalLink = 0
 
+	private var lastPushLocale: String? = null
+
+	fun refreshPushLocale() {
+		val locale = settingsRepository.getPushLocale().toLanguageTag()
+		if (lastPushLocale != locale) {
+			lastPushLocale = locale
+			viewModelScope.launch { pushManager.reconcile() }
+		}
+	}
+
     val installId: String
         get() = settingsRepository.installId
 
@@ -316,11 +325,6 @@ class RootViewModel(
 
         mcAccountRepository?.walletsBoundTrigger?.collectFlow {
             pushManager.syncMultichainPush()
-        }
-
-        settingsRepository.languageFlow.collectFlow {
-            context.setLocales(settingsRepository.localeList)
-            App.instance.updateThemes()
         }
 
         settingsRepository.languageFlow.collectFlow {
@@ -1404,7 +1408,7 @@ class RootViewModel(
         } else if (route is DeepLinkRoute.SettingsCurrency) {
             openScreen(CurrencyScreen.newInstance())
         } else if (route is DeepLinkRoute.SettingsLanguage) {
-            openScreen(LanguageScreen.newInstance())
+            context.openLanguageSettings()
         } else if (route is DeepLinkRoute.SettingsExtensions) {
             openScreen(ExtensionsScreen.newInstance(wallet))
         } else if (route is DeepLinkRoute.SettingsNotifications) {

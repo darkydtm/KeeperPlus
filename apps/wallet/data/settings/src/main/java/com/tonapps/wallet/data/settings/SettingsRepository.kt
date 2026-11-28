@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.icu.util.Currency
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.ton.TonNetwork
@@ -113,6 +114,10 @@ class SettingsRepository(
             prefs.putString(INSTALL_ID_KEY, id)
             id
         }
+
+	var isBatteryFeeEnabled: Boolean
+		get() = prefs.getBoolean("battery_fee_enabled", true)
+		set(value) = prefs.putBoolean("battery_fee_enabled", value)
 
 	private val legacyPromotionsEnabled = prefs.getBoolean("promotions_enabled", true)
 	private val _rewardsEnabledFlow = MutableStateFlow(prefs.getBoolean("rewards_enabled", legacyPromotionsEnabled))
@@ -583,19 +588,9 @@ class SettingsRepository(
         return state == SafeModeState.Enabled
     }
 
-    fun getLocale(): Locale {
-        if (language.code == Language.DEFAULT) {
-            return context.locale
-        }
-        return language.locale
-    }
+	fun getLocale(): Locale = AppCompatDelegate.getApplicationLocales().get(0) ?: context.locale
 
-    fun getPushLocale(): Locale {
-        if (language.code == Language.DEFAULT) {
-            return getSystemLocale()
-        }
-        return language.locale
-    }
+	fun getPushLocale(): Locale = getLocale()
 
     fun getSystemLocale(): Locale = context.systemLocale
 

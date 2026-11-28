@@ -5,6 +5,7 @@ plugins {
 dependencies {
 	testImplementation(libs.junit)
 	testImplementation(libs.mockk)
+	implementation(libs.androidx.appcompat)
     implementation(libs.koin.core)
 
     implementation(projects.lib.extensions)

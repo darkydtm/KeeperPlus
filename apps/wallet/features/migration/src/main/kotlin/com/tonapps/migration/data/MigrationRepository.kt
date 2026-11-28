@@ -307,7 +307,11 @@ class MigrationRepository(
             prepareTonMigration(from, to, publicKey, MigrationPrepareRequest.GasPayer.self)
         }
         val batteryDeferred = async {
-            prepareTonMigration(from, to, publicKey, MigrationPrepareRequest.GasPayer.battery)
+            if (!settingsRepository.isBatteryFeeEnabled) {
+                null
+            } else {
+                prepareTonMigration(from, to, publicKey, MigrationPrepareRequest.GasPayer.battery)
+            }
         }
 
         val selfCandidate = selfDeferred.await()?.let { prepared ->
@@ -685,6 +689,7 @@ class MigrationRepository(
                 if (auth.isEmpty) {
                     throw IllegalStateException("Authorization is empty")
                 }
+				check(settingsRepository.isBatteryFeeEnabled) { "Battery fee payment is disabled" }
                 api.tron.sendWithBattery(
                     transaction = signed,
                     resources = resources,
@@ -890,7 +895,11 @@ class MigrationRepository(
         chargesBalance: Int,
     ): TronFeeSelection = coroutineScope {
         val batteryDeferred = async {
-            estimateBatteryFee(source, transfer, resources, rates, chargesBalance)
+            if (!settingsRepository.isBatteryFeeEnabled) {
+                null
+            } else {
+                estimateBatteryFee(source, transfer, resources, rates, chargesBalance)
+            }
         }
         val trxDeferred = async { estimateTrxFee(resources, trxBalance, rates) }
         buildTronFeeSelection(

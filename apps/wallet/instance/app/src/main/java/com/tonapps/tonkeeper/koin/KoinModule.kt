@@ -144,7 +144,19 @@ val koinModel = module {
     singleOf(::SignTransaction)
     single<EncryptedCommentDecryptor> { McEncryptedCommentDecryptor(get(), get(), get(), get(), get()) }
     singleOf(::TxFeeBuilder)
-    singleOf(::GaslessSender)
+	single {
+		GaslessSender(
+			api = get(),
+			authorizationProvider = get(),
+			batteryRepository = get(),
+			pendingTransactionReporter = get(),
+			provider = get(),
+			gaslessRelayer = get(),
+			timeProvider = get(),
+			ledgerSigner = get(),
+			settingsRepository = get(),
+		)
+	}
     singleOf(::GaslessRelayer)
     single { BatteryPurchaser(get(), get(), get(), get()) }
     single { BatteryTonRecharge(get(), get(), get(), get(), get()) }

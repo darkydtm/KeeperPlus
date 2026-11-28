@@ -73,6 +73,7 @@ class GaslessSenderTonTest : BaseUnitTest() {
         gaslessRelayer = gaslessRelayer,
         timeProvider = FakeTimeProvider(),
         ledgerSigner = mockk(),
+		settingsRepository = mockk { every { isBatteryFeeEnabled } returns true },
     )
 
     private val chain = Chain.Ton.Mainnet

@@ -1,6 +1,7 @@
 package com.tonapps.tonkeeper.ui.screen.settings.main
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.viewModelScope
 import com.tonapps.blockchain.model.legacy.WalletCurrency
 import com.tonapps.blockchain.model.legacy.WalletEntity
@@ -108,6 +109,15 @@ class SettingsViewModel(
         )
     }
 
+	private val languageRefreshFlow = MutableStateFlow(languageState())
+
+	private fun languageState(): String =
+		"${settingsRepository.getLocale().toLanguageTag()}:${AppCompatDelegate.getApplicationLocales().toLanguageTags()}"
+
+	fun refreshLanguage() {
+		languageRefreshFlow.value = languageState()
+	}
+
     private val _uiItemsFlow = MutableStateFlow<List<Item>>(emptyList())
     val uiItemsFlow = _uiItemsFlow.asStateFlow().filter { it.isNotEmpty() }
 
@@ -116,7 +126,8 @@ class SettingsViewModel(
             walletFlow.filterNotNull(),
             settingsDataFlow,
             settingsRepository.walletPrefsChangedFlow,
-        ) { wallet, settings, _ ->
+			languageRefreshFlow,
+        ) { wallet, settings, _, _ ->
             val kind = withContext(Dispatchers.IO) {
                 refreshKind(wallet)
             }
@@ -461,7 +472,7 @@ class SettingsViewModel(
 
         uiItems.add(
             Item.Language(
-                language.nameLocalized.ifEmpty {
+                AppCompatDelegate.getApplicationLocales().get(0)?.let { Language(it.toLanguageTag()).nameLocalized }.orEmpty().ifEmpty {
                     getString(Localization.system)
                 }.capitalized,
                 ListCell.Position.MIDDLE
@@ -563,7 +574,7 @@ class SettingsViewModel(
         uiItems.add(Item.SearchEngine(searchEngine, ListCell.Position.MIDDLE))
         uiItems.add(
             Item.Language(
-                language.nameLocalized.ifEmpty {
+                AppCompatDelegate.getApplicationLocales().get(0)?.let { Language(it.toLanguageTag()).nameLocalized }.orEmpty().ifEmpty {
                     getString(Localization.system)
                 }.capitalized,
                 ListCell.Position.LAST,

@@ -55,7 +55,7 @@ class TxFeeBuilderTonTest : BaseUnitTest() {
     private val batteryRepository = mockk<BatteryRepository>()
     private val unifiedAccountRepository = mockk<UnifiedAccountRepository>()
     private val accountRepo = mockk<McAccountRepository>()
-    private val settings = mockk<SettingsRepository>()
+    private val settings = mockk<SettingsRepository> { every { isBatteryFeeEnabled } returns true }
     private val tokenRepository = mockk<TokenRepository>()
     private val wallet = mockk<WalletEntity>()
     private val sender = mockk<GaslessSender>(relaxed = true)
@@ -122,6 +122,20 @@ class TxFeeBuilderTonTest : BaseUnitTest() {
         every { settings.getPreferredFeeMethod(any()) } returns PreferredFeeMethod.UNSPECIFIED
         every { settings.isSafeModeEnabled(any(), any()) } returns false
     }
+
+	@Test
+	fun disabledBatteryIsNotOfferedForJettonTransfers() = runTest {
+		every { settings.isBatteryFeeEnabled } returns false
+		charges = 1000
+		allowed = true
+
+		val state = buildJetton()
+
+		assertTrue(state.options.none { it.isBattery })
+		assertNull(state.shortBattery)
+		assertFalse(state.batteryRechargeable)
+		coVerify(exactly = 0) { batteryRepository.emulate(wallet, any(), forceRelayer = true, safeModeEnabled = false) }
+	}
 
     // region TON jetton transfer
 

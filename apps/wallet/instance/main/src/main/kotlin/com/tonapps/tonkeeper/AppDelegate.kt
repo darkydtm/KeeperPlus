@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.compose.foundation.ComposeFoundationFlags
@@ -34,7 +35,6 @@ import com.tonapps.extensions.AppContext
 import com.tonapps.extensions.cacheFolder
 import com.tonapps.extensions.cacheSharedFolder
 import com.tonapps.extensions.pubKey
-import com.tonapps.extensions.setLocales
 import com.tonapps.log.L
 import com.tonapps.log.LoggerConfig
 import com.tonapps.migration.migrationModule
@@ -89,7 +89,9 @@ import com.tonapps.wallet.features.events.eventsFeatureModule
 import com.tonapps.wallet.features.ledger.ledgerFeatureModule
 import com.tonapps.wc.WcInitializer
 import com.tonapps.wc.models.WcWalletConfig
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.factory.KoinWorkerFactory
@@ -196,10 +198,20 @@ class AppDelegate : App(), CameraXConfig.Provider, KoinComponent, SingletonImage
         val api = koin.get<API>()
         WalletFeature.Perps.isAllowedByConfig = { api.getConfig(TonNetwork.MAINNET).perpsAccess != PerpsAccess.Hidden }
 
-        // The same list the platform gets, so the formatter never resolves a different locale.
-        val localeList = koin.get<SettingsRepository>().localeList
-        setFormatterLocale(localeList.get(0) ?: resources.configuration.locales[0])
-        setLocales(localeList)
+		val settings = koin.get<SettingsRepository>()
+		Async.ioScope().launch(Dispatchers.Main) {
+			settings.isMigratedFlow.first { it }
+			val prefs = settings.prefs
+			if (!prefs.getBoolean("system_locale_migrated", false)) {
+				val currentLocales = AppCompatDelegate.getApplicationLocales()
+				val legacyLocales = settings.localeList
+				if (currentLocales.isEmpty && !legacyLocales.isEmpty) {
+					AppCompatDelegate.setApplicationLocales(legacyLocales)
+				}
+				prefs.edit().putBoolean("system_locale_migrated", true).apply()
+			}
+			setFormatterLocale(settings.getLocale())
+		}
     }
 
     private fun initWc() {

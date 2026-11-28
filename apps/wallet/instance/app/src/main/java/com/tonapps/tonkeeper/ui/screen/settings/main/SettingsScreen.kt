@@ -2,8 +2,9 @@ package com.tonapps.tonkeeper.ui.screen.settings.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.core.net.toUri
+import android.view.View
+import com.tonapps.tonkeeper.extensions.openLanguageSettings
 import com.tonapps.blockchain.model.legacy.WalletEntity
 import com.tonapps.blockchain.model.legacy.Wallet as TonWallet
 import com.tonapps.blockchain.model.legacy.WalletType
@@ -22,7 +23,6 @@ import com.tonapps.tonkeeper.ui.base.BaseListWalletScreen
 import com.tonapps.tonkeeper.ui.base.ScreenContext
 import com.tonapps.tonkeeper.ui.screen.backup.main.BackupScreen
 import com.tonapps.tonkeeper.ui.screen.settings.currency.CurrencyScreen
-import com.tonapps.tonkeeper.ui.screen.settings.language.LanguageScreen
 import com.tonapps.tonkeeper.ui.screen.name.edit.EditNameScreen
 import com.tonapps.tonkeeper.ui.screen.notifications.NotificationsManageScreen
 import com.tonapps.tonkeeper.ui.screen.settings.apps.AppsScreen
@@ -59,6 +59,11 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
 
     private val adapter = Adapter(::onClickItem)
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshLanguage()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setTitle(getString(Localization.settings))
@@ -79,7 +84,7 @@ class SettingsScreen : BaseListWalletScreen<ScreenContext.None>(ScreenContext.No
             is Item.LedgerDevice -> navigation?.add(LedgerWalletFragment.newInstance(item.walletId, LedgerDeviceViewFrom.Settings))
             is Item.LedgerMigration -> navigation?.add(LedgerPairingFragment.newMigrationInstance(item.walletId, LedgerMigrationStartFrom.Settings))
             is Item.Currency -> navigation?.add(CurrencyScreen.newInstance())
-            is Item.Language -> navigation?.add(LanguageScreen.newInstance())
+            is Item.Language -> requireContext().openLanguageSettings()
             is Item.Account -> navigation?.add(EditNameScreen.newInstance())
             is Item.Theme -> navigation?.add(ThemeScreen.newInstance())
             is Item.Widget -> installWidget()

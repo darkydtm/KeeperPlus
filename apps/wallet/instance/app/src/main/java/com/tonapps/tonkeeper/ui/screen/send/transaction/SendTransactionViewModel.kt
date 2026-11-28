@@ -106,7 +106,7 @@ class SendTransactionViewModel(
                 return@launch
             }
             val tokens = getTokens()
-            val useBattery = BatteryHelper.isBatteryIsEnabledTx(
+            val useBattery = settingsRepository.isBatteryFeeEnabled && BatteryHelper.isBatteryIsEnabledTx(
                 wallet,
                 batteryTransactionType,
                 accountRepository,

@@ -217,5 +217,6 @@ dependencies {
     implementation(projects.ui.uikit.core)
 
     implementation(projects.apps.wallet.localization)
+	implementation(libs.androidx.appcompat)
     implementation(projects.apps.wallet.instance.app)
 }

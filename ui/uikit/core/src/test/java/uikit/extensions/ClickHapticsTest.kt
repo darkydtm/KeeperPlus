@@ -29,10 +29,6 @@ class ClickHapticsTest {
 		assertEquals(130, ClickHaptics.clickHapticAmplitude(2))
 		assertEquals(255, ClickHaptics.clickHapticAmplitude(3))
 		assertEquals(255, ClickHaptics.clickHapticAmplitude(99))
-		assertEquals(8L, ClickHaptics.clickHapticDuration(0))
-		assertEquals(8L, ClickHaptics.clickHapticDuration(1))
-		assertEquals(16L, ClickHaptics.clickHapticDuration(2))
-		assertEquals(24L, ClickHaptics.clickHapticDuration(3))
-		assertEquals(24L, ClickHaptics.clickHapticDuration(99))
+		assertEquals(20L, ClickHaptics.CLICK_HAPTIC_DURATION_MS)
 	}
 }

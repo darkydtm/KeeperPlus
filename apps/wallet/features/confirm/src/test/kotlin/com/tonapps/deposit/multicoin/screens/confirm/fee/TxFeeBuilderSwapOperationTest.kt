@@ -52,7 +52,7 @@ class TxFeeBuilderSwapOperationTest : BaseUnitTest() {
     private val batteryRepository = mockk<BatteryRepository>()
     private val unifiedAccountRepository = mockk<UnifiedAccountRepository>()
     private val accountRepo = mockk<McAccountRepository>()
-    private val settings = mockk<SettingsRepository>()
+    private val settings = mockk<SettingsRepository> { every { isBatteryFeeEnabled } returns true }
     private val gaslessRelayer = mockk<GaslessRelayer>()
     private val wallet = mockk<WalletEntity>()
 
